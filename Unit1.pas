@@ -65,13 +65,15 @@ type
     D1: TMenuItem;
     uninstall: TAction;
     FDTable1PAGE_ID: TIntegerField;
-    Refresh: TAction;
     FDMemTable1PAGE_ID: TIntegerField;
     FDMemTable1IMAGE: TBlobField;
     FDMemTable1TITLE_ID: TIntegerField;
     FDMemTable1SUBIMAGE: TBooleanField;
     StatusBar1: TStatusBar;
     FDQuery1: TFDQuery;
+    PaintBox1: TPaintBox;
+    RePaint: TAction;
+    ScrollBox1: TScrollBox;
     procedure OpenExecute(Sender: TObject);
     procedure Action3Execute(Sender: TObject);
     procedure ListBox1DblClick(Sender: TObject);
@@ -85,6 +87,8 @@ type
     procedure DeleteExecute(Sender: TObject);
     procedure uninstallExecute(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
+    procedure PaintBox1Paint(Sender: TObject);
+    procedure RePaintExecute(Sender: TObject);
   private
     { Private êÈåæ }
     double: TPageState;
@@ -269,6 +273,44 @@ begin
   TrackBar1Change(Sender);
 end;
 
+procedure TForm1.PaintBox1Paint(Sender: TObject);
+var
+  rect: TRect;
+  bmp: TBitmap;
+  pos: TPoint;
+  procedure makeRect(topleft: TPoint);
+  begin
+    rect.Left := topleft.X;
+    rect.Top := topleft.Y;
+    if FDTable1.FieldByName('subimage').AsBoolean then
+    begin
+      rect.Right := topleft.X+ 160;
+      rect.Bottom := topleft.Y+120;
+    end
+    else
+    begin
+      rect.Right := topleft.X+ 120;
+      rect.Bottom :=topleft.Y+ 160;
+    end;
+  end;
+
+begin
+  bmp := TBitmap.Create;
+  try
+    for var i := 0 to ListBox1.Items.Count - 1 do
+    begin
+      FDTable1.Locate('title;page_id', VarArrayOf([ListBox1.Items[i], 1]));
+      bmp.Assign(FDTable1.FieldByName('image'));
+      pos.X := 30 + i * 120;;
+      pos.Y := 30;
+      makeRect(pos);
+      PaintBox1.Canvas.StretchDraw(rect, bmp);
+    end;
+  finally
+    bmp.Free;
+  end;
+end;
+
 procedure TForm1.Panel3Resize(Sender: TObject);
 var
   img1, img2: TImage;
@@ -299,6 +341,11 @@ begin
     img1.Top := 0;
     img2.Top := 0;
   end;
+end;
+
+procedure TForm1.RePaintExecute(Sender: TObject);
+begin
+  PaintBox1Paint(Sender);
 end;
 
 function TForm1.checkSemi(num: integer): Boolean;

@@ -14,9 +14,9 @@ object Form1: TForm1
   OnDestroy = FormDestroy
   TextHeight = 15
   object Image1: TImage
-    Left = 185
+    Left = 616
     Top = 25
-    Width = 431
+    Width = 0
     Height = 325
     Align = alClient
     Center = True
@@ -51,18 +51,19 @@ object Form1: TForm1
   object Panel1: TPanel
     Left = 0
     Top = 25
-    Width = 185
+    Width = 616
     Height = 325
     Align = alLeft
     Caption = 'Panel1'
     TabOrder = 1
+    ExplicitWidth = 185
     ExplicitHeight = 324
     object ListBox1: TListBox
       Left = 1
       Top = 1
       Width = 183
       Height = 294
-      Align = alClient
+      Align = alLeft
       ItemHeight = 15
       PopupMenu = PopupMenu1
       TabOrder = 0
@@ -72,13 +73,14 @@ object Form1: TForm1
     object ToolBar1: TToolBar
       Left = 1
       Top = 295
-      Width = 183
+      Width = 614
       Height = 29
       Align = alBottom
       Caption = 'ToolBar1'
       TabOrder = 1
       Transparent = False
       ExplicitTop = 294
+      ExplicitWidth = 183
       object ToolButton1: TToolButton
         Left = 0
         Top = 0
@@ -98,6 +100,26 @@ object Form1: TForm1
         Caption = 'ToolButton3'
         ImageIndex = 0
         Style = tbsSeparator
+      end
+    end
+    object ScrollBox1: TScrollBox
+      Left = 184
+      Top = 1
+      Width = 431
+      Height = 294
+      Align = alClient
+      TabOrder = 2
+      object PaintBox1: TPaintBox
+        Left = 0
+        Top = 0
+        Width = 427
+        Height = 290
+        Align = alClient
+        OnPaint = PaintBox1Paint
+        ExplicitLeft = 22
+        ExplicitTop = 24
+        ExplicitWidth = 105
+        ExplicitHeight = 105
       end
     end
   end
@@ -124,9 +146,9 @@ object Form1: TForm1
     end
   end
   object Panel3: TPanel
-    Left = 185
+    Left = 616
     Top = 25
-    Width = 431
+    Width = 0
     Height = 325
     Align = alClient
     Caption = 'Panel3'
@@ -134,13 +156,14 @@ object Form1: TForm1
     ParentBackground = False
     TabOrder = 3
     OnResize = Panel3Resize
+    ExplicitLeft = 185
     ExplicitWidth = 427
     ExplicitHeight = 324
     DesignSize = (
-      431
+      0
       325)
     object Image2: TImage
-      Left = -11
+      Left = -108
       Top = -20
       Width = 216
       Height = 372
@@ -11046,7 +11069,7 @@ object Form1: TForm1
       ExplicitTop = -10
     end
     object Image3: TImage
-      Left = 207
+      Left = -109
       Top = -20
       Width = 218
       Height = 372
@@ -22151,6 +22174,9 @@ object Form1: TForm1
           item
             Items = <
               item
+                Action = RePaint
+              end
+              item
                 Action = Delete
               end>
             Caption = '&Data'
@@ -22207,9 +22233,10 @@ object Form1: TForm1
       Caption = 'uninstall'
       OnExecute = uninstallExecute
     end
-    object Refresh: TAction
-      Category = '&Edit'
-      Caption = '&Refresh'
+    object RePaint: TAction
+      Category = '&Data'
+      Caption = #26356#26032'(&P)'
+      OnExecute = RePaintExecute
     end
   end
   object FDQuery1: TFDQuery
