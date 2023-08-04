@@ -4,7 +4,7 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
-  System.Classes, Vcl.Graphics,
+  System.Classes, Vcl.Graphics, System.Generics.Collections,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, System.Actions, Vcl.ActnList,
   Vcl.PlatformDefaultStyleActnCtrls, Vcl.ActnMan, Vcl.ToolWin, Vcl.ActnCtrls,
   Vcl.ActnMenus, Vcl.OleServer, FireDAC.Stan.Intf,
@@ -21,6 +21,10 @@ uses
 
 type
   TPageState = (pgSingle, pgSemi, pgDouble);
+
+  TPageLayout = record
+    Left, Right: integer;
+  end;
 
   TForm1 = class(TForm)
     OpenDialog1: TOpenDialog;
@@ -67,6 +71,7 @@ type
     FDMemTable1TITLE_ID: TIntegerField;
     FDMemTable1SUBIMAGE: TBooleanField;
     StatusBar1: TStatusBar;
+    FDQuery1: TFDQuery;
     procedure OpenExecute(Sender: TObject);
     procedure Action3Execute(Sender: TObject);
     procedure ListBox1DblClick(Sender: TObject);
@@ -79,13 +84,16 @@ type
     procedure ToolButton7Click(Sender: TObject);
     procedure DeleteExecute(Sender: TObject);
     procedure uninstallExecute(Sender: TObject);
-    procedure RefreshExecute(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
   private
     { Private êÈåæ }
     double: TPageState;
     reverse: Boolean;
+    pageList: TList<TPageLayout>;
     procedure AddImagePage(Index: integer);
-    function countPictures(num: integer; var double: TPageState): integer;
+    procedure countPictures;
+    function returnPos(page: integer; var double: TPageState): integer;
+    function checkSemi(num: integer): Boolean;
   public
     { Public êÈåæ }
   end;
@@ -176,20 +184,29 @@ begin
 end;
 
 procedure TForm1.doubleScreenExecute(Sender: TObject);
+var
+  cnt: integer;
 begin
   if Panel1.Visible then
     Exit;
+  cnt := FDMemTable1.FieldByName('page_id').AsInteger;
   if not doubleScreen.Checked then
   begin
     double := pgSingle;
     TrackBar1.Max := FDMemTable1.RecordCount - 1;
+    TrackBar1.Position := cnt - 1;
   end
   else
   begin
-    TrackBar1.Max := countPictures(FDMemTable1.RecordCount, double);
-    FDMemTable1.First;
+    countPictures;
+    TrackBar1.Max := pageList.Count - 1;
+    cnt := returnPos(cnt, double);
+    if TrackBar1.Position = cnt then
+      TrackBar1Change(Sender)
+    else
+      TrackBar1.Position := cnt;
   end;
-  TrackBar1Change(Sender);
+  StatusBar1.Panels[1].Text := (TrackBar1.Max+1).ToString;
 end;
 
 procedure TForm1.DeleteExecute(Sender: TObject);
@@ -221,6 +238,12 @@ begin
     end;
   end;
   Panel3Resize(Sender);
+  pageList := TList<TPageLayout>.Create;
+end;
+
+procedure TForm1.FormDestroy(Sender: TObject);
+begin
+  pageList.Free;
 end;
 
 procedure TForm1.ListBox1DblClick(Sender: TObject);
@@ -240,7 +263,6 @@ begin
   FDTable1.Filtered := false;
   doubleScreenExecute(Sender);
   TrackBar1Change(Sender);
-  StatusBar1.Panels[1].Text := (TrackBar1.Max + 1).ToString;
 end;
 
 procedure TForm1.Panel3Resize(Sender: TObject);
@@ -275,9 +297,23 @@ begin
   end;
 end;
 
-procedure TForm1.RefreshExecute(Sender: TObject);
+function TForm1.checkSemi(num: integer): Boolean;
 begin
-  TrackBar1Change(Sender);
+  result := pageList[num].Right = 0;
+end;
+
+function TForm1.returnPos(page: integer; var double: TPageState): integer;
+begin
+  result := 0;
+  for var i := 0 to pageList.Count - 1 do
+    if (page = pageList[i].Left) or (page = pageList[i].Right) then
+    begin
+      if checkSemi(i) then
+        double := pgSemi
+      else
+        double := pgDouble;
+      result := i;
+    end;
 end;
 
 procedure TForm1.ReversePageExecute(Sender: TObject);
@@ -304,62 +340,57 @@ begin
   TrackBar1Change(Sender);
 end;
 
-function TForm1.countPictures(num: integer; var double: TPageState): integer;
+procedure TForm1.countPictures;
 var
   cnt: integer;
   bool: Boolean;
-  v: Variant;
+  p: TPageLayout;
 begin
   cnt := 0;
+  pageList.Clear;
   FDMemTable1.First;
-  while (num > 0) and not FDMemTable1.Eof do
+  while not FDMemTable1.Eof do
   begin
+    p.Right := 0;
     bool := FDMemTable1.FieldByName('subimage').AsBoolean;
     if cnt = 0 then
     begin
+      p.Left := FDMemTable1.FieldByName('page_id').AsInteger;
       if bool then
-      begin
-        dec(num);
-        cnt := 0;
-      end
+        pageList.Add(p)
       else
         cnt := 1;
     end
     else
     begin
-      if bool then
-        dec(num, 2)
-      else
-        dec(num);
       cnt := 0;
+      if bool then
+      begin
+        pageList.Add(p);
+        continue;
+      end
+      else
+        p.Right := FDMemTable1.FieldByName('page_id').AsInteger;
+      pageList.Add(p);
     end;
     FDMemTable1.Next;
   end;
-  cnt := FDMemTable1.FieldByName('page_id').AsInteger;
-  v := FDMemTable1.Lookup('page_id', cnt - 1, 'subimage');
-  double := pgSemi;
-  if not VarIsNull(v) then
-  begin
-    bool := v;
-    if not(bool or FDMemTable1.FieldByName('subimage').AsBoolean) then
-      double := pgDouble;
-  end;
-  if (double <> pgSingle) and (num < 1) then
-    for var i := 0 downto num do
-      FDMemTable1.Prior;
-  result := FDMemTable1.RecNo - Abs(num);
 end;
 
 procedure TForm1.TrackBar1Change(Sender: TObject);
 var
-  cnt: integer;
+  p: TPageLayout;
 begin
-  if Sender = TrackBar1 then
+  if double = pgSingle then
+    FDMemTable1.Locate('page_id', TrackBar1.Position + 1)
+  else
   begin
-    if double = pgSingle then
-      FDMemTable1.Locate('page_id', TrackBar1.Position + 1)
+    p := pageList[TrackBar1.Position];
+    if checkSemi(TrackBar1.Position) then
+      double := pgSemi
     else
-      countPictures(TrackBar1.Position + 1, double);
+      double := pgDouble;
+    FDMemTable1.Locate('page_id', p.Left);
   end;
   Panel3Resize(Sender);
   case double of
@@ -372,15 +403,11 @@ begin
       end;
     pgDouble:
       begin
-        FDMemTable1.Prior;
         Image2.Picture.Assign(FDMemTable1.FieldByName('image'));
-        cnt := FDMemTable1.FieldByName('page_id').AsInteger;
         FDMemTable1.Next;
         Image3.Picture.Assign(FDMemTable1.FieldByName('image'));
         Panel3.Show;
-        StatusBar1.Panels[3].Text :=
-          Format('%d , %d', [cnt, FDMemTable1.FieldByName('page_id')
-          .AsInteger]);
+        StatusBar1.Panels[3].Text := Format('%d , %d', [p.Left, p.Right]);
       end;
   end;
 end;

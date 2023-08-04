@@ -11,6 +11,7 @@ object Form1: TForm1
   Font.Name = 'Segoe UI'
   Font.Style = []
   OnCreate = FormCreate
+  OnDestroy = FormDestroy
   TextHeight = 15
   object Image1: TImage
     Left = 185
@@ -139,7 +140,7 @@ object Form1: TForm1
       431
       325)
     object Image2: TImage
-      Left = -10
+      Left = -11
       Top = -20
       Width = 216
       Height = 372
@@ -11045,7 +11046,7 @@ object Form1: TForm1
       ExplicitTop = -10
     end
     object Image3: TImage
-      Left = 210
+      Left = 207
       Top = -20
       Width = 218
       Height = 372
@@ -22209,7 +22210,22 @@ object Form1: TForm1
     object Refresh: TAction
       Category = '&Edit'
       Caption = '&Refresh'
-      OnExecute = RefreshExecute
     end
+  end
+  object FDQuery1: TFDQuery
+    Connection = FDConnection1
+    SQL.Strings = (
+      'CREATE TABLE ADULTBOOKS '
+      '('
+      '        ID'#9'INTEGER NOT NULL,'
+      '        PAGE_ID'#9'INTEGER NOT NULL,'
+      '        IMAGE'#9'BLOB SUB_TYPE -1 SEGMENT SIZE 80,'
+      '        TITLE_ID'#9'INTEGER NOT NULL,'
+      '        TITLE'#9'VARCHAR(50) NOT NULL,'
+      '        SUBIMAGE'#9'BOOLEAN NOT NULL,'
+      ' PRIMARY KEY (ID)'
+      ');')
+    Left = 520
+    Top = 232
   end
 end
