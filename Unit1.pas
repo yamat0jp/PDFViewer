@@ -206,7 +206,7 @@ begin
     else
       TrackBar1.Position := cnt;
   end;
-  StatusBar1.Panels[1].Text := (TrackBar1.Max+1).ToString;
+  StatusBar1.Panels[1].Text := (TrackBar1.Max + 1).ToString;
 end;
 
 procedure TForm1.DeleteExecute(Sender: TObject);
@@ -247,6 +247,8 @@ begin
 end;
 
 procedure TForm1.ListBox1DblClick(Sender: TObject);
+var
+  str: string;
 begin
   if ListBox1.ItemIndex = -1 then
     Exit;
@@ -256,7 +258,9 @@ begin
   doubleScreen.Enabled := true;
   ReversePage.Enabled := true;
   TrackBar1.SetFocus;
-  FDTable1.Filter := 'title = ' + QuotedStr(ListBox1.Items[ListBox1.ItemIndex]);
+  str := FDTable1.Lookup('title', ListBox1.Items[ListBox1.ItemIndex],
+    'title_id');
+  FDTable1.Filter := 'title_id = ' + str;
   FDTable1.Filtered := true;
   FDMemTable1.Data := FDTable1.Data;
   FDMemTable1.Open;
