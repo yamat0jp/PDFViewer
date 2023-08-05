@@ -32,13 +32,11 @@ type
     FDConnection1: TFDConnection;
     FDTable1: TFDTable;
     Image1: TImage;
-    Panel1: TPanel;
     ListBox1: TListBox;
     PopupMenu1: TPopupMenu;
     FDMemTable1: TFDMemTable;
     Panel2: TPanel;
     TrackBar1: TTrackBar;
-    Panel3: TPanel;
     Image2: TImage;
     Image3: TImage;
     ActionManager1: TActionManager;
@@ -46,11 +44,7 @@ type
     Action3: TAction;
     Back: TAction;
     doubleScreen: TAction;
-    ToolBar1: TToolBar;
-    ToolButton1: TToolButton;
-    ToolButton2: TToolButton;
     Delete: TAction;
-    ToolButton3: TToolButton;
     ReversePage: TAction;
     ToolBar2: TToolBar;
     ToolButton4: TToolButton;
@@ -73,7 +67,10 @@ type
     FDQuery1: TFDQuery;
     PaintBox1: TPaintBox;
     RePaint: TAction;
-    ScrollBox1: TScrollBox;
+    PageControl1: TPageControl;
+    TabSheet1: TTabSheet;
+    TabSheet2: TTabSheet;
+    TabSheet3: TTabSheet;
     procedure OpenExecute(Sender: TObject);
     procedure Action3Execute(Sender: TObject);
     procedure ListBox1DblClick(Sender: TObject);
@@ -81,7 +78,6 @@ type
     procedure FormCreate(Sender: TObject);
     procedure TrackBar1Change(Sender: TObject);
     procedure doubleScreenExecute(Sender: TObject);
-    procedure Panel3Resize(Sender: TObject);
     procedure ReversePageExecute(Sender: TObject);
     procedure ToolButton7Click(Sender: TObject);
     procedure DeleteExecute(Sender: TObject);
@@ -89,6 +85,11 @@ type
     procedure FormDestroy(Sender: TObject);
     procedure PaintBox1Paint(Sender: TObject);
     procedure RePaintExecute(Sender: TObject);
+    procedure ListBox1Click(Sender: TObject);
+    procedure ListBox1DragOver(Sender, Source: TObject; X, Y: integer;
+      State: TDragState; var Accept: Boolean);
+    procedure ListBox1DragDrop(Sender, Source: TObject; X, Y: integer);
+    procedure TabSheet3Resize(Sender: TObject);
   private
     { Private êÈåæ }
     double: TPageState;
@@ -179,7 +180,7 @@ end;
 
 procedure TForm1.BackExecute(Sender: TObject);
 begin
-  Panel1.Show;
+  PageControl1.TabIndex:=0;
   Panel2.Hide;
   Back.Enabled := false;
   doubleScreen.Enabled := false;
@@ -191,7 +192,7 @@ procedure TForm1.doubleScreenExecute(Sender: TObject);
 var
   cnt: integer;
 begin
-  if Panel1.Visible then
+  if PageControl1.TabIndex = 0 then
     Exit;
   cnt := FDMemTable1.FieldByName('page_id').AsInteger;
   if not doubleScreen.Checked then
@@ -241,7 +242,7 @@ begin
       Next;
     end;
   end;
-  Panel3Resize(Sender);
+  TabSheet3Resize(Sender);
   pageList := TList<TPageLayout>.Create;
 end;
 
@@ -250,17 +251,22 @@ begin
   pageList.Free;
 end;
 
+procedure TForm1.ListBox1Click(Sender: TObject);
+begin
+  PaintBox1Paint(Sender);
+end;
+
 procedure TForm1.ListBox1DblClick(Sender: TObject);
 var
   str: string;
 begin
   if ListBox1.ItemIndex = -1 then
     Exit;
-  Panel1.Hide;
-  Panel2.Show;
+  PageControl1.TabIndex:=1;
   Back.Enabled := true;
   doubleScreen.Enabled := true;
   ReversePage.Enabled := true;
+  Panel2.Show;
   TrackBar1.SetFocus;
   str := FDTable1.Lookup('title', ListBox1.Items[ListBox1.ItemIndex],
     'title_id');
@@ -271,6 +277,27 @@ begin
   FDTable1.Filtered := false;
   doubleScreenExecute(Sender);
   TrackBar1Change(Sender);
+end;
+
+procedure TForm1.ListBox1DragDrop(Sender, Source: TObject; X, Y: integer);
+var
+  cnt: integer;
+begin
+  if ListBox1.ItemIndex > -1 then
+  begin
+    cnt := ListBox1.ItemAtPos(Point(X, Y), false);
+    if cnt = ListBox1.Items.Count then
+      dec(cnt);
+    ListBox1.Items.Move(ListBox1.ItemIndex, cnt);
+    PaintBox1Paint(Sender);
+  end;
+end;
+
+procedure TForm1.ListBox1DragOver(Sender, Source: TObject; X, Y: integer;
+  State: TDragState; var Accept: Boolean);
+begin
+  if ListBox1.ItemIndex > 0 then
+    Accept := true;
 end;
 
 procedure TForm1.PaintBox1Paint(Sender: TObject);
@@ -284,17 +311,23 @@ var
     rect.Top := topleft.Y;
     if FDTable1.FieldByName('subimage').AsBoolean then
     begin
-      rect.Right := topleft.X+ 160;
-      rect.Bottom := topleft.Y+120;
+      rect.Right := topleft.X + 160;
+      rect.Bottom := topleft.Y + 120;
     end
     else
     begin
-      rect.Right := topleft.X+ 120;
-      rect.Bottom :=topleft.Y+ 160;
+      rect.Right := topleft.X + 120;
+      rect.Bottom := topleft.Y + 160;
     end;
   end;
 
 begin
+  rect.TopLeft:=Point(0,0);
+  rect.Width:=PaintBox1.Width;
+  rect.Height:=PaintBox1.Height;
+  PaintBox1.Canvas.FillRect(rect);
+  PaintBox1.Canvas.Pen.Color := clRed;
+  PaintBox1.Canvas.Pen.Width := 10;
   bmp := TBitmap.Create;
   try
     for var i := 0 to ListBox1.Items.Count - 1 do
@@ -304,42 +337,12 @@ begin
       pos.X := 30 + i * 120;;
       pos.Y := 30;
       makeRect(pos);
+      if ListBox1.ItemIndex = i then
+        PaintBox1.Canvas.Rectangle(rect);
       PaintBox1.Canvas.StretchDraw(rect, bmp);
     end;
   finally
     bmp.Free;
-  end;
-end;
-
-procedure TForm1.Panel3Resize(Sender: TObject);
-var
-  img1, img2: TImage;
-begin
-  if Panel3.Visible then
-  begin
-    Panel3.Show;
-    if not reverse then
-    begin
-      img1 := Image2;
-      img2 := Image3;
-    end
-    else
-    begin
-      img2 := Image2;
-      img1 := Image3;
-    end;
-    img1.Height := Panel3.Height;
-    img2.Height := Panel3.Height;
-    if (Sender = Panel3) and not img1.Picture.Graphic.Empty then
-      img1.Width := Round(img2.Height / img1.Picture.Graphic.Height *
-        img1.Picture.Graphic.Width);
-    if (Sender = Panel3) and not img2.Picture.Graphic.Empty then
-      img2.Width := Round(img2.Height / img2.Picture.Graphic.Height *
-        img1.Picture.Graphic.Width);
-    img1.Left := -img1.Width + Panel3.Width div 2;
-    img2.Left := Panel3.Width div 2;
-    img1.Top := 0;
-    img2.Top := 0;
   end;
 end;
 
@@ -370,7 +373,38 @@ end;
 procedure TForm1.ReversePageExecute(Sender: TObject);
 begin
   reverse := ReversePage.Checked;
-  Panel3Resize(Sender);
+  TabSheet3Resize(Sender);
+end;
+
+procedure TForm1.TabSheet3Resize(Sender: TObject);
+var
+  img1, img2: TImage;
+begin
+  if PageControl1.TabIndex = 2 then
+  begin
+    if not reverse then
+    begin
+      img1 := Image2;
+      img2 := Image3;
+    end
+    else
+    begin
+      img2 := Image2;
+      img1 := Image3;
+    end;
+    img1.Height := TabSheet3.Height;
+    img2.Height := TabSheet3.Height;
+    if (Sender = TabSheet3) and not img1.Picture.Graphic.Empty then
+      img1.Width := Round(img2.Height / img1.Picture.Graphic.Height *
+        img1.Picture.Graphic.Width);
+    if (Sender = TabSheet3) and not img2.Picture.Graphic.Empty then
+      img2.Width := Round(img2.Height / img2.Picture.Graphic.Height *
+        img1.Picture.Graphic.Width);
+    img1.Left := -img1.Width + TabSheet3.Width div 2;
+    img2.Left := TabSheet3.Width div 2;
+    img1.Top := 0;
+    img2.Top := 0;
+  end;
 end;
 
 procedure TForm1.ToolButton7Click(Sender: TObject);
@@ -443,21 +477,21 @@ begin
       double := pgDouble;
     FDMemTable1.Locate('page_id', p.Left);
   end;
-  Panel3Resize(Sender);
+  TabSheet3Resize(Sender);
   case double of
     pgSingle, pgSemi:
       begin
+        PageControl1.TabIndex:=1;
         Image1.Picture.Assign(FDMemTable1.FieldByName('image'));
-        Panel3.Hide;
         StatusBar1.Panels[3].Text := FDMemTable1.FieldByName('page_id')
           .AsString;
       end;
     pgDouble:
       begin
+        PageControl1.TabIndex:=2;
         Image2.Picture.Assign(FDMemTable1.FieldByName('image'));
         FDMemTable1.Next;
         Image3.Picture.Assign(FDMemTable1.FieldByName('image'));
-        Panel3.Show;
         StatusBar1.Panels[3].Text := Format('%d , %d', [p.Left, p.Right]);
       end;
   end;
