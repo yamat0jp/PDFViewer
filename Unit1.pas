@@ -95,6 +95,7 @@ type
     double: TPageState;
     reverse: Boolean;
     pageList: TList<TPageLayout>;
+    hyousi: Boolean;
     procedure AddImagePage(Index: integer);
     procedure countPictures;
     function returnPos(page: integer; var double: TPageState): integer;
@@ -116,10 +117,9 @@ uses SkiSys.GS_Api, SkiSys.GS_Converter, SkiSys.GS_ParameterConst,
 var
   pdf: TGS_PdfConverter;
   id, title_id: integer;
+  title: string;
 
 procedure TForm1.OpenExecute(Sender: TObject);
-var
-  title: string;
 begin
   if OpenDialog1.Execute then
   begin
@@ -139,7 +139,6 @@ begin
     pdf := TGS_PdfConverter.Create;
     try
       Screen.Cursor := crHourGlass;
-      pdf.Params.PdfTitle := title;
       pdf.Params.Device := DISPLAY_DEVICE_NAME;
       pdf.UserParams.Clear;
       pdf.ToPdf(OpenDialog1.FileName, '', false);
@@ -150,6 +149,7 @@ begin
       pdf.Free;
     end;
   end;
+  PaintBox1Paint(Sender);
 end;
 
 procedure TForm1.AddImagePage(Index: integer);
@@ -159,18 +159,14 @@ begin
   with FDTable1 do
   begin
     inc(id);
-    AppendRecord([id, Index + 1, nil, title_id, pdf.Params.PdfTitle, false]);
+    AppendRecord([id, Index + 1, nil, title_id, title, false]);
     Edit;
   end;
   ABmp := pdf.GSDisplay.GetPage(Index);
-  try
-    FDTable1.FieldByName('image').Assign(ABmp);
-    if ABmp.Width > ABmp.Height then
-      FDTable1.FieldByName('subimage').AsBoolean := true;
-  finally
-    FDTable1.Post;
-    ABmp.Free;
-  end;
+  FDTable1.FieldByName('image').Assign(ABmp);
+  if (ABmp.Width > ABmp.Height) or (hyousi and (index + 1 = 1)) then
+    FDTable1.FieldByName('subimage').AsBoolean := true;
+  FDTable1.Post;
 end;
 
 procedure TForm1.Action3Execute(Sender: TObject);
@@ -180,7 +176,7 @@ end;
 
 procedure TForm1.BackExecute(Sender: TObject);
 begin
-  PageControl1.TabIndex:=0;
+  PageControl1.TabIndex := 0;
   Panel2.Hide;
   Back.Enabled := false;
   doubleScreen.Enabled := false;
@@ -225,11 +221,10 @@ begin
     FDTable1.Delete;
   FDTable1.Filtered := false;
   ListBox1.Items.Delete(ListBox1.ItemIndex);
+  PaintBox1Paint(Sender);
 end;
 
 procedure TForm1.FormCreate(Sender: TObject);
-var
-  title: string;
 begin
   with FDTable1 do
   begin
@@ -244,6 +239,7 @@ begin
   end;
   TabSheet3Resize(Sender);
   pageList := TList<TPageLayout>.Create;
+  hyousi := true;
 end;
 
 procedure TForm1.FormDestroy(Sender: TObject);
@@ -262,7 +258,7 @@ var
 begin
   if ListBox1.ItemIndex = -1 then
     Exit;
-  PageControl1.TabIndex:=1;
+  PageControl1.TabIndex := 1;
   Back.Enabled := true;
   doubleScreen.Enabled := true;
   ReversePage.Enabled := true;
@@ -309,7 +305,7 @@ var
   begin
     rect.Left := topleft.X;
     rect.Top := topleft.Y;
-    if FDTable1.FieldByName('subimage').AsBoolean then
+    if bmp.Width > bmp.Height then
     begin
       rect.Right := topleft.X + 160;
       rect.Bottom := topleft.Y + 120;
@@ -322,9 +318,9 @@ var
   end;
 
 begin
-  rect.TopLeft:=Point(0,0);
-  rect.Width:=PaintBox1.Width;
-  rect.Height:=PaintBox1.Height;
+  rect.topleft := Point(0, 0);
+  rect.Width := PaintBox1.Width;
+  rect.Height := PaintBox1.Height;
   PaintBox1.Canvas.FillRect(rect);
   PaintBox1.Canvas.Pen.Color := clRed;
   PaintBox1.Canvas.Pen.Width := 10;
@@ -481,14 +477,14 @@ begin
   case double of
     pgSingle, pgSemi:
       begin
-        PageControl1.TabIndex:=1;
+        PageControl1.TabIndex := 1;
         Image1.Picture.Assign(FDMemTable1.FieldByName('image'));
         StatusBar1.Panels[3].Text := FDMemTable1.FieldByName('page_id')
           .AsString;
       end;
     pgDouble:
       begin
-        PageControl1.TabIndex:=2;
+        PageControl1.TabIndex := 2;
         Image2.Picture.Assign(FDMemTable1.FieldByName('image'));
         FDMemTable1.Next;
         Image3.Picture.Assign(FDMemTable1.FieldByName('image'));

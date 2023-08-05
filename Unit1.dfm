@@ -2,8 +2,8 @@ object Form1: TForm1
   Left = 0
   Top = 0
   Caption = 'Form1'
-  ClientHeight = 439
-  ClientWidth = 616
+  ClientHeight = 589
+  ClientWidth = 877
   Color = clSkyBlue
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -16,7 +16,7 @@ object Form1: TForm1
   object ActionMainMenuBar1: TActionMainMenuBar
     Left = 0
     Top = 0
-    Width = 616
+    Width = 877
     Height = 25
     UseSystemFont = False
     ActionManager = ActionManager1
@@ -33,43 +33,40 @@ object Form1: TForm1
     Font.Name = 'Segoe UI'
     Font.Style = []
     Spacing = 0
-    ExplicitWidth = 612
+    ExplicitWidth = 873
   end
   object Panel2: TPanel
     Left = 0
-    Top = 350
-    Width = 616
+    Top = 500
+    Width = 877
     Height = 41
     Align = alBottom
     TabOrder = 0
     Visible = False
-    ExplicitTop = 349
-    ExplicitWidth = 612
+    ExplicitTop = 499
+    ExplicitWidth = 873
     object TrackBar1: TTrackBar
       Left = 1
       Top = 1
-      Width = 614
+      Width = 875
       Height = 39
       Align = alClient
       PageSize = 1
       TabOrder = 0
       OnChange = TrackBar1Change
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 281
-      ExplicitHeight = 163
+      ExplicitWidth = 871
     end
   end
   object ToolBar2: TToolBar
     Left = 0
-    Top = 391
-    Width = 616
+    Top = 541
+    Width = 877
     Height = 29
     Align = alBottom
     Caption = 'ToolBar2'
     TabOrder = 2
-    ExplicitTop = 390
-    ExplicitWidth = 612
+    ExplicitTop = 540
+    ExplicitWidth = 873
     object ToolButton4: TToolButton
       Left = 0
       Top = 0
@@ -101,8 +98,8 @@ object Form1: TForm1
   end
   object StatusBar1: TStatusBar
     Left = 0
-    Top = 420
-    Width = 616
+    Top = 570
+    Width = 877
     Height = 19
     Panels = <
       item
@@ -119,24 +116,28 @@ object Form1: TForm1
       item
         Width = 50
       end>
-    ExplicitTop = 419
-    ExplicitWidth = 612
+    ExplicitTop = 569
+    ExplicitWidth = 873
   end
   object PageControl1: TPageControl
     Left = 0
     Top = 25
-    Width = 616
-    Height = 325
+    Width = 877
+    Height = 475
     ActivePage = TabSheet1
     Align = alClient
+    MultiLine = True
     TabOrder = 4
+    TabPosition = tpRight
+    ExplicitWidth = 873
+    ExplicitHeight = 474
     object TabSheet1: TTabSheet
       Caption = 'TabSheet1'
       object PaintBox1: TPaintBox
         Left = 280
         Top = 0
-        Width = 328
-        Height = 295
+        Width = 566
+        Height = 467
         Align = alClient
         OnPaint = PaintBox1Paint
         ExplicitLeft = 281
@@ -148,7 +149,7 @@ object Form1: TForm1
         Left = 0
         Top = 0
         Width = 280
-        Height = 295
+        Height = 467
         Align = alLeft
         DragMode = dmAutomatic
         Font.Charset = DEFAULT_CHARSET
@@ -164,6 +165,7 @@ object Form1: TForm1
         OnDblClick = ListBox1DblClick
         OnDragDrop = ListBox1DragDrop
         OnDragOver = ListBox1DragOver
+        ExplicitHeight = 466
       end
     end
     object TabSheet2: TTabSheet
@@ -172,8 +174,8 @@ object Form1: TForm1
       object Image1: TImage
         Left = 0
         Top = 0
-        Width = 608
-        Height = 295
+        Width = 869
+        Height = 445
         Align = alClient
         Center = True
         Proportional = True
@@ -188,11 +190,11 @@ object Form1: TForm1
       ImageIndex = 2
       OnResize = TabSheet3Resize
       DesignSize = (
-        608
-        295)
+        846
+        467)
       object Image2: TImage
-        Left = 59
-        Top = -228
+        Left = 124
+        Top = -252
         Width = 216
         Height = 372
         Anchors = []
@@ -11097,8 +11099,8 @@ object Form1: TForm1
         ExplicitTop = -209
       end
       object Image3: TImage
-        Left = 263
-        Top = -228
+        Left = 409
+        Top = -252
         Width = 218
         Height = 372
         Anchors = []
