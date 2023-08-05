@@ -456,6 +456,8 @@ begin
     end;
     FDMemTable1.Next;
   end;
+  if cnt > 0 then
+    pageList.Add(p);
 end;
 
 procedure TForm1.TrackBar1Change(Sender: TObject);
