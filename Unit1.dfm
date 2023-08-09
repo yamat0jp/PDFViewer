@@ -140,10 +140,8 @@ object Form1: TForm1
         Height = 467
         Align = alClient
         OnPaint = PaintBox1Paint
-        ExplicitLeft = 281
-        ExplicitTop = 1
-        ExplicitWidth = 234
-        ExplicitHeight = 294
+        ExplicitLeft = 286
+        ExplicitTop = -1
       end
       object ListBox1: TListBox
         Left = 0
@@ -174,8 +172,8 @@ object Form1: TForm1
       object Image1: TImage
         Left = 0
         Top = 0
-        Width = 869
-        Height = 445
+        Width = 846
+        Height = 467
         Align = alClient
         Center = True
         Proportional = True
@@ -22018,10 +22016,12 @@ object Form1: TForm1
       'User_Name=sysdba'
       'Password=masterkey'
       'Server=localhost'
-      'Port=3051'
-      'CharacterSet=utf8'
+      'Port=3050'
+      'CharacterSet=UTF8'
+      'OpenMode=OpenOrCreate'
       'DriverID=IB')
     Connected = True
+    LoginPrompt = False
     Left = 432
     Top = 288
   end
@@ -22223,5 +22223,9 @@ object Form1: TForm1
       ');')
     Left = 520
     Top = 232
+  end
+  object FDPhysSQLiteDriverLink1: TFDPhysSQLiteDriverLink
+    Left = 432
+    Top = 408
   end
 end
