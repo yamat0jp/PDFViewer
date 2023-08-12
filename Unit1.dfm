@@ -191,7 +191,7 @@ object Form1: TForm1
         846
         467)
       object Image2: TImage
-        Left = 124
+        Left = 123
         Top = -252
         Width = 216
         Height = 372
@@ -11097,7 +11097,7 @@ object Form1: TForm1
         ExplicitTop = -209
       end
       object Image3: TImage
-        Left = 409
+        Left = 407
         Top = -252
         Width = 218
         Height = 372
@@ -22017,54 +22017,11 @@ object Form1: TForm1
       'Password=masterkey'
       'Server=localhost'
       'Port=3050'
-      'CharacterSet=UTF8'
-      'OpenMode=OpenOrCreate'
       'DriverID=IB')
     Connected = True
     LoginPrompt = False
     Left = 432
     Top = 288
-  end
-  object FDTable1: TFDTable
-    Active = True
-    Filtered = True
-    IndexFieldNames = 'id;TITLE_ID'
-    Connection = FDConnection1
-    FetchOptions.AssignedValues = [evRowsetSize]
-    FetchOptions.RowsetSize = 300
-    ResourceOptions.AssignedValues = [rvEscapeExpand]
-    TableName = 'adultbooks'
-    Left = 432
-    Top = 344
-    object FDTable1ID: TIntegerField
-      FieldName = 'ID'
-      Origin = 'ID'
-      Required = True
-    end
-    object FDTable1PAGE_ID: TIntegerField
-      FieldName = 'PAGE_ID'
-      Origin = 'PAGE_ID'
-      Required = True
-    end
-    object FDTable1IMAGE: TBlobField
-      FieldName = 'IMAGE'
-      Origin = 'IMAGE'
-    end
-    object FDTable1TITLE_ID: TIntegerField
-      FieldName = 'TITLE_ID'
-      Origin = 'TITLE_ID'
-      Required = True
-    end
-    object FDTable1TITLE: TStringField
-      FieldName = 'TITLE'
-      Origin = 'TITLE'
-      Required = True
-      Size = 50
-    end
-    object FDTable1SUBIMAGE: TBooleanField
-      FieldName = 'SUBIMAGE'
-      Origin = 'SUBIMAGE'
-    end
   end
   object PopupMenu1: TPopupMenu
     Left = 208
@@ -22210,6 +22167,8 @@ object Form1: TForm1
   end
   object FDQuery1: TFDQuery
     Connection = FDConnection1
+    FetchOptions.AssignedValues = [evRowsetSize]
+    FetchOptions.RowsetSize = 300
     SQL.Strings = (
       'CREATE TABLE ADULTBOOKS '
       '('
@@ -22224,8 +22183,12 @@ object Form1: TForm1
     Left = 520
     Top = 232
   end
-  object FDPhysSQLiteDriverLink1: TFDPhysSQLiteDriverLink
+  object FDTable1: TFDTable
+    Connection = FDConnection1
+    FetchOptions.AssignedValues = [evRowsetSize]
+    FetchOptions.RowsetSize = 30
+    TableName = 'ADULTBOOKS'
     Left = 432
-    Top = 408
+    Top = 352
   end
 end

@@ -4,20 +4,18 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
-  System.Classes, Vcl.Graphics, System.Generics.Collections,
+  System.Classes, Vcl.Graphics, System.Generics.Collections, System.Types,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, System.Actions, Vcl.ActnList,
   Vcl.PlatformDefaultStyleActnCtrls, Vcl.ActnMan, Vcl.ToolWin, Vcl.ActnCtrls,
   Vcl.ActnMenus, Vcl.OleServer, FireDAC.Stan.Intf,
   FireDAC.Stan.Option, FireDAC.Stan.Error, FireDAC.UI.Intf, FireDAC.Phys.Intf,
   FireDAC.Stan.Def, FireDAC.Stan.Pool, FireDAC.Stan.Async, FireDAC.Phys,
-  FireDAC.Phys.PG, FireDAC.Phys.PGDef, FireDAC.VCLUI.Wait, FireDAC.Stan.Param,
+  FireDAC.VCLUI.Wait, FireDAC.Stan.Param,
   FireDAC.DatS, FireDAC.DApt.Intf, FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet,
-  FireDAC.Comp.Client, Vcl.Grids, Vcl.DBGrids, Vcl.ExtCtrls, Vcl.StdCtrls,
-  Vcl.DBCtrls, System.Rtti, System.Bindings.Outputs, Vcl.Bind.Editors,
-  Data.Bind.EngExt, Vcl.Bind.DBEngExt, Data.Bind.Components, Data.Bind.DBScope,
-  Vcl.Menus, FireDAC.Stan.StorageBin, Vcl.ComCtrls, FireDAC.Phys.SQLite,
-  FireDAC.Phys.SQLiteDef, FireDAC.Stan.ExprFuncs,
-  FireDAC.Phys.SQLiteWrapper.Stat, FireDAC.Phys.IB, FireDAC.Phys.IBDef;
+  FireDAC.Comp.Client, Vcl.ExtCtrls, Vcl.StdCtrls,
+  Vcl.Menus, FireDAC.Stan.StorageBin, Vcl.ComCtrls,
+  FireDAC.Stan.ExprFuncs, FireDAC.Phys.IBLiteDef, FireDAC.Phys.IB,
+  FireDAC.Phys.IBDef;
 
 type
   TPageState = (pgSingle, pgSemi, pgDouble);
@@ -30,7 +28,6 @@ type
     OpenDialog1: TOpenDialog;
     ActionMainMenuBar1: TActionMainMenuBar;
     FDConnection1: TFDConnection;
-    FDTable1: TFDTable;
     Image1: TImage;
     ListBox1: TListBox;
     PopupMenu1: TPopupMenu;
@@ -51,14 +48,8 @@ type
     ToolButton5: TToolButton;
     ToolButton6: TToolButton;
     ToolButton7: TToolButton;
-    FDTable1ID: TIntegerField;
-    FDTable1IMAGE: TBlobField;
-    FDTable1TITLE_ID: TIntegerField;
-    FDTable1TITLE: TStringField;
-    FDTable1SUBIMAGE: TBooleanField;
     D1: TMenuItem;
     uninstall: TAction;
-    FDTable1PAGE_ID: TIntegerField;
     FDMemTable1PAGE_ID: TIntegerField;
     FDMemTable1IMAGE: TBlobField;
     FDMemTable1TITLE_ID: TIntegerField;
@@ -71,7 +62,7 @@ type
     TabSheet1: TTabSheet;
     TabSheet2: TTabSheet;
     TabSheet3: TTabSheet;
-    FDPhysSQLiteDriverLink1: TFDPhysSQLiteDriverLink;
+    FDTable1: TFDTable;
     procedure OpenExecute(Sender: TObject);
     procedure Action3Execute(Sender: TObject);
     procedure ListBox1DblClick(Sender: TObject);
@@ -120,6 +111,8 @@ var
   id, title_id: integer;
   title: string;
 
+const
+  query = 'select * from adultbooks where page_id = 1';
 procedure TForm1.OpenExecute(Sender: TObject);
 begin
   if OpenDialog1.Execute then
@@ -130,6 +123,8 @@ begin
     ListBox1.Items.Add(title);
     with FDTable1 do
     begin
+      Filtered:=false;
+      Open;
       Last;
       id := FieldByName('id').AsInteger;
       IndexFieldNames := 'title_id';
@@ -149,6 +144,7 @@ begin
       Screen.Cursor := crDefault;
       pdf.Free;
     end;
+    FDTable1.Close;
   end;
   PaintBox1Paint(Sender);
 end;
@@ -183,6 +179,7 @@ begin
   doubleScreen.Enabled := false;
   ReversePage.Enabled := false;
   FDMemTable1.Close;
+  FDQuery1.Open(query);
 end;
 
 procedure TForm1.doubleScreenExecute(Sender: TObject);
@@ -217,18 +214,20 @@ begin
     Exit;
   FDTable1.Filter := 'title = ' + QuotedStr(ListBox1.Items[ListBox1.ItemIndex]);
   FDTable1.Filtered := true;
+  FDTable1.Open;
   FDTable1.First;
   while not FDTable1.Eof do
     FDTable1.Delete;
-  FDTable1.Filtered := false;
+  FDTable1.Close;
   ListBox1.Items.Delete(ListBox1.ItemIndex);
   PaintBox1Paint(Sender);
 end;
 
 procedure TForm1.FormCreate(Sender: TObject);
 begin
-  with FDTable1 do
+  with FDQuery1 do
   begin
+    Open(query);
     First;
     while Eof = false do
     begin
@@ -265,13 +264,14 @@ begin
   ReversePage.Enabled := true;
   Panel2.Show;
   TrackBar1.SetFocus;
-  str := FDTable1.Lookup('title', ListBox1.Items[ListBox1.ItemIndex],
-    'title_id');
-  FDTable1.Filter := 'title_id = ' + str;
-  FDTable1.Filtered := true;
-  FDMemTable1.Data := FDTable1.Data;
+  FDQuery1.Close;
+  FDQuery1.SQL.Clear;
+  FDQuery1.SQL.Add('select * from adultbooks where title = :str');
+  FDQuery1.Params.ParamByName('str').AsString:=ListBox1.Items[ListBox1.ItemIndex];
+  FDQuery1.Open;
+  FDMemTable1.Data := FDQuery1.Data;
   FDMemTable1.Open;
-  FDTable1.Filtered := false;
+  FDQuery1.Close;
   doubleScreenExecute(Sender);
   TrackBar1Change(Sender);
 end;
@@ -329,8 +329,8 @@ begin
   try
     for var i := 0 to ListBox1.Items.Count - 1 do
     begin
-      FDTable1.Locate('title;page_id', VarArrayOf([ListBox1.Items[i], 1]));
-      bmp.Assign(FDTable1.FieldByName('image'));
+      FDQuery1.Locate('title;page_id', VarArrayOf([ListBox1.Items[i], 1]));
+      bmp.Assign(FDQuery1.FieldByName('image'));
       pos.X := 30 + i * 120;;
       pos.Y := 30;
       makeRect(pos);
