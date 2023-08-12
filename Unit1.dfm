@@ -191,7 +191,7 @@ object Form1: TForm1
         846
         467)
       object Image2: TImage
-        Left = 123
+        Left = 122
         Top = -252
         Width = 216
         Height = 372
@@ -11097,7 +11097,7 @@ object Form1: TForm1
         ExplicitTop = -209
       end
       object Image3: TImage
-        Left = 407
+        Left = 405
         Top = -252
         Width = 218
         Height = 372
@@ -22184,9 +22184,11 @@ object Form1: TForm1
     Top = 232
   end
   object FDTable1: TFDTable
+    IndexFieldNames = 'ID;TITLE_ID;PAGE_ID'
     Connection = FDConnection1
     FetchOptions.AssignedValues = [evRowsetSize]
     FetchOptions.RowsetSize = 30
+    ResourceOptions.AssignedValues = [rvEscapeExpand]
     TableName = 'ADULTBOOKS'
     Left = 432
     Top = 352

@@ -113,6 +113,7 @@ var
 
 const
   query = 'select * from adultbooks where page_id = 1';
+
 procedure TForm1.OpenExecute(Sender: TObject);
 begin
   if OpenDialog1.Execute then
@@ -123,7 +124,7 @@ begin
     ListBox1.Items.Add(title);
     with FDTable1 do
     begin
-      Filtered:=false;
+      Filtered := false;
       Open;
       Last;
       id := FieldByName('id').AsInteger;
@@ -146,6 +147,8 @@ begin
     end;
     FDTable1.Close;
   end;
+  FDQuery1.Close;
+  FDQuery1.Open(query);
   PaintBox1Paint(Sender);
 end;
 
@@ -267,7 +270,8 @@ begin
   FDQuery1.Close;
   FDQuery1.SQL.Clear;
   FDQuery1.SQL.Add('select * from adultbooks where title = :str');
-  FDQuery1.Params.ParamByName('str').AsString:=ListBox1.Items[ListBox1.ItemIndex];
+  FDQuery1.Params.ParamByName('str').AsString :=
+    ListBox1.Items[ListBox1.ItemIndex];
   FDQuery1.Open;
   FDMemTable1.Data := FDQuery1.Data;
   FDMemTable1.Open;
@@ -329,7 +333,7 @@ begin
   try
     for var i := 0 to ListBox1.Items.Count - 1 do
     begin
-      FDQuery1.Locate('title;page_id', VarArrayOf([ListBox1.Items[i], 1]));
+      FDQuery1.Locate('title', ListBox1.Items[i]);
       bmp.Assign(FDQuery1.FieldByName('image'));
       pos.X := 30 + i * 120;;
       pos.Y := 30;
