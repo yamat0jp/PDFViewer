@@ -22010,13 +22010,9 @@ object Form1: TForm1
   end
   object FDConnection1: TFDConnection
     Params.Strings = (
-      
-        'Database=C:\Users\yamat\Documents\GitHub\2023\pdfviewer\Win64\Re' +
-        'lease\DATA.IB'
+      'Database=C:\Users\yamat\Documents\GitHub\2023\pdfviewer\DATA.IB'
       'User_Name=sysdba'
       'Password=masterkey'
-      'Server=localhost'
-      'Port=3050'
       'DriverID=IB')
     Connected = True
     LoginPrompt = False

@@ -15,7 +15,8 @@ uses
   FireDAC.Comp.Client, Vcl.ExtCtrls, Vcl.StdCtrls,
   Vcl.Menus, FireDAC.Stan.StorageBin, Vcl.ComCtrls,
   FireDAC.Stan.ExprFuncs, FireDAC.Phys.IBLiteDef, FireDAC.Phys.IB,
-  FireDAC.Phys.IBDef;
+  FireDAC.Phys.IBDef, FireDAC.Phys.SQLite, FireDAC.Phys.SQLiteDef,
+  FireDAC.Phys.SQLiteWrapper.Stat;
 
 type
   TPageState = (pgSingle, pgSemi, pgDouble);
@@ -112,7 +113,7 @@ var
   title: string;
 
 const
-  query = 'select * from adultbooks where page_id = 1';
+  query = 'select * from adultbooks where page_id = 1 order by id asc';
 
 procedure TForm1.OpenExecute(Sender: TObject);
 begin
@@ -231,7 +232,6 @@ begin
   with FDQuery1 do
   begin
     Open(query);
-    First;
     while Eof = false do
     begin
       title := FieldByName('title').AsString;
@@ -256,8 +256,6 @@ begin
 end;
 
 procedure TForm1.ListBox1DblClick(Sender: TObject);
-var
-  str: string;
 begin
   if ListBox1.ItemIndex = -1 then
     Exit;
