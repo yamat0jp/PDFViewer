@@ -14,9 +14,8 @@ uses
   FireDAC.DatS, FireDAC.DApt.Intf, FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet,
   FireDAC.Comp.Client, Vcl.ExtCtrls, Vcl.StdCtrls,
   Vcl.Menus, FireDAC.Stan.StorageBin, Vcl.ComCtrls,
-  FireDAC.Stan.ExprFuncs, FireDAC.Phys.IBLiteDef, FireDAC.Phys.IB,
-  FireDAC.Phys.IBDef, FireDAC.Phys.SQLite, FireDAC.Phys.SQLiteDef,
-  FireDAC.Phys.SQLiteWrapper.Stat;
+  FireDAC.Stan.ExprFuncs, FireDAC.Phys.FB, FireDAC.Phys.FBDef,
+  FireDAC.Phys.IBBase;
 
 type
   TPageState = (pgSingle, pgSemi, pgDouble);
@@ -65,6 +64,7 @@ type
     TabSheet3: TTabSheet;
     FDTable1: TFDTable;
     version: TAction;
+    FDPhysFBDriverLink1: TFDPhysFBDriverLink;
     procedure OpenExecute(Sender: TObject);
     procedure Action3Execute(Sender: TObject);
     procedure ListBox1DblClick(Sender: TObject);
@@ -115,7 +115,7 @@ var
   title: string;
 
 const
-  query = 'select * from adultbooks where page_id = 1 order by id asc';
+  query = 'select * from pdfviewer where page_id = 1 order by id asc';
 
 procedure TForm1.OpenExecute(Sender: TObject);
 begin
@@ -231,8 +231,13 @@ end;
 
 procedure TForm1.FormCreate(Sender: TObject);
 begin
+  FDConnection1.Params.Database := ExtractFilePath(Application.ExeName) +
+    'data.fdb';
+  FDConnection1.Open;
   with FDQuery1 do
   begin
+    if not FDTable1.Exists then
+      ExecSQL;
     Open(query);
     while Eof = false do
     begin
@@ -273,7 +278,7 @@ begin
   TrackBar1.SetFocus;
   FDQuery1.Close;
   FDQuery1.SQL.Clear;
-  FDQuery1.SQL.Add('select * from adultbooks where title = :str');
+  FDQuery1.SQL.Add('select * from pdfviewer where title = :str');
   FDQuery1.Params.ParamByName('str').AsString :=
     ListBox1.Items[ListBox1.ItemIndex];
   FDQuery1.Open;

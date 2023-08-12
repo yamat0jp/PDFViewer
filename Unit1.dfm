@@ -1,7 +1,7 @@
 object Form1: TForm1
   Left = 0
   Top = 0
-  Caption = 'Form1'
+  Caption = 'PDFViewer'
   ClientHeight = 589
   ClientWidth = 877
   Color = clSkyBlue
@@ -22009,11 +22009,14 @@ object Form1: TForm1
   end
   object FDConnection1: TFDConnection
     Params.Strings = (
-      'Database=C:\Users\yamat\Documents\GitHub\2023\pdfviewer\DATA.IB'
+      'Database=C:\Users\yamat\Documents\GitHub\2023\pdfviewer\DATA.FDB'
       'User_Name=sysdba'
       'Password=masterkey'
-      'DriverID=IB')
-    Connected = True
+      'Port=3050'
+      'Server=localhost'
+      'CharacterSet=utF8'
+      'OpenMode=OpenOrCreate'
+      'DriverID=FB')
     LoginPrompt = False
     Left = 432
     Top = 288
@@ -22178,7 +22181,7 @@ object Form1: TForm1
     FetchOptions.AssignedValues = [evRowsetSize]
     FetchOptions.RowsetSize = 300
     SQL.Strings = (
-      'CREATE TABLE ADULTBOOKS '
+      'CREATE TABLE PDFViewer '
       '('
       '        ID'#9'INTEGER NOT NULL,'
       '        PAGE_ID'#9'INTEGER NOT NULL,'
@@ -22197,8 +22200,13 @@ object Form1: TForm1
     FetchOptions.AssignedValues = [evRowsetSize]
     FetchOptions.RowsetSize = 30
     ResourceOptions.AssignedValues = [rvEscapeExpand]
-    TableName = 'ADULTBOOKS'
+    TableName = 'PDFVIEWER'
     Left = 432
+    Top = 352
+  end
+  object FDPhysFBDriverLink1: TFDPhysFBDriverLink
+    Embedded = True
+    Left = 528
     Top = 352
   end
 end
