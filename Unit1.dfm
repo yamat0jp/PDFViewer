@@ -22101,6 +22101,14 @@ object Form1: TForm1
                 Action = Delete
               end>
             Caption = '&Data'
+          end
+          item
+            Items = <
+              item
+                Action = version
+                Caption = '&version'
+              end>
+            Caption = '&Help'
           end>
         ActionBar = ActionMainMenuBar1
       end
@@ -22158,6 +22166,11 @@ object Form1: TForm1
       Category = '&Data'
       Caption = #26356#26032'(&P)'
       OnExecute = RePaintExecute
+    end
+    object version: TAction
+      Category = '&Help'
+      Caption = 'version'
+      OnExecute = versionExecute
     end
   end
   object FDQuery1: TFDQuery

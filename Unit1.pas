@@ -64,6 +64,7 @@ type
     TabSheet2: TTabSheet;
     TabSheet3: TTabSheet;
     FDTable1: TFDTable;
+    version: TAction;
     procedure OpenExecute(Sender: TObject);
     procedure Action3Execute(Sender: TObject);
     procedure ListBox1DblClick(Sender: TObject);
@@ -83,6 +84,7 @@ type
       State: TDragState; var Accept: Boolean);
     procedure ListBox1DragDrop(Sender, Source: TObject; X, Y: integer);
     procedure TabSheet3Resize(Sender: TObject);
+    procedure versionExecute(Sender: TObject);
   private
     { Private êÈåæ }
     double: TPageState;
@@ -105,7 +107,7 @@ implementation
 {$R *.dfm}
 
 uses SkiSys.GS_Api, SkiSys.GS_Converter, SkiSys.GS_ParameterConst,
-  SkiSys.GS_gdevdsp, Unit3;
+  SkiSys.GS_gdevdsp, Unit3, ABOUT;
 
 var
   pdf: TGS_PdfConverter;
@@ -510,6 +512,11 @@ begin
     ListBox1.ItemIndex := 0;
     DeleteExecute(Sender);
   end;
+end;
+
+procedure TForm1.versionExecute(Sender: TObject);
+begin
+  AboutBox.ShowModal;
 end;
 
 end.
