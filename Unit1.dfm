@@ -140,7 +140,6 @@ object Form1: TForm1
         Height = 467
         Align = alClient
         OnPaint = PaintBox1Paint
-        ExplicitLeft = 286
         ExplicitTop = -1
       end
       object ListBox1: TListBox

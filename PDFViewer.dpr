@@ -11,11 +11,9 @@ uses
 begin
   Application.Initialize;
   Application.MainFormOnTaskbar := true;
-  Form3:=TForm3.Create(nil);
-  Form3.Show;
-  Application.ProcessMessages;
   Application.CreateForm(TForm1, Form1);
-  Form3.Release;
+  Application.CreateForm(TForm3, Form3);
+  Application.CreateForm(TPasswordDlg, PasswordDlg);
   Application.Run;
 
 end.

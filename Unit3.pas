@@ -22,6 +22,4 @@ implementation
 
 {$R *.dfm}
 
-uses PassWord, Unit1;
-
 end.

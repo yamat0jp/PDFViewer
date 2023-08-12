@@ -10,7 +10,6 @@ object PasswordDlg: TPasswordDlg
   ParentFont = True
   FormStyle = fsStayOnTop
   Position = poDesigned
-  Visible = True
   TextHeight = 15
   object Label1: TLabel
     Left = 8

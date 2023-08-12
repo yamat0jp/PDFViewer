@@ -105,7 +105,7 @@ implementation
 {$R *.dfm}
 
 uses SkiSys.GS_Api, SkiSys.GS_Converter, SkiSys.GS_ParameterConst,
-  SkiSys.GS_gdevdsp;
+  SkiSys.GS_gdevdsp, Unit3;
 
 var
   pdf: TGS_PdfConverter;
@@ -259,6 +259,10 @@ procedure TForm1.ListBox1DblClick(Sender: TObject);
 begin
   if ListBox1.ItemIndex = -1 then
     Exit;
+  Form3.Left := Left + (Width - Form3.Width) div 2;
+  Form3.Top := Top + (Height - Form3.Height) div 2;
+  Form3.Show;
+  Application.ProcessMessages;
   PageControl1.TabIndex := 1;
   Back.Enabled := true;
   doubleScreen.Enabled := true;
@@ -274,6 +278,7 @@ begin
   FDMemTable1.Data := FDQuery1.Data;
   FDMemTable1.Open;
   FDQuery1.Close;
+  Form3.Hide;
   doubleScreenExecute(Sender);
   TrackBar1Change(Sender);
 end;
