@@ -107,48 +107,45 @@ implementation
 {$R *.dfm}
 
 uses SkiSys.GS_Api, SkiSys.GS_Converter, SkiSys.GS_ParameterConst,
-  SkiSys.GS_gdevdsp, Unit3, ABOUT;
+  SkiSys.GS_gdevdsp, Unit3, ABOUT, OKCANCL2;
 
 var
-  pdf: TGS_PdfConverter;
   id, title_id: integer;
   title: string;
+  pdf: TGS_PdfConverter;
 
 const
   query = 'select * from pdfviewer where page_id = 1 order by id asc';
 
 procedure TForm1.OpenExecute(Sender: TObject);
 begin
-  if OpenDialog1.Execute then
-  begin
-    title := ChangeFileExt(ExtractFileName(OpenDialog1.FileName), '');
-    if ListBox1.Items.IndexOf(title) > -1 then
-      Exit;
-    ListBox1.Items.Add(title);
-    with FDTable1 do
+  OKRightDlg := TOKRightDlg.Create(Self);
+  try
+    if OKRightDlg.ShowModal = mrOK then
     begin
-      Filtered := false;
-      Open;
-      Last;
-      id := FieldByName('id').AsInteger;
-      IndexFieldNames := 'title_id';
-      Last;
-      title_id := FieldByName('title_id').AsInteger + 1;
-      IndexFieldNames := 'id';
-    end;
-    pdf := TGS_PdfConverter.Create;
-    try
-      Screen.Cursor := crHourGlass;
-      pdf.Params.Device := DISPLAY_DEVICE_NAME;
-      pdf.UserParams.Clear;
-      pdf.ToPdf(OpenDialog1.FileName, '', false);
+      title := OKRightDlg.Edit1.Text;
+      hyousi:=OKRightDlg.CheckBox1.Checked;
+      if ListBox1.Items.IndexOf(title) > -1 then
+        Exit;
+      ListBox1.Items.Add(title);
+      with FDTable1 do
+      begin
+        Filtered := false;
+        Open;
+        Last;
+        id := FieldByName('id').AsInteger;
+        IndexFieldNames := 'title_id';
+        Last;
+        title_id := FieldByName('title_id').AsInteger + 1;
+        IndexFieldNames := 'id';
+      end;
+      pdf := OKRightDlg.pdf;
       for var i := 0 to pdf.GSDisplay.PageCount - 1 do
         AddImagePage(i);
-    finally
-      Screen.Cursor := crDefault;
-      pdf.Free;
+      FDTable1.Close;
     end;
-    FDTable1.Close;
+  finally
+    OKRightDlg.Release;
   end;
   FDQuery1.Close;
   FDQuery1.Open(query);

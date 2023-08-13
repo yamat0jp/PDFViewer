@@ -144,6 +144,10 @@
             <Form>AboutBox</Form>
             <FormType>dfm</FormType>
         </DCCReference>
+        <DCCReference Include="OKCANCL2.pas">
+            <Form>OKRightDlg</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
@@ -173,6 +177,12 @@
                 <DeployFile LocalName="C:\Program Files\Firebird\Firebird_3_0\fbclient.dll" Configuration="Release" Class="File">
                     <Platform Name="Win64">
                         <RemoteName>fbclient.dll</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="README.txt" Configuration="Release" Class="File">
+                    <Platform Name="Win64">
+                        <RemoteName>README.txt</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
