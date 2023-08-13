@@ -121,10 +121,10 @@ procedure TForm1.OpenExecute(Sender: TObject);
 begin
   OKRightDlg := TOKRightDlg.Create(Self);
   try
-    if OKRightDlg.ShowModal = mrOK then
+    if (OKRightDlg.ShowModal = mrOK) and (OKRightDlg.Edit1.Text <> '') then
     begin
       title := OKRightDlg.Edit1.Text;
-      hyousi:=OKRightDlg.CheckBox1.Checked;
+      hyousi := OKRightDlg.CheckBox1.Checked;
       if ListBox1.Items.IndexOf(title) > -1 then
         Exit;
       ListBox1.Items.Add(title);

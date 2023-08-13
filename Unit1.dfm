@@ -22098,16 +22098,6 @@ object Form1: TForm1
           item
             Items = <
               item
-                Action = RePaint
-              end
-              item
-                Action = Delete
-              end>
-            Caption = '&Data'
-          end
-          item
-            Items = <
-              item
                 Action = version
                 Caption = '&version'
               end>
