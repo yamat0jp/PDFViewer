@@ -65,7 +65,9 @@ begin
       Image1.Picture.Assign(ABmp);
     end;
     Screen.Cursor:=crDefault;
-  end;
+  end
+  else
+    pdf.GSDisplay.Clear;
 end;
 
 end.

@@ -23,14 +23,9 @@ object OKRightDlg: TOKRightDlg
     Top = 40
     Width = 161
     Height = 217
+    Proportional = True
     Stretch = True
-  end
-  object SpeedButton1: TSpeedButton
-    Left = 360
-    Top = 54
-    Width = 23
-    Height = 22
-    OnClick = SpeedButton1Click
+    Visible = False
   end
   object Label1: TLabel
     Left = 248
@@ -46,6 +41,13 @@ object OKRightDlg: TOKRightDlg
     Height = 30
     Caption = #35501#12415#36796#12415#12395#12399#23569#12293#26178#38291#12364#12363#12363#12426#12414#12377'.'#12288#20316#32773#12424#12426
     WordWrap = True
+  end
+  object SpeedButton1: TSpeedButton
+    Left = 360
+    Top = 54
+    Width = 23
+    Height = 22
+    OnClick = SpeedButton1Click
   end
   object OKBtn: TButton
     Left = 444

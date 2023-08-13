@@ -95,6 +95,7 @@ type
     procedure countPictures;
     function returnPos(page: integer; var double: TPageState): integer;
     function checkSemi(num: integer): Boolean;
+    function makeRect(bmp: TBitmap): TRect;
   public
     { Public éŒ¾ }
   end;
@@ -118,6 +119,8 @@ const
   query = 'select * from pdfviewer where page_id = 1 order by id asc';
 
 procedure TForm1.OpenExecute(Sender: TObject);
+var
+  p: ^TRect;
 begin
   OKRightDlg := TOKRightDlg.Create(Self);
   try
@@ -126,11 +129,13 @@ begin
       pdf := OKRightDlg.pdf;
       if pdf.GSDisplay.PageCount = 0 then
         Exit;
+      New(p);
+      p^ := makeRect(pdf.GSDisplay.GetPage(0));
       title := OKRightDlg.Edit1.Text;
       hyousi := OKRightDlg.CheckBox1.Checked;
       if ListBox1.Items.IndexOf(title) > -1 then
         Exit;
-      ListBox1.Items.Add(title);
+      ListBox1.Items.AddObject(title, Pointer(p));
       with FDTable1 do
       begin
         Filtered := false;
@@ -214,21 +219,28 @@ begin
 end;
 
 procedure TForm1.DeleteExecute(Sender: TObject);
+var
+  id: integer;
 begin
-  if ListBox1.ItemIndex = -1 then
+  id := ListBox1.ItemIndex;
+  if id = -1 then
     Exit;
-  FDTable1.Filter := 'title = ' + QuotedStr(ListBox1.Items[ListBox1.ItemIndex]);
+  FDTable1.Filter := 'title = ' + QuotedStr(ListBox1.Items[id]);
   FDTable1.Filtered := true;
   FDTable1.Open;
   FDTable1.First;
   while not FDTable1.Eof do
     FDTable1.Delete;
   FDTable1.Close;
-  ListBox1.Items.Delete(ListBox1.ItemIndex);
+  Dispose(Pointer(ListBox1.Items.Objects[id]));
+  ListBox1.Items.Delete(id);
   PaintBox1Paint(Sender);
 end;
 
 procedure TForm1.FormCreate(Sender: TObject);
+var
+  bmp: TBitmap;
+  p: ^TRect;
 begin
   FDConnection1.Params.Database := ExtractFilePath(Application.ExeName) +
     'data.fdb';
@@ -238,12 +250,22 @@ begin
     if not FDTable1.Exists then
       ExecSQL;
     Open(query);
-    while Eof = false do
-    begin
-      title := FieldByName('title').AsString;
-      if ListBox1.Items.IndexOf(title) = -1 then
-        ListBox1.Items.Add(title);
-      Next;
+    bmp := TBitmap.Create;
+    try
+      while Eof = false do
+      begin
+        title := FieldByName('title').AsString;
+        if ListBox1.Items.IndexOf(title) = -1 then
+        begin
+          bmp.Assign(FieldByName('image'));
+          New(p);
+          p^ := makeRect(bmp);
+          ListBox1.Items.AddObject(title, Pointer(p));
+        end;
+        Next;
+      end;
+    finally
+      bmp.Free;
     end;
   end;
   TabSheet3Resize(Sender);
@@ -254,6 +276,8 @@ end;
 procedure TForm1.FormDestroy(Sender: TObject);
 begin
   pageList.Free;
+  for var i := 0 to ListBox1.Items.Count - 1 do
+    Dispose(Pointer(ListBox1.Items.Objects[i]));
 end;
 
 procedure TForm1.ListBox1Click(Sender: TObject);
@@ -310,46 +334,55 @@ begin
     Accept := true;
 end;
 
+function TForm1.makeRect(bmp: TBitmap): TRect;
+var
+  num, consw, consh: integer;
+begin
+  num := 120;
+  if bmp.Width > bmp.Height then
+  begin
+    consw := num;
+    consh := Round(num * bmp.Height / bmp.Width);
+  end
+  else
+  begin
+    consh := num;
+    consw := Round(num * bmp.Width / bmp.Height);
+  end;
+  result.Left := Random(PaintBox1.Width - consw);
+  result.Top := Random(PaintBox1.Height - consh);
+  result.Width:=consw;
+  result.Height:=consh;
+end;
+
 procedure TForm1.PaintBox1Paint(Sender: TObject);
 var
-  rect: TRect;
+  rect: ^TRect;
   bmp: TBitmap;
-  pos: TPoint;
-  procedure makeRect(topleft: TPoint);
-  begin
-    rect.Left := topleft.X;
-    rect.Top := topleft.Y;
-    if bmp.Width > bmp.Height then
-    begin
-      rect.Right := topleft.X + 160;
-      rect.Bottom := topleft.Y + 120;
-    end
-    else
-    begin
-      rect.Right := topleft.X + 120;
-      rect.Bottom := topleft.Y + 160;
-    end;
-  end;
-
 begin
-  rect.topleft := Point(0, 0);
-  rect.Width := PaintBox1.Width;
-  rect.Height := PaintBox1.Height;
-  PaintBox1.Canvas.FillRect(rect);
+  Randomize;
+  PaintBox1.Canvas.FillRect(PaintBox1.ClientRect);
   PaintBox1.Canvas.Pen.Color := clRed;
   PaintBox1.Canvas.Pen.Width := 10;
   bmp := TBitmap.Create;
   try
     for var i := 0 to ListBox1.Items.Count - 1 do
     begin
+      if ListBox1.ItemIndex = i then
+        continue;
       FDQuery1.Locate('title', ListBox1.Items[i]);
       bmp.Assign(FDQuery1.FieldByName('image'));
-      pos.X := 30 + i * 120;;
-      pos.Y := 30;
-      makeRect(pos);
-      if ListBox1.ItemIndex = i then
-        PaintBox1.Canvas.Rectangle(rect);
-      PaintBox1.Canvas.StretchDraw(rect, bmp);
+      rect := Pointer(ListBox1.Items.Objects[i]);
+      PaintBox1.Canvas.StretchDraw(rect^, bmp);
+    end;
+    id:= ListBox1.ItemIndex;
+    if id > -1 then
+    begin
+      FDQuery1.Locate('title',ListBox1.Items[id]);
+      bmp.Assign(FDQuery1.FieldByName('image'));
+      rect := Pointer(ListBox1.Items.Objects[id]);
+      PaintBox1.Canvas.Rectangle(rect^);
+      PaintBox1.Canvas.StretchDraw(rect^, bmp);
     end;
   finally
     bmp.Free;
