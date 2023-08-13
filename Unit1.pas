@@ -123,6 +123,9 @@ begin
   try
     if (OKRightDlg.ShowModal = mrOK) and (OKRightDlg.Edit1.Text <> '') then
     begin
+      pdf := OKRightDlg.pdf;
+      if pdf.GSDisplay.PageCount = 0 then
+        Exit;
       title := OKRightDlg.Edit1.Text;
       hyousi := OKRightDlg.CheckBox1.Checked;
       if ListBox1.Items.IndexOf(title) > -1 then
@@ -139,7 +142,6 @@ begin
         title_id := FieldByName('title_id').AsInteger + 1;
         IndexFieldNames := 'id';
       end;
-      pdf := OKRightDlg.pdf;
       for var i := 0 to pdf.GSDisplay.PageCount - 1 do
         AddImagePage(i);
       FDTable1.Close;

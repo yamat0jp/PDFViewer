@@ -204,6 +204,12 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
+                <DeployFile LocalName="ZANSHO_NEW.pdf" Configuration="Release" Class="File">
+                    <Platform Name="Win64">
+                        <RemoteName>ZANSHO_NEW.pdf</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
                 <DeployFile LocalName="gsdll64.dll" Configuration="Release" Class="File">
                     <Platform Name="Win64">
                         <RemoteName>gsdll64.dll</RemoteName>
