@@ -18,6 +18,7 @@ type
     Label1: TLabel;
     CheckBox1: TCheckBox;
     OpenDialog1: TOpenDialog;
+    Label2: TLabel;
     procedure SpeedButton1Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);

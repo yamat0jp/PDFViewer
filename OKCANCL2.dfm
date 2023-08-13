@@ -39,6 +39,14 @@ object OKRightDlg: TOKRightDlg
     Height = 15
     Caption = 'Title Name'
   end
+  object Label2: TLabel
+    Left = 224
+    Top = 168
+    Width = 134
+    Height = 30
+    Caption = #35501#12415#36796#12415#12395#12399#23569#12293#26178#38291#12364#12363#12363#12426#12414#12377'.'#12288#20316#32773#12424#12426
+    WordWrap = True
+  end
   object OKBtn: TButton
     Left = 444
     Top = 24
@@ -79,7 +87,7 @@ object OKRightDlg: TOKRightDlg
   object OpenDialog1: TOpenDialog
     DefaultExt = '.pdf'
     Filter = 'PDF|*.PDF'
-    Left = 264
-    Top = 160
+    Left = 456
+    Top = 120
   end
 end
