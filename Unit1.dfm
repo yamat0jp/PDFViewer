@@ -1,7 +1,7 @@
 object Form1: TForm1
   Left = 0
   Top = 0
-  Caption = 'PDFViewer'
+  Caption = 'PDF'#26089#35211#24086
   ClientHeight = 589
   ClientWidth = 877
   Color = clSkyBlue

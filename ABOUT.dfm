@@ -55,9 +55,9 @@ object AboutBox: TAboutBox
     object ProductName: TLabel
       Left = 88
       Top = 16
-      Width = 89
+      Width = 87
       Height = 13
-      Caption = #35069#21697#21517': PDFViewer'
+      Caption = #35069#21697#21517': PDF'#26089#35211#24086
       IsControl = True
     end
     object Version: TLabel
@@ -65,15 +65,15 @@ object AboutBox: TAboutBox
       Top = 40
       Width = 137
       Height = 13
-      Caption = #12496#12540#12472#12519#12531': 579a55a '#36794#12426#12398#12467#12511#12483#12488
+      Caption = #12496#12540#12472#12519#12531': 72ce80d '#36794#12426#12398#12467#12511#12483#12488
       IsControl = True
     end
     object Copyright: TLabel
       Left = 8
       Top = 80
-      Width = 44
+      Width = 50
       Height = 13
-      Caption = 'Copyright'
+      Caption = 'Copyright: '
       IsControl = True
     end
     object Comments: TLabel
