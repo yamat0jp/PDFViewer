@@ -85,6 +85,7 @@ type
     procedure ListBox1DragDrop(Sender, Source: TObject; X, Y: integer);
     procedure TabSheet3Resize(Sender: TObject);
     procedure versionExecute(Sender: TObject);
+    procedure PageControl1Changing(Sender: TObject; var AllowChange: Boolean);
   private
     { Private éŒ¾ }
     double: TPageState;
@@ -351,8 +352,14 @@ begin
   end;
   result.Left := Random(PaintBox1.Width - consw);
   result.Top := Random(PaintBox1.Height - consh);
-  result.Width:=consw;
-  result.Height:=consh;
+  result.Width := consw;
+  result.Height := consh;
+end;
+
+procedure TForm1.PageControl1Changing(Sender: TObject;
+  var AllowChange: Boolean);
+begin
+  AllowChange := false;
 end;
 
 procedure TForm1.PaintBox1Paint(Sender: TObject);
@@ -375,10 +382,10 @@ begin
       rect := Pointer(ListBox1.Items.Objects[i]);
       PaintBox1.Canvas.StretchDraw(rect^, bmp);
     end;
-    id:= ListBox1.ItemIndex;
+    id := ListBox1.ItemIndex;
     if id > -1 then
     begin
-      FDQuery1.Locate('title',ListBox1.Items[id]);
+      FDQuery1.Locate('title', ListBox1.Items[id]);
       bmp.Assign(FDQuery1.FieldByName('image'));
       rect := Pointer(ListBox1.Items.Objects[id]);
       PaintBox1.Canvas.Rectangle(rect^);

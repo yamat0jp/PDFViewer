@@ -78,7 +78,6 @@ object Form1: TForm1
       Left = 313
       Top = 0
       Caption = 'ToolButton5'
-      OnClick = ToolButton7Click
     end
     object ToolButton6: TToolButton
       Left = 336
@@ -93,7 +92,6 @@ object Form1: TForm1
       Top = 0
       Caption = 'ToolButton7'
       ImageIndex = 0
-      OnClick = ToolButton7Click
     end
   end
   object StatusBar1: TStatusBar
@@ -129,6 +127,7 @@ object Form1: TForm1
     MultiLine = True
     TabOrder = 4
     TabPosition = tpRight
+    OnChanging = PageControl1Changing
     ExplicitWidth = 873
     ExplicitHeight = 474
     object TabSheet1: TTabSheet
