@@ -8,8 +8,6 @@ object OKRightDlg: TOKRightDlg
   Color = clBtnFace
   ParentFont = True
   Position = poScreenCenter
-  OnCreate = FormCreate
-  OnDestroy = FormDestroy
   TextHeight = 15
   object Bevel1: TBevel
     Left = 8
@@ -17,15 +15,6 @@ object OKRightDlg: TOKRightDlg
     Width = 401
     Height = 281
     Shape = bsFrame
-  end
-  object Image1: TImage
-    Left = 32
-    Top = 40
-    Width = 161
-    Height = 217
-    Proportional = True
-    Stretch = True
-    Visible = False
   end
   object Label1: TLabel
     Left = 248
@@ -39,7 +28,7 @@ object OKRightDlg: TOKRightDlg
     Top = 168
     Width = 134
     Height = 30
-    Caption = #35501#12415#36796#12415#12395#12399#23569#12293#26178#38291#12364#12363#12363#12426#12414#12377'.'#12288#20316#32773#12424#12426
+    Caption = #35501#12415#36796#12415#12395#12399#23569#12293#26178#38291#12364#12363#12363#12426#12414#12377'.'
     WordWrap = True
   end
   object SpeedButton1: TSpeedButton
@@ -85,6 +74,15 @@ object OKRightDlg: TOKRightDlg
     Checked = True
     State = cbChecked
     TabOrder = 3
+  end
+  object OleContainer1: TOleContainer
+    Left = 32
+    Top = 41
+    Width = 161
+    Height = 217
+    Caption = 'OleContainer1'
+    SizeMode = smScale
+    TabOrder = 4
   end
   object OpenDialog1: TOpenDialog
     Filter = 'PDF|*.PDF'

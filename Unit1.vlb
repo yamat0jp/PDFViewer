@@ -3,11 +3,8 @@ Coordinates=10,10,73,36
 Visible=True
 
 []
-Coordinates=270,20,72,190
+Coordinates=651,56,154,36
 Visible=True
-
-[OpenDialog1]
-Coordinates=325,1,90,36
 
 [ActionMainMenuBar1]
 Coordinates=380,60,137,36
@@ -72,9 +69,6 @@ Coordinates=0,0,78,58
 [ReversePage]
 Coordinates=215,196,92,36
 
-[FDMemTable1TITLE_ID]
-Coordinates=453,170,154,36
-
 [TabSheet2]
 Coordinates=208,1,77,36
 
@@ -84,9 +78,6 @@ Visible=True
 
 [ToolBar2]
 Coordinates=63,273,67,36
-
-[FDMemTable1PAGE_ID]
-Coordinates=651,56,154,36
 
 [TabSheet3]
 Coordinates=459,362,77,36
@@ -103,9 +94,6 @@ Coordinates=29,77,40,36
 [ToolButton4]
 Coordinates=645,331,84,36
 
-[FDMemTable1IMAGE]
-Coordinates=310,362,140,36
-
 [uninstall]
 Coordinates=241,362,62,36
 
@@ -121,6 +109,19 @@ Coordinates=843,1,84,36
 [PageControl1]
 Coordinates=843,56,93,36
 
-[FDMemTable1SUBIMAGE]
-Coordinates=843,111,166,36
+[Memo1]
+Coordinates=0,0,64,58
+
+[TabSheet4]
+Coordinates=323,1,77,36
+
+[FDTable1]
+Coordinates=208,1,71,58
+Visible=True
+
+[version]
+Coordinates=323,56,56,36
+
+[FDPhysFBDriverLink1]
+Coordinates=651,111,142,36
 

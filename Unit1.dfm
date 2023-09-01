@@ -1,9 +1,9 @@
 object Form1: TForm1
   Left = 0
   Top = 0
-  Caption = 'PDF'#26089#35211#24086
-  ClientHeight = 589
-  ClientWidth = 877
+  Caption = 'PDFDatabase'
+  ClientHeight = 588
+  ClientWidth = 873
   Color = clSkyBlue
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -12,13 +12,13 @@ object Form1: TForm1
   Font.Style = []
   OnCreate = FormCreate
   OnDestroy = FormDestroy
+  OnKeyDown = FormKeyDown
   TextHeight = 15
   object ActionMainMenuBar1: TActionMainMenuBar
     Left = 0
     Top = 0
-    Width = 877
+    Width = 873
     Height = 25
-    UseSystemFont = False
     ActionManager = ActionManager1
     Caption = 'ActionMainMenuBar1'
     Color = clMenuBar
@@ -28,45 +28,46 @@ object Form1: TForm1
     ColorMap.SelectedFontColor = clWhite
     ColorMap.UnusedColor = clWhite
     Font.Charset = DEFAULT_CHARSET
-    Font.Color = clBlack
+    Font.Color = clWindowText
     Font.Height = -12
     Font.Name = 'Segoe UI'
     Font.Style = []
     Spacing = 0
-    ExplicitWidth = 873
+    ExplicitWidth = 869
   end
   object Panel2: TPanel
     Left = 0
-    Top = 500
-    Width = 877
+    Top = 499
+    Width = 873
     Height = 41
     Align = alBottom
     TabOrder = 0
     Visible = False
-    ExplicitTop = 499
-    ExplicitWidth = 873
+    ExplicitTop = 498
+    ExplicitWidth = 869
     object TrackBar1: TTrackBar
       Left = 1
       Top = 1
-      Width = 875
+      Width = 871
       Height = 39
       Align = alClient
       PageSize = 1
       TabOrder = 0
       OnChange = TrackBar1Change
-      ExplicitWidth = 871
+      OnKeyDown = FormKeyDown
+      ExplicitWidth = 867
     end
   end
   object ToolBar2: TToolBar
     Left = 0
-    Top = 541
-    Width = 877
+    Top = 540
+    Width = 873
     Height = 29
     Align = alBottom
     Caption = 'ToolBar2'
     TabOrder = 2
-    ExplicitTop = 540
-    ExplicitWidth = 873
+    ExplicitTop = 539
+    ExplicitWidth = 869
     object ToolButton4: TToolButton
       Left = 0
       Top = 0
@@ -96,8 +97,8 @@ object Form1: TForm1
   end
   object StatusBar1: TStatusBar
     Left = 0
-    Top = 570
-    Width = 877
+    Top = 569
+    Width = 873
     Height = 19
     Panels = <
       item
@@ -114,38 +115,40 @@ object Form1: TForm1
       item
         Width = 50
       end>
-    ExplicitTop = 569
-    ExplicitWidth = 873
+    ExplicitTop = 568
+    ExplicitWidth = 869
   end
   object PageControl1: TPageControl
     Left = 0
     Top = 25
-    Width = 877
-    Height = 475
+    Width = 873
+    Height = 474
     ActivePage = TabSheet1
     Align = alClient
     MultiLine = True
     TabOrder = 4
     TabPosition = tpRight
     OnChanging = PageControl1Changing
-    ExplicitWidth = 873
-    ExplicitHeight = 474
+    OnMouseEnter = PageControl1MouseEnter
+    ExplicitWidth = 869
+    ExplicitHeight = 473
     object TabSheet1: TTabSheet
       Caption = 'TabSheet1'
       object PaintBox1: TPaintBox
         Left = 280
         Top = 0
-        Width = 566
-        Height = 467
+        Width = 562
+        Height = 466
         Align = alClient
         OnPaint = PaintBox1Paint
+        ExplicitLeft = 286
         ExplicitTop = -1
       end
       object ListBox1: TListBox
         Left = 0
         Top = 0
         Width = 280
-        Height = 467
+        Height = 466
         Align = alLeft
         DragMode = dmAutomatic
         Font.Charset = DEFAULT_CHARSET
@@ -161,7 +164,7 @@ object Form1: TForm1
         OnDblClick = ListBox1DblClick
         OnDragDrop = ListBox1DragDrop
         OnDragOver = ListBox1DragOver
-        ExplicitHeight = 466
+        ExplicitHeight = 465
       end
     end
     object TabSheet2: TTabSheet
@@ -170,11 +173,16 @@ object Form1: TForm1
       object Image1: TImage
         Left = 0
         Top = 0
-        Width = 846
-        Height = 467
+        Width = 842
+        Height = 466
+        Hint = #21491#12463#12522#12483#12463'::Help'
         Align = alClient
         Center = True
+        ParentShowHint = False
         Proportional = True
+        ShowHint = True
+        OnDblClick = Image1DblClick
+        OnMouseDown = Image1MouseDown
         ExplicitLeft = 177
         ExplicitTop = 31
         ExplicitWidth = 443
@@ -186,10 +194,10 @@ object Form1: TForm1
       ImageIndex = 2
       OnResize = TabSheet3Resize
       DesignSize = (
-        846
-        467)
+        842
+        466)
       object Image2: TImage
-        Left = 122
+        Left = 121
         Top = -252
         Width = 216
         Height = 372
@@ -11095,7 +11103,7 @@ object Form1: TForm1
         ExplicitTop = -209
       end
       object Image3: TImage
-        Left = 405
+        Left = 403
         Top = -252
         Width = 218
         Height = 372
@@ -22001,20 +22009,37 @@ object Form1: TForm1
         ExplicitTop = -209
       end
     end
-  end
-  object OpenDialog1: TOpenDialog
-    Left = 304
-    Top = 296
+    object TabSheet4: TTabSheet
+      Caption = 'TabSheet4'
+      ImageIndex = 3
+      object Memo1: TMemo
+        Left = 0
+        Top = 0
+        Width = 842
+        Height = 466
+        Align = alClient
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -27
+        Font.Name = 'Segoe UI'
+        Font.Style = []
+        Lines.Strings = (
+          'ESC'#12288#12418#12393#12427
+          #8592#12539#8594#12288#12356#12393#12358)
+        ParentFont = False
+        ReadOnly = True
+        TabOrder = 0
+        OnMouseUp = Memo1MouseUp
+      end
+    end
   end
   object FDConnection1: TFDConnection
     Params.Strings = (
-      'Database=C:\Users\yamat\Documents\GitHub\2023\pdfviewer\DATA.FDB'
-      'User_Name=sysdba'
-      'Password=masterkey'
-      'Port=3050'
-      'Server=localhost'
-      'CharacterSet=utF8'
+      'CharacterSet=UTF8'
       'OpenMode=OpenOrCreate'
+      'Database=C:\Users\yamat\Documents\GitHub\2023\pdfviewer\DATA.FDB'
+      'User_Name=SYSDBA'
+      'Password=masterkey'
       'DriverID=FB')
     LoginPrompt = False
     Left = 432
@@ -22048,20 +22073,6 @@ object Form1: TForm1
     StoreDefs = True
     Left = 520
     Top = 288
-    object FDMemTable1PAGE_ID: TIntegerField
-      FieldName = 'PAGE_ID'
-      Required = True
-    end
-    object FDMemTable1IMAGE: TBlobField
-      FieldName = 'IMAGE'
-    end
-    object FDMemTable1TITLE_ID: TIntegerField
-      FieldName = 'TITLE_ID'
-      Required = True
-    end
-    object FDMemTable1SUBIMAGE: TBooleanField
-      FieldName = 'SUBIMAGE'
-    end
   end
   object ActionManager1: TActionManager
     ActionBars = <
@@ -22073,12 +22084,9 @@ object Form1: TForm1
                 Action = Open
               end
               item
-                Caption = '-'
-              end
-              item
                 Action = Action3
               end>
-            Caption = '&files'
+            Caption = '&Files'
           end
           item
             Items = <
@@ -22170,14 +22178,14 @@ object Form1: TForm1
     FetchOptions.AssignedValues = [evRowsetSize]
     FetchOptions.RowsetSize = 300
     SQL.Strings = (
-      'CREATE TABLE PDFViewer '
+      'CREATE TABLE pdfdatabase '
       '('
       '        ID'#9'INTEGER NOT NULL,'
       '        PAGE_ID'#9'INTEGER NOT NULL,'
       '        IMAGE'#9'BLOB SUB_TYPE -1 SEGMENT SIZE 80,'
       '        TITLE_ID'#9'INTEGER NOT NULL,'
       '        TITLE'#9'VARCHAR(50) NOT NULL,'
-      '        SUBIMAGE'#9'BOOLEAN NOT NULL,'
+      '        SUBIMAGE'#9'integer NOT NULL,'
       ' PRIMARY KEY (ID)'
       ');')
     Left = 520
@@ -22189,13 +22197,13 @@ object Form1: TForm1
     FetchOptions.AssignedValues = [evRowsetSize]
     FetchOptions.RowsetSize = 30
     ResourceOptions.AssignedValues = [rvEscapeExpand]
-    TableName = 'PDFVIEWER'
+    TableName = 'pdfdatabase'
     Left = 432
-    Top = 352
+    Top = 344
   end
   object FDPhysFBDriverLink1: TFDPhysFBDriverLink
     Embedded = True
-    Left = 528
-    Top = 352
+    Left = 432
+    Top = 232
   end
 end

@@ -13,9 +13,10 @@ uses
   FireDAC.VCLUI.Wait, FireDAC.Stan.Param,
   FireDAC.DatS, FireDAC.DApt.Intf, FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet,
   FireDAC.Comp.Client, Vcl.ExtCtrls, Vcl.StdCtrls,
-  Vcl.Menus, FireDAC.Stan.StorageBin, Vcl.ComCtrls,
+  Vcl.Menus, FireDAC.Stan.StorageBin, Vcl.ComCtrls, System.UITypes,
   FireDAC.Stan.ExprFuncs, FireDAC.Phys.FB, FireDAC.Phys.FBDef,
-  FireDAC.Phys.IBBase;
+  FireDAC.Phys.IBBase, FireDAC.Phys.IB, FireDAC.Phys.IBDef,
+  FireDAC.Phys.IBLiteDef;
 
 type
   TPageState = (pgSingle, pgSemi, pgDouble);
@@ -25,7 +26,6 @@ type
   end;
 
   TForm1 = class(TForm)
-    OpenDialog1: TOpenDialog;
     ActionMainMenuBar1: TActionMainMenuBar;
     FDConnection1: TFDConnection;
     Image1: TImage;
@@ -50,10 +50,6 @@ type
     ToolButton7: TToolButton;
     D1: TMenuItem;
     uninstall: TAction;
-    FDMemTable1PAGE_ID: TIntegerField;
-    FDMemTable1IMAGE: TBlobField;
-    FDMemTable1TITLE_ID: TIntegerField;
-    FDMemTable1SUBIMAGE: TBooleanField;
     StatusBar1: TStatusBar;
     FDQuery1: TFDQuery;
     PaintBox1: TPaintBox;
@@ -64,6 +60,8 @@ type
     TabSheet3: TTabSheet;
     FDTable1: TFDTable;
     version: TAction;
+    TabSheet4: TTabSheet;
+    Memo1: TMemo;
     FDPhysFBDriverLink1: TFDPhysFBDriverLink;
     procedure OpenExecute(Sender: TObject);
     procedure Action3Execute(Sender: TObject);
@@ -86,6 +84,13 @@ type
     procedure TabSheet3Resize(Sender: TObject);
     procedure versionExecute(Sender: TObject);
     procedure PageControl1Changing(Sender: TObject; var AllowChange: Boolean);
+    procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure Image1DblClick(Sender: TObject);
+    procedure Memo1MouseUp(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: integer);
+    procedure Image1MouseDown(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: integer);
+    procedure PageControl1MouseEnter(Sender: TObject);
   private
     { Private êÈåæ }
     double: TPageState;
@@ -117,25 +122,37 @@ var
   pdf: TGS_PdfConverter;
 
 const
-  query = 'select * from pdfviewer where page_id = 1 order by id asc';
+  query = 'select * from pdfdatabase where page_id = 1 order by id asc';
 
 procedure TForm1.OpenExecute(Sender: TObject);
 var
   p: ^TRect;
+  procedure exitProc;
+  begin
+    OKRightDlg.OleContainer1.DestroyObject;
+    OKRightDlg.Edit1.Text := '';
+    FDQuery1.Close;
+    FDQuery1.Open(query);
+    PaintBox1Paint(Sender);
+  end;
+
 begin
-  OKRightDlg := TOKRightDlg.Create(Self);
-  try
-    if (OKRightDlg.ShowModal = mrOK) and (OKRightDlg.Edit1.Text <> '') then
-    begin
-      pdf := OKRightDlg.pdf;
+  if (OKRightDlg.ShowModal = mrOK) and (OKRightDlg.Edit1.Text <> '') then
+  begin
+    pdf := TGS_PdfConverter.Create;
+    try
+      Screen.Cursor := crHourGlass;
+      pdf.Params.Device := DISPLAY_DEVICE_NAME;
+      pdf.UserParams.Clear;
+      pdf.ToPdf(OKRightDlg.OpenDialog1.FileName, '', false);
       if pdf.GSDisplay.PageCount = 0 then
         Exit;
-      New(p);
-      p^ := makeRect(pdf.GSDisplay.GetPage(0));
       title := OKRightDlg.Edit1.Text;
-      hyousi := OKRightDlg.CheckBox1.Checked;
       if ListBox1.Items.IndexOf(title) > -1 then
         Exit;
+      hyousi := OKRightDlg.CheckBox1.Checked;
+      New(p);
+      p^ := makeRect(pdf.GSDisplay.GetPage(0));
       ListBox1.Items.AddObject(title, Pointer(p));
       with FDTable1 do
       begin
@@ -151,13 +168,13 @@ begin
       for var i := 0 to pdf.GSDisplay.PageCount - 1 do
         AddImagePage(i);
       FDTable1.Close;
+    finally
+      pdf.Free;
+      Screen.Cursor := crDefault;
+      exitProc;
     end;
-  finally
-    OKRightDlg.Release;
   end;
-  FDQuery1.Close;
-  FDQuery1.Open(query);
-  PaintBox1Paint(Sender);
+  exitProc;
 end;
 
 procedure TForm1.AddImagePage(Index: integer);
@@ -167,13 +184,13 @@ begin
   with FDTable1 do
   begin
     inc(id);
-    AppendRecord([id, Index + 1, nil, title_id, title, false]);
+    AppendRecord([id, Index + 1, nil, title_id, title, 0]);
     Edit;
   end;
   ABmp := pdf.GSDisplay.GetPage(Index);
   FDTable1.FieldByName('image').Assign(ABmp);
   if (ABmp.Width > ABmp.Height) or (hyousi and (index + 1 = 1)) then
-    FDTable1.FieldByName('subimage').AsBoolean := true;
+    FDTable1.FieldByName('subimage').AsInteger := 1;
   FDTable1.Post;
 end;
 
@@ -253,7 +270,7 @@ begin
     Open(query);
     bmp := TBitmap.Create;
     try
-      while Eof = false do
+      while not Eof do
       begin
         title := FieldByName('title').AsString;
         if ListBox1.Items.IndexOf(title) = -1 then
@@ -281,6 +298,28 @@ begin
     Dispose(Pointer(ListBox1.Items.Objects[i]));
 end;
 
+procedure TForm1.FormKeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  if Key = vkEscape then
+    BackExecute(Sender);
+end;
+
+procedure TForm1.Image1DblClick(Sender: TObject);
+begin
+  if WindowState = wsNormal then
+    WindowState := wsMaximized
+  else
+    WindowState := wsNormal;
+end;
+
+procedure TForm1.Image1MouseDown(Sender: TObject; Button: TMouseButton;
+  Shift: TShiftState; X, Y: integer);
+begin
+  if Button = TMouseButton.mbRight then
+    PageControl1.ActivePageIndex := 3;
+end;
+
 procedure TForm1.ListBox1Click(Sender: TObject);
 begin
   PaintBox1Paint(Sender);
@@ -302,7 +341,7 @@ begin
   TrackBar1.SetFocus;
   FDQuery1.Close;
   FDQuery1.SQL.Clear;
-  FDQuery1.SQL.Add('select * from pdfviewer where title = :str');
+  FDQuery1.SQL.Add('select * from pdfdatabase where title = :str');
   FDQuery1.Params.ParamByName('str').AsString :=
     ListBox1.Items[ListBox1.ItemIndex];
   FDQuery1.Open;
@@ -356,10 +395,23 @@ begin
   result.Height := consh;
 end;
 
+procedure TForm1.Memo1MouseUp(Sender: TObject; Button: TMouseButton;
+  Shift: TShiftState; X, Y: integer);
+begin
+  if Button = TMouseButton.mbRight then
+    PageControl1.ActivePageIndex := 1;
+end;
+
 procedure TForm1.PageControl1Changing(Sender: TObject;
   var AllowChange: Boolean);
 begin
   AllowChange := false;
+end;
+
+procedure TForm1.PageControl1MouseEnter(Sender: TObject);
+begin
+  if PageControl1.ActivePageIndex = 3 then
+    PageControl1.ActivePageIndex := 1;
 end;
 
 procedure TForm1.PaintBox1Paint(Sender: TObject);
