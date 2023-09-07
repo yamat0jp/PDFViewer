@@ -1,34 +1,36 @@
-PDF早見帖
-概要
-自炊してデジタル化した漫画をサクサク読む目的で作られた。
+PDF������
+�T�v
+�������ăf�W�^��������������T�N�T�N�ǂޖړI�ō��ꂽ�B
 
-メールアドレス
+���[���A�h���X�E�z�[���y�[�WURL
 yamat0jp@yahoo.co.jp
+https://sites.google.com/site/delphiuserhotkey/home
 
-取り扱い種別 フリーソフト
-これから寄付の受付もしてみようかと思っています。購入の条件ではありません。
-
-インストール・アンインストール方法
-解凍したフォルダの中から実行ファイルを起動して使います。
-アンインストールは出てきたファイルをフォルダごと削除して完了です。
+��舵����� �t���[�\�t�g
+���ꂩ���t�̎�t�����Ă݂悤���Ǝv���Ă��܂��B�w���̏����ł͂���܂���B
 
 
-使い方案内
-PDＦファイルを読み込んでリストからダブルクリックしてあげます。下部のトラックバーにフォーカスが移るので
-十字キーを押してページを繰ってください。作品の登録には時間を要します。1作品300ページまでです。
+�g�����ē�
+PD�e�t�@�C����ǂݍ���Ń��X�g����_�u���N���b�N���Ă����܂��B�����̃g���b�N�o�[�Ƀt�H�[�J�X���ڂ�̂�
+�\���L�[�������ăy�[�W���J���Ă��������B��i�̓o�^�ɂ͎��Ԃ�v���܂��B1��i300�y�[�W�܂łł��B
 
-ご自身のPDFファイルは取り込み後も大切に保管してください。消失した場合の補償には応じられません。
-データベースに入っているデータの書き出しにも対応していません。
+�����g��PDF�t�@�C���͎�荞�݌����؂ɕۊǂ��Ă��������B���������ꍇ�̕⏞�ɂ͉������܂���B
+�f�[�^�x�[�X�ɓ����Ă���f�[�^�̏����o���ɂ��Ή����Ă��܂���B
 
-謝辞
-PDFを扱うためにgsdll64.dllを利用しています。素晴らしい機能の提供ありがとうございます。
-データベースはFirebird Embeddedを使用。おかげさまで配布できます。
+���m�̖��
+�t�@�C���p�X�ɓ��{����͕���������ƔF���ł��܂���B
 
-フォルダ内のファイルについて軽く説明
-README.txt---Readmeファイル
-ZANSHO_NEW.pdf---サンプルファイル
-PDF早見帖---実行ファイル本体
-その他---データベース関連ファイル
+�ӎ�
+PDF���������߂�gsdll64.dll�𗘗p���Ă��܂��B�f���炵���@�\�̒񋟂��肪�Ƃ��������܂��B
+�f�[�^�x�[�X��sqlite3���g�p�B���������܂Ŕz�z�ł��܂��B
+GPL Licence�ɏ]���\�[�X�R�[�h�����J���Ă��܂� GitHub yamat0jp PDFViewer
 
-送金先口座
-香川県農業協同組合 鴨部支店 普通一般 0718501 ﾌｹﾏｻｼ
+�t�H���_���̃t�@�C���ɂ��Čy������
+README.txt---Readme�t�@�C��
+ZANSHO_NEW.pdf---�T���v���t�@�C��
+PDF������---���s�t�@�C���{��
+gsdll64.dll---PDF�֘A�t�@�C��
+���̑��̃t�@�C��---�f�[�^�x�[�X�֘A�t�@�C��
+
+���������
+���쌧�_�Ƌ����g�� �����x�X ���ʈ�� 0718501 ̹ϻ�
