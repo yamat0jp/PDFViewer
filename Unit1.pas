@@ -14,9 +14,8 @@ uses
   FireDAC.DatS, FireDAC.DApt.Intf, FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet,
   FireDAC.Comp.Client, Vcl.ExtCtrls, Vcl.StdCtrls,
   Vcl.Menus, FireDAC.Stan.StorageBin, Vcl.ComCtrls, System.UITypes,
-  FireDAC.Stan.ExprFuncs, FireDAC.Phys.FB, FireDAC.Phys.FBDef,
-  FireDAC.Phys.IBBase, FireDAC.Phys.IB, FireDAC.Phys.IBDef,
-  FireDAC.Phys.IBLiteDef;
+  FireDAC.Stan.ExprFuncs, FireDAC.Phys.SQLite, FireDAC.Phys.SQLiteDef,
+  FireDAC.Phys.SQLiteWrapper.Stat;
 
 type
   TPageState = (pgSingle, pgSemi, pgDouble);
@@ -62,7 +61,7 @@ type
     version: TAction;
     TabSheet4: TTabSheet;
     Memo1: TMemo;
-    FDPhysFBDriverLink1: TFDPhysFBDriverLink;
+    FDPhysSQLiteDriverLink1: TFDPhysSQLiteDriverLink;
     procedure OpenExecute(Sender: TObject);
     procedure Action3Execute(Sender: TObject);
     procedure ListBox1DblClick(Sender: TObject);
@@ -261,7 +260,7 @@ var
   p: ^TRect;
 begin
   FDConnection1.Params.Database := ExtractFilePath(Application.ExeName) +
-    'data.fdb';
+    'data.sdb';
   FDConnection1.Open;
   with FDQuery1 do
   begin
@@ -539,7 +538,7 @@ begin
   while not FDMemTable1.Eof do
   begin
     p.Right := 0;
-    bool := FDMemTable1.FieldByName('subimage').AsBoolean;
+    bool := FDMemTable1.FieldByName('subimage').AsInteger = 1;
     if cnt = 0 then
     begin
       p.Left := FDMemTable1.FieldByName('page_id').AsInteger;

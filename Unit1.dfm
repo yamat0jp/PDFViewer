@@ -22035,12 +22035,8 @@ object Form1: TForm1
   end
   object FDConnection1: TFDConnection
     Params.Strings = (
-      'CharacterSet=UTF8'
-      'OpenMode=OpenOrCreate'
-      'Database=C:\Users\yamat\Documents\GitHub\2023\pdfviewer\DATA.FDB'
-      'User_Name=SYSDBA'
-      'Password=masterkey'
-      'DriverID=FB')
+      'Database=C:\Users\yamat\Documents\GitHub\2023\pdfviewer\data.sdb'
+      'DriverID=SQLite')
     LoginPrompt = False
     Left = 432
     Top = 288
@@ -22082,6 +22078,9 @@ object Form1: TForm1
             Items = <
               item
                 Action = Open
+              end
+              item
+                Caption = '-'
               end
               item
                 Action = Action3
@@ -22182,7 +22181,7 @@ object Form1: TForm1
       '('
       '        ID'#9'INTEGER NOT NULL,'
       '        PAGE_ID'#9'INTEGER NOT NULL,'
-      '        IMAGE'#9'BLOB SUB_TYPE -1 SEGMENT SIZE 80,'
+      '        IMAGE'#9'BLOB ,'
       '        TITLE_ID'#9'INTEGER NOT NULL,'
       '        TITLE'#9'VARCHAR(50) NOT NULL,'
       '        SUBIMAGE'#9'integer NOT NULL,'
@@ -22201,9 +22200,8 @@ object Form1: TForm1
     Left = 432
     Top = 344
   end
-  object FDPhysFBDriverLink1: TFDPhysFBDriverLink
-    Embedded = True
-    Left = 432
-    Top = 232
+  object FDPhysSQLiteDriverLink1: TFDPhysSQLiteDriverLink
+    Left = 544
+    Top = 392
   end
 end

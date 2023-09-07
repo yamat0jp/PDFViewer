@@ -3,7 +3,7 @@ Coordinates=10,10,73,36
 Visible=True
 
 []
-Coordinates=651,56,154,36
+Coordinates=651,111,142,36
 Visible=True
 
 [ActionMainMenuBar1]
@@ -121,7 +121,4 @@ Visible=True
 
 [version]
 Coordinates=323,56,56,36
-
-[FDPhysFBDriverLink1]
-Coordinates=651,111,142,36
 
