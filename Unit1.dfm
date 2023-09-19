@@ -1,7 +1,7 @@
 object Form1: TForm1
   Left = 0
   Top = 0
-  Caption = 'PDFDatabase'
+  Caption = 'PDFViewerDB'
   ClientHeight = 588
   ClientWidth = 873
   Color = clSkyBlue
@@ -19,7 +19,6 @@ object Form1: TForm1
     Top = 0
     Width = 873
     Height = 25
-    UseSystemFont = False
     ActionManager = ActionManager1
     Caption = 'ActionMainMenuBar1'
     Color = clMenuBar
@@ -29,7 +28,7 @@ object Form1: TForm1
     ColorMap.SelectedFontColor = clWhite
     ColorMap.UnusedColor = clWhite
     Font.Charset = DEFAULT_CHARSET
-    Font.Color = clBlack
+    Font.Color = clWindowText
     Font.Height = -12
     Font.Name = 'Segoe UI'
     Font.Style = []
@@ -22036,7 +22035,7 @@ object Form1: TForm1
   end
   object FDConnection1: TFDConnection
     Params.Strings = (
-      'Database=C:\Users\yamat\Documents\GitHub\2023\pdfviewer\data.sdb'
+      'Database=C:\Users\yamat\Documents\PDFViewerDB\data.sdb'
       'DriverID=SQLite')
     LoginPrompt = False
     Left = 432

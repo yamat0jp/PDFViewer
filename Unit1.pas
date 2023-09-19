@@ -15,7 +15,7 @@ uses
   FireDAC.Comp.Client, Vcl.ExtCtrls, Vcl.StdCtrls,
   Vcl.Menus, FireDAC.Stan.StorageBin, Vcl.ComCtrls, System.UITypes,
   FireDAC.Stan.ExprFuncs, FireDAC.Phys.SQLite, FireDAC.Phys.SQLiteDef,
-  FireDAC.Phys.SQLiteWrapper.Stat;
+  FireDAC.Phys.SQLiteWrapper.Stat, System.IOUtils;
 
 type
   TPageState = (pgSingle, pgSemi, pgDouble);
@@ -258,9 +258,20 @@ procedure TForm1.FormCreate(Sender: TObject);
 var
   bmp: TBitmap;
   p: ^TRect;
+  s: string;
 begin
-  FDConnection1.Params.Database := ExtractFilePath(Application.ExeName) +
-    'data.sdb';
+  s := TPath.GetDocumentsPath + '\PDFViewerDB';
+  if not DirectoryExists(s) then
+  begin
+    ChDir(TPath.GetDocumentsPath);
+    MkDir('PDFViewerDB');
+  end;
+  SetCurrentDir(ExtractFilePath(Application.ExeName));
+  if not FileExists(s+'\Readme.txt') then
+    TFile.Copy('Readme.txt', s + '\Readme.txt');
+  if not FileExists(s+'\ZANSHO_NEW.pdf') then
+    TFile.Copy('ZANSHO_NEW.pdf', s + '\ZANSHO_NEW.pdf');
+  FDConnection1.Params.Database := s + '\DATA.SDB';
   FDConnection1.Open;
   with FDQuery1 do
   begin

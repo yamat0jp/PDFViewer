@@ -55,9 +55,9 @@ object AboutBox: TAboutBox
     object ProductName: TLabel
       Left = 88
       Top = 16
-      Width = 103
+      Width = 104
       Height = 13
-      Caption = #35069#21697#21517': PDFDatabase'
+      Caption = #35069#21697#21517': PDFViewerDB'
       IsControl = True
     end
     object Version: TLabel
