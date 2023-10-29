@@ -1,7 +1,7 @@
 object PasswordDlg: TPasswordDlg
   Left = 694
   Top = 519
-  BorderIcons = []
+  BorderIcons = [biSystemMenu]
   BorderStyle = bsDialog
   Caption = #12497#12473#12527#12540#12489#12480#12452#12450#12525#12464
   ClientHeight = 93

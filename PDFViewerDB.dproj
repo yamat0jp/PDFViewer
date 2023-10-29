@@ -124,15 +124,15 @@
         <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
         <VerInfo_Locale>1041</VerInfo_Locale>
         <PF_KeyStore>..\..\..\保存\Delphi証明書\sanuki.pfx</PF_KeyStore>
-        <PF_KeyStorePass>852447C85F9E0784CF64E526D171E33F81850535A05F97C997AA0FF88E783C8ADB56A385E3111C2FC1E2577DFAC4C363BA95367E043722D3163A459DE5E4229DC938F341D558FA9BBFF8AF1172288592</PF_KeyStorePass>
+        <PF_KeyStorePass>852447C85F9E5585A304712AD15DE33A81940557A005978797B40FAA8E6D3CD0DB48A3D6E3181C3AC1B85752FAB3C36BBABA361304262290166845ECE5BA2290C95DF35DD544A8CFD3C73B0472288592</PF_KeyStorePass>
         <PF_KeyStoreSubject>CN=sanuki-k</PF_KeyStoreSubject>
-        <PF_UWPDistributionType>Store</PF_UWPDistributionType>
+        <PF_UWPDistributionType>AdHoc</PF_UWPDistributionType>
         <BT_BuildType>AppStore</BT_BuildType>
-        <PF_UWPPublisher>CN=sanuki-k</PF_UWPPublisher>
+        <PF_UWPPublisher>CN=sanuki_k</PF_UWPPublisher>
         <PF_UWPPackageName>b50cad90-ecc2-481e-a02f-000902370150</PF_UWPPackageName>
         <PF_UWPPackageDisplayName>PDFViewerDB</PF_UWPPackageDisplayName>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-        <PF_UWPPublisherDisplayName>sanuki-k</PF_UWPPublisherDisplayName>
+        <PF_UWPPublisherDisplayName>sanuki_k</PF_UWPPublisherDisplayName>
         <VerInfo_MinorVer>5</VerInfo_MinorVer>
         <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=1.5.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
     </PropertyGroup>
@@ -142,23 +142,18 @@
         </DelphiCompile>
         <DCCReference Include="Unit1.pas">
             <Form>Form1</Form>
-            <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="PassWord.pas">
             <Form>PasswordDlg</Form>
-            <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="Unit3.pas">
             <Form>Form3</Form>
-            <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="ABOUT.pas">
             <Form>AboutBox</Form>
-            <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="OKCANCL2.pas">
             <Form>OKRightDlg</Form>
-            <FormType>dfm</FormType>
         </DCCReference>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>

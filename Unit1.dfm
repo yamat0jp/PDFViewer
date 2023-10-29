@@ -19,6 +19,7 @@ object Form1: TForm1
     Top = 0
     Width = 873
     Height = 25
+    UseSystemFont = False
     ActionManager = ActionManager1
     Caption = 'ActionMainMenuBar1'
     Color = clMenuBar
@@ -28,7 +29,7 @@ object Form1: TForm1
     ColorMap.SelectedFontColor = clWhite
     ColorMap.UnusedColor = clWhite
     Font.Charset = DEFAULT_CHARSET
-    Font.Color = clWindowText
+    Font.Color = clBlack
     Font.Height = -12
     Font.Name = 'Segoe UI'
     Font.Style = []
