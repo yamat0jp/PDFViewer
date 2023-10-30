@@ -15,7 +15,7 @@ uses
   FireDAC.Comp.Client, Vcl.ExtCtrls, Vcl.StdCtrls,
   Vcl.Menus, FireDAC.Stan.StorageBin, Vcl.ComCtrls, System.UITypes,
   FireDAC.Stan.ExprFuncs, FireDAC.Phys.SQLite, FireDAC.Phys.SQLiteDef,
-  FireDAC.Phys.SQLiteWrapper.Stat, System.IOUtils;
+  FireDAC.Phys.SQLiteWrapper.Stat;
 
 type
   TPageState = (pgSingle, pgSemi, pgDouble);
@@ -26,11 +26,9 @@ type
 
   TForm1 = class(TForm)
     ActionMainMenuBar1: TActionMainMenuBar;
-    FDConnection1: TFDConnection;
     Image1: TImage;
     ListBox1: TListBox;
     PopupMenu1: TPopupMenu;
-    FDMemTable1: TFDMemTable;
     Panel2: TPanel;
     TrackBar1: TTrackBar;
     Image2: TImage;
@@ -50,18 +48,23 @@ type
     D1: TMenuItem;
     uninstall: TAction;
     StatusBar1: TStatusBar;
-    FDQuery1: TFDQuery;
     PaintBox1: TPaintBox;
     RePaint: TAction;
     PageControl1: TPageControl;
     TabSheet1: TTabSheet;
     TabSheet2: TTabSheet;
     TabSheet3: TTabSheet;
-    FDTable1: TFDTable;
     version: TAction;
     TabSheet4: TTabSheet;
     Memo1: TMemo;
-    FDPhysSQLiteDriverLink1: TFDPhysSQLiteDriverLink;
+    Action1: TAction;
+    TabSheet5: TTabSheet;
+    Label1: TLabel;
+    Label2: TLabel;
+    Edit1: TEdit;
+    Edit2: TEdit;
+    Button1: TButton;
+    Button2: TButton;
     procedure OpenExecute(Sender: TObject);
     procedure Action3Execute(Sender: TObject);
     procedure ListBox1DblClick(Sender: TObject);
@@ -90,6 +93,8 @@ type
     procedure Image1MouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: integer);
     procedure PageControl1MouseEnter(Sender: TObject);
+    procedure Button1Click(Sender: TObject);
+    procedure Action1Execute(Sender: TObject);
   private
     { Private 宣言 }
     double: TPageState;
@@ -107,13 +112,14 @@ type
 
 var
   Form1: TForm1;
+  password: string;
 
 implementation
 
 {$R *.dfm}
 
 uses SkiSys.GS_Api, SkiSys.GS_Converter, SkiSys.GS_ParameterConst,
-  SkiSys.GS_gdevdsp, Unit3, ABOUT, OKCANCL2;
+  SkiSys.GS_gdevdsp, Unit3, ABOUT, OKCANCL2, Unit4;
 
 var
   id, title_id: integer;
@@ -130,8 +136,8 @@ var
   begin
     OKRightDlg.OleContainer1.DestroyObject;
     OKRightDlg.Edit1.Text := '';
-    FDQuery1.Close;
-    FDQuery1.Open(query);
+    DataModule4.FDQuery1.Close;
+    DataModule4.FDQuery1.Open(query);
     PaintBox1Paint(Sender);
   end;
 
@@ -153,7 +159,7 @@ begin
       New(p);
       p^ := makeRect(pdf.GSDisplay.GetPage(0));
       ListBox1.Items.AddObject(title, Pointer(p));
-      with FDTable1 do
+      with DataModule4.FDTable1 do
       begin
         Filtered := false;
         Open;
@@ -166,7 +172,7 @@ begin
       end;
       for var i := 0 to pdf.GSDisplay.PageCount - 1 do
         AddImagePage(i);
-      FDTable1.Close;
+      DataModule4.FDTable1.Close;
     finally
       pdf.Free;
       Screen.Cursor := crDefault;
@@ -180,17 +186,22 @@ procedure TForm1.AddImagePage(Index: integer);
 var
   ABmp: TGS_Image;
 begin
-  with FDTable1 do
+  with DataModule4.FDTable1 do
   begin
     inc(id);
     AppendRecord([id, Index + 1, nil, title_id, title, 0]);
     Edit;
   end;
   ABmp := pdf.GSDisplay.GetPage(Index);
-  FDTable1.FieldByName('image').Assign(ABmp);
+  DataModule4.FDTable1.FieldByName('image').Assign(ABmp);
   if (ABmp.Width > ABmp.Height) or (hyousi and (index + 1 = 1)) then
-    FDTable1.FieldByName('subimage').AsInteger := 1;
-  FDTable1.Post;
+    DataModule4.FDTable1.FieldByName('subimage').AsInteger := 1;
+  DataModule4.FDTable1.Post;
+end;
+
+procedure TForm1.Action1Execute(Sender: TObject);
+begin
+  PageControl1.TabIndex := 4;
 end;
 
 procedure TForm1.Action3Execute(Sender: TObject);
@@ -202,11 +213,27 @@ procedure TForm1.BackExecute(Sender: TObject);
 begin
   PageControl1.TabIndex := 0;
   Panel2.Hide;
-  Back.Enabled := false;
   doubleScreen.Enabled := false;
   ReversePage.Enabled := false;
-  FDMemTable1.Close;
-  FDQuery1.Open(query);
+  DataModule4.FDMemTable1.Close;
+end;
+
+procedure TForm1.Button1Click(Sender: TObject);
+begin
+  if Edit1.Text = Unit1.password then
+  begin
+    Unit1.password := Edit2.Text;
+    Edit1.Text := '';
+    Edit2.Text := '';
+    PageControl1.TabIndex := 0;
+    with DataModule4 do
+    begin
+      FDTable2.Edit;
+      FDTable2.FieldByName('pass').AsString := Unit1.password;
+      FDTable2.Post;
+    end;
+    Showmessage('パスワードを変更いたしました。');
+  end;
 end;
 
 procedure TForm1.doubleScreenExecute(Sender: TObject);
@@ -215,11 +242,11 @@ var
 begin
   if PageControl1.TabIndex = 0 then
     Exit;
-  cnt := FDMemTable1.FieldByName('page_id').AsInteger;
+  cnt := DataModule4.FDMemTable1.FieldByName('page_id').AsInteger;
   if not doubleScreen.Checked then
   begin
     double := pgSingle;
-    TrackBar1.Max := FDMemTable1.RecordCount - 1;
+    TrackBar1.Max := DataModule4.FDMemTable1.RecordCount - 1;
     TrackBar1.Position := cnt - 1;
   end
   else
@@ -242,13 +269,16 @@ begin
   id := ListBox1.ItemIndex;
   if id = -1 then
     Exit;
-  FDTable1.Filter := 'title = ' + QuotedStr(ListBox1.Items[id]);
-  FDTable1.Filtered := true;
-  FDTable1.Open;
-  FDTable1.First;
-  while not FDTable1.Eof do
-    FDTable1.Delete;
-  FDTable1.Close;
+  with DataModule4.FDTable1 do
+  begin
+    Filter := 'title = ' + QuotedStr(ListBox1.Items[id]);
+    Filtered := true;
+    Open;
+    First;
+    while not Eof do
+      Delete;
+    Close;
+  end;
   Dispose(Pointer(ListBox1.Items.Objects[id]));
   ListBox1.Items.Delete(id);
   PaintBox1Paint(Sender);
@@ -258,25 +288,9 @@ procedure TForm1.FormCreate(Sender: TObject);
 var
   bmp: TBitmap;
   p: ^TRect;
-  s: string;
 begin
-  s := TPath.GetDocumentsPath + '\PDFViewerDB';
-  if not DirectoryExists(s) then
+  with DataModule4.FDQuery1 do
   begin
-    ChDir(TPath.GetDocumentsPath);
-    MkDir('PDFViewerDB');
-  end;
-  SetCurrentDir(ExtractFilePath(Application.ExeName));
-  if not FileExists(s+'\Readme.txt') then
-    TFile.Copy('Readme.txt', s + '\Readme.txt');
-  if not FileExists(s+'\ZANSHO_NEW.pdf') then
-    TFile.Copy('ZANSHO_NEW.pdf', s + '\ZANSHO_NEW.pdf');
-  FDConnection1.Params.Database := s + '\DATA.SDB';
-  FDConnection1.Open;
-  with FDQuery1 do
-  begin
-    if not FDTable1.Exists then
-      ExecSQL;
     Open(query);
     bmp := TBitmap.Create;
     try
@@ -349,15 +363,18 @@ begin
   ReversePage.Enabled := true;
   Panel2.Show;
   TrackBar1.SetFocus;
-  FDQuery1.Close;
-  FDQuery1.SQL.Clear;
-  FDQuery1.SQL.Add('select * from pdfdatabase where title = :str');
-  FDQuery1.Params.ParamByName('str').AsString :=
-    ListBox1.Items[ListBox1.ItemIndex];
-  FDQuery1.Open;
-  FDMemTable1.Data := FDQuery1.Data;
-  FDMemTable1.Open;
-  FDQuery1.Close;
+  with DataModule4.FDQuery1 do
+  begin
+    Close;
+    SQL.Clear;
+    SQL.Add('select * from pdfdatabase where title = :str');
+    Params.ParamByName('str').AsString := ListBox1.Items[ListBox1.ItemIndex];
+    Open;
+    DataModule4.FDMemTable1.Data := Data;
+    DataModule4.FDMemTable1.Open;
+    Close;
+    Open(query);
+  end;
   Form3.Hide;
   doubleScreenExecute(Sender);
   TrackBar1Change(Sender);
@@ -429,6 +446,8 @@ var
   rect: ^TRect;
   bmp: TBitmap;
 begin
+  if not DataModule4.FDQuery1.Active then
+    DataModule4.FDQuery1.Open(query);
   Randomize;
   PaintBox1.Canvas.FillRect(PaintBox1.ClientRect);
   PaintBox1.Canvas.Pen.Color := clRed;
@@ -439,16 +458,16 @@ begin
     begin
       if ListBox1.ItemIndex = i then
         continue;
-      FDQuery1.Locate('title', ListBox1.Items[i]);
-      bmp.Assign(FDQuery1.FieldByName('image'));
+      DataModule4.FDQuery1.Locate('title', ListBox1.Items[i]);
+      bmp.Assign(DataModule4.FDQuery1.FieldByName('image'));
       rect := Pointer(ListBox1.Items.Objects[i]);
       PaintBox1.Canvas.StretchDraw(rect^, bmp);
     end;
     id := ListBox1.ItemIndex;
     if id > -1 then
     begin
-      FDQuery1.Locate('title', ListBox1.Items[id]);
-      bmp.Assign(FDQuery1.FieldByName('image'));
+      DataModule4.FDQuery1.Locate('title', ListBox1.Items[id]);
+      bmp.Assign(DataModule4.FDQuery1.FieldByName('image'));
       rect := Pointer(ListBox1.Items.Objects[id]);
       PaintBox1.Canvas.Rectangle(rect^);
       PaintBox1.Canvas.StretchDraw(rect^, bmp);
@@ -524,7 +543,7 @@ var
   cnt: integer;
 begin
   if Sender = ToolButton7 then
-    FDMemTable1.Next
+    DataModule4.FDMemTable1.Next
   else
   begin
     if double = pgSingle then
@@ -532,7 +551,7 @@ begin
     else
       cnt := 3;
     for var i := 1 to cnt do
-      FDMemTable1.Prior;
+      DataModule4.FDMemTable1.Prior;
   end;
   TrackBar1Change(Sender);
 end;
@@ -545,14 +564,14 @@ var
 begin
   cnt := 0;
   pageList.Clear;
-  FDMemTable1.First;
-  while not FDMemTable1.Eof do
+  DataModule4.FDMemTable1.First;
+  while not DataModule4.FDMemTable1.Eof do
   begin
     p.Right := 0;
-    bool := FDMemTable1.FieldByName('subimage').AsInteger = 1;
+    bool := DataModule4.FDMemTable1.FieldByName('subimage').AsInteger = 1;
     if cnt = 0 then
     begin
-      p.Left := FDMemTable1.FieldByName('page_id').AsInteger;
+      p.Left := DataModule4.FDMemTable1.FieldByName('page_id').AsInteger;
       if bool then
         pageList.Add(p)
       else
@@ -567,10 +586,10 @@ begin
         continue;
       end
       else
-        p.Right := FDMemTable1.FieldByName('page_id').AsInteger;
+        p.Right := DataModule4.FDMemTable1.FieldByName('page_id').AsInteger;
       pageList.Add(p);
     end;
-    FDMemTable1.Next;
+    DataModule4.FDMemTable1.Next;
   end;
   if cnt > 0 then
     pageList.Add(p);
@@ -581,7 +600,7 @@ var
   p: TPageLayout;
 begin
   if double = pgSingle then
-    FDMemTable1.Locate('page_id', TrackBar1.Position + 1)
+    DataModule4.FDMemTable1.Locate('page_id', TrackBar1.Position + 1)
   else
   begin
     p := pageList[TrackBar1.Position];
@@ -589,23 +608,23 @@ begin
       double := pgSemi
     else
       double := pgDouble;
-    FDMemTable1.Locate('page_id', p.Left);
+    DataModule4.FDMemTable1.Locate('page_id', p.Left);
   end;
   TabSheet3Resize(Sender);
   case double of
     pgSingle, pgSemi:
       begin
         PageControl1.TabIndex := 1;
-        Image1.Picture.Assign(FDMemTable1.FieldByName('image'));
-        StatusBar1.Panels[3].Text := FDMemTable1.FieldByName('page_id')
-          .AsString;
+        Image1.Picture.Assign(DataModule4.FDMemTable1.FieldByName('image'));
+        StatusBar1.Panels[3].Text := DataModule4.FDMemTable1.FieldByName
+          ('page_id').AsString;
       end;
     pgDouble:
       begin
         PageControl1.TabIndex := 2;
-        Image2.Picture.Assign(FDMemTable1.FieldByName('image'));
-        FDMemTable1.Next;
-        Image3.Picture.Assign(FDMemTable1.FieldByName('image'));
+        Image2.Picture.Assign(DataModule4.FDMemTable1.FieldByName('image'));
+        DataModule4.FDMemTable1.Next;
+        Image3.Picture.Assign(DataModule4.FDMemTable1.FieldByName('image'));
         StatusBar1.Panels[3].Text := Format('%d , %d', [p.Left, p.Right]);
       end;
   end;

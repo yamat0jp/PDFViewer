@@ -142,8 +142,8 @@ object Form1: TForm1
         Height = 466
         Align = alClient
         OnPaint = PaintBox1Paint
-        ExplicitLeft = 286
-        ExplicitTop = -1
+        ExplicitLeft = 277
+        ExplicitTop = 2
       end
       object ListBox1: TListBox
         Left = 0
@@ -22033,14 +22033,55 @@ object Form1: TForm1
         OnMouseUp = Memo1MouseUp
       end
     end
-  end
-  object FDConnection1: TFDConnection
-    Params.Strings = (
-      'Database=C:\Users\yamat\Documents\PDFViewerDB\data.sdb'
-      'DriverID=SQLite')
-    LoginPrompt = False
-    Left = 432
-    Top = 288
+    object TabSheet5: TTabSheet
+      Caption = 'TabSheet5'
+      ImageIndex = 4
+      object Label1: TLabel
+        Left = 104
+        Top = 80
+        Width = 70
+        Height = 15
+        Caption = 'old password'
+      end
+      object Label2: TLabel
+        Left = 104
+        Top = 144
+        Width = 75
+        Height = 15
+        Caption = 'new password'
+      end
+      object Button1: TButton
+        Left = 246
+        Top = 235
+        Width = 75
+        Height = 25
+        Caption = #22793#26356
+        TabOrder = 0
+        OnClick = Button1Click
+      end
+      object Edit1: TEdit
+        Left = 223
+        Top = 72
+        Width = 121
+        Height = 23
+        TabOrder = 1
+      end
+      object Edit2: TEdit
+        Left = 223
+        Top = 136
+        Width = 121
+        Height = 23
+        TabOrder = 2
+      end
+      object Button2: TButton
+        Left = 400
+        Top = 235
+        Width = 75
+        Height = 25
+        Action = Back
+        TabOrder = 3
+      end
+    end
   end
   object PopupMenu1: TPopupMenu
     Left = 208
@@ -22048,28 +22089,6 @@ object Form1: TForm1
     object D1: TMenuItem
       Action = Delete
     end
-  end
-  object FDMemTable1: TFDMemTable
-    FieldDefs = <>
-    IndexDefs = <>
-    IndexFieldNames = 'PAGE_ID'
-    FetchOptions.AssignedValues = [evMode, evRowsetSize, evUnidirectional]
-    FetchOptions.Mode = fmAll
-    FetchOptions.RowsetSize = 300
-    FormatOptions.AssignedValues = [fvMaxBcdPrecision, fvMaxBcdScale]
-    FormatOptions.MaxBcdPrecision = 2147483647
-    FormatOptions.MaxBcdScale = 1073741823
-    ResourceOptions.AssignedValues = [rvPersistent, rvSilentMode]
-    ResourceOptions.Persistent = True
-    ResourceOptions.SilentMode = True
-    UpdateOptions.AssignedValues = [uvUpdateChngFields, uvUpdateMode, uvLockMode, uvLockPoint, uvLockWait, uvRefreshMode, uvFetchGeneratorsPoint, uvCheckRequired, uvCheckReadOnly, uvCheckUpdatable, uvAutoCommitUpdates]
-    UpdateOptions.LockWait = True
-    UpdateOptions.FetchGeneratorsPoint = gpNone
-    UpdateOptions.CheckRequired = False
-    UpdateOptions.AutoCommitUpdates = True
-    StoreDefs = True
-    Left = 520
-    Top = 288
   end
   object ActionManager1: TActionManager
     ActionBars = <
@@ -22105,6 +22124,14 @@ object Form1: TForm1
           item
             Items = <
               item
+                Action = Action1
+                Caption = '&Password'
+              end>
+            Caption = '&Setting'
+          end
+          item
+            Items = <
+              item
                 Action = version
                 Caption = '&version'
               end>
@@ -22135,7 +22162,6 @@ object Form1: TForm1
     object Back: TAction
       Category = '&Edit'
       Caption = '&Back'
-      Enabled = False
       OnExecute = BackExecute
     end
     object doubleScreen: TAction
@@ -22172,37 +22198,10 @@ object Form1: TForm1
       Caption = 'version'
       OnExecute = versionExecute
     end
-  end
-  object FDQuery1: TFDQuery
-    Connection = FDConnection1
-    FetchOptions.AssignedValues = [evRowsetSize]
-    FetchOptions.RowsetSize = 300
-    SQL.Strings = (
-      'CREATE TABLE pdfdatabase '
-      '('
-      '        ID'#9'INTEGER NOT NULL,'
-      '        PAGE_ID'#9'INTEGER NOT NULL,'
-      '        IMAGE'#9'BLOB ,'
-      '        TITLE_ID'#9'INTEGER NOT NULL,'
-      '        TITLE'#9'VARCHAR(50) NOT NULL,'
-      '        SUBIMAGE'#9'integer NOT NULL,'
-      ' PRIMARY KEY (ID)'
-      ');')
-    Left = 520
-    Top = 232
-  end
-  object FDTable1: TFDTable
-    IndexFieldNames = 'ID;TITLE_ID;PAGE_ID'
-    Connection = FDConnection1
-    FetchOptions.AssignedValues = [evRowsetSize]
-    FetchOptions.RowsetSize = 30
-    ResourceOptions.AssignedValues = [rvEscapeExpand]
-    TableName = 'pdfdatabase'
-    Left = 432
-    Top = 344
-  end
-  object FDPhysSQLiteDriverLink1: TFDPhysSQLiteDriverLink
-    Left = 544
-    Top = 392
+    object Action1: TAction
+      Category = '&Setting'
+      Caption = 'Password'
+      OnExecute = Action1Execute
+    end
   end
 end

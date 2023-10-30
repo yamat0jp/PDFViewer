@@ -45,5 +45,6 @@ object PasswordDlg: TPasswordDlg
     Caption = #12461#12515#12531#12475#12523
     ModalResult = 2
     TabOrder = 2
+    OnClick = CancelBtnClick
   end
 end

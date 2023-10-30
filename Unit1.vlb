@@ -3,7 +3,7 @@ Coordinates=10,10,73,36
 Visible=True
 
 []
-Coordinates=651,111,142,36
+Coordinates=542,362,99,146
 Visible=True
 
 [ActionMainMenuBar1]
@@ -12,9 +12,6 @@ Visible=True
 
 [ListBox1]
 Coordinates=350,160,101,124
-
-[FDConnection1]
-Coordinates=500,1,104,36
 
 [Image1]
 Coordinates=160,100,57,58
@@ -25,9 +22,6 @@ Coordinates=500,56,75,33
 
 [PopupMenu1]
 Coordinates=500,111,90,36
-
-[FDMemTable1]
-Coordinates=542,362,99,146
 
 [Panel2]
 Coordinates=145,177,55,58
@@ -72,10 +66,6 @@ Coordinates=215,196,92,36
 [TabSheet2]
 Coordinates=208,1,77,36
 
-[FDQuery1]
-Coordinates=97,1,73,58
-Visible=True
-
 [ToolBar2]
 Coordinates=63,273,67,36
 
@@ -114,10 +104,6 @@ Coordinates=0,0,64,58
 
 [TabSheet4]
 Coordinates=323,1,77,36
-
-[FDTable1]
-Coordinates=208,1,71,58
-Visible=True
 
 [version]
 Coordinates=323,56,56,36

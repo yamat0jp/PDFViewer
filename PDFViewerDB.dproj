@@ -124,9 +124,7 @@
         <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
         <VerInfo_Locale>1041</VerInfo_Locale>
         <PF_KeyStore>..\..\..\保存\Delphi証明書\sanuki.pfx</PF_KeyStore>
-        <PF_KeyStorePass>852447C85F9E5585A304712AD15DE33A81940557A005978797B40FAA8E6D3CD0DB48A3D6E3181C3AC1B85752FAB3C36BBABA361304262290166845ECE5BA2290C95DF35DD544A8CFD3C73B0472288592</PF_KeyStorePass>
-        <PF_KeyStoreSubject>CN=sanuki-k</PF_KeyStoreSubject>
-        <PF_UWPDistributionType>AdHoc</PF_UWPDistributionType>
+        <PF_KeyStorePass>54E50DFE644355A9A301713BD13FE36081DA0549A057979297EE0FB48E3E3CD9DB5DA38CE3371C4DC1B0577DFADEC37ABAF93641045722CE16654589E5A6228C18C9B934EE80A8CFD3C73B0472288592</PF_KeyStorePass>
         <BT_BuildType>AppStore</BT_BuildType>
         <PF_UWPPublisher>CN=sanuki_k</PF_UWPPublisher>
         <PF_UWPPackageName>b50cad90-ecc2-481e-a02f-000902370150</PF_UWPPackageName>
@@ -135,6 +133,8 @@
         <PF_UWPPublisherDisplayName>sanuki_k</PF_UWPPublisherDisplayName>
         <VerInfo_MinorVer>5</VerInfo_MinorVer>
         <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=1.5.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
+        <PF_KeyStoreSubject>CN=sanuki-k</PF_KeyStoreSubject>
+        <PF_UWPDistributionType>AdHoc</PF_UWPDistributionType>
     </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">
@@ -154,6 +154,10 @@
         </DCCReference>
         <DCCReference Include="OKCANCL2.pas">
             <Form>OKRightDlg</Form>
+        </DCCReference>
+        <DCCReference Include="Unit4.pas">
+            <Form>DataModule4</Form>
+            <DesignClass>TDataModule</DesignClass>
         </DCCReference>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
