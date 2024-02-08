@@ -101,11 +101,10 @@ type
     reverse: Boolean;
     pageList: TList<TPageLayout>;
     hyousi: Boolean;
-    procedure AddImagePage(Index: integer);
     procedure countPictures;
     function returnPos(page: integer; var double: TPageState): integer;
     function checkSemi(num: integer): Boolean;
-    function makeRect(bmp: TBitmap): TRect;
+    function ZipReader: Boolean;
   public
     { Public éŒ¾ }
   end;
@@ -119,7 +118,7 @@ implementation
 {$R *.dfm}
 
 uses SkiSys.GS_Api, SkiSys.GS_Converter, SkiSys.GS_ParameterConst,
-  SkiSys.GS_gdevdsp, Unit3, ABOUT, OKCANCL2, Unit4;
+  SkiSys.GS_gdevdsp, Unit3, ABOUT, OKCANCL2, Unit4, System.Zip, Jpeg;
 
 var
   id, title_id: integer;
@@ -129,8 +128,31 @@ var
 const
   query = 'select * from pdfdatabase where page_id = 1 order by id asc';
 
+function makeRect(jpg: TJpegImage): TRect;
+var
+  num, consw, consh: integer;
+begin
+  num := 120;
+  if jpg.Width > jpg.Height then
+  begin
+    consw := num;
+    consh := Round(num * jpg.Height / jpg.Width);
+  end
+  else
+  begin
+    consh := num;
+    consw := Round(num * jpg.Width / jpg.Height);
+  end;
+  result.Left := Random(Form1.PaintBox1.Width - consw);
+  result.Top := Random(Form1.PaintBox1.Height - consh);
+  result.Width := consw;
+  result.Height := consh;
+end;
+
 procedure TForm1.OpenExecute(Sender: TObject);
 var
+  sub: integer;
+  Jpeg: TJpegImage;
   p: ^TRect;
   procedure exitProc;
   begin
@@ -142,9 +164,11 @@ var
   end;
 
 begin
-  if (OKRightDlg.ShowModal = mrOK) and (OKRightDlg.Edit1.Text <> '') then
+  if (OKRightDlg.ShowModal = mrOK) and (OKRightDlg.Edit1.Text <> '') and not ZipReader
+  then
   begin
     pdf := TGS_PdfConverter.Create;
+    Jpeg := TJpegImage.Create;
     try
       Screen.Cursor := crHourGlass;
       pdf.Params.Device := DISPLAY_DEVICE_NAME;
@@ -156,47 +180,49 @@ begin
       if ListBox1.Items.IndexOf(title) > -1 then
         Exit;
       hyousi := OKRightDlg.CheckBox1.Checked;
+      Jpeg.Assign(pdf.GSDisplay.GetPage(0));
       New(p);
-      p^ := makeRect(pdf.GSDisplay.GetPage(0));
+      p^ := makeRect(Jpeg);
       ListBox1.Items.AddObject(title, Pointer(p));
       with DataModule4.FDTable1 do
       begin
         Filtered := false;
         Open;
-        Last;
-        id := FieldByName('id').AsInteger;
-        IndexFieldNames := 'title_id';
-        Last;
-        title_id := FieldByName('title_id').AsInteger + 1;
-        IndexFieldNames := 'id';
       end;
+      if DataModule4.FDTable1.RecordCount = 0 then
+      begin
+        id := 1;
+        title_id := 1;
+      end
+      else
+        with DataModule4.FDQuery1 do
+        begin
+          Open('select MAX(id) as id from pdfdatabase;');
+          id := FieldByName('id').AsInteger;
+          Open('select MAX(title_id) as title_id from pdfdatabase;');
+          title_id := FieldByName('title_id').AsInteger + 1;
+          Close;
+        end;
       for var i := 0 to pdf.GSDisplay.PageCount - 1 do
-        AddImagePage(i);
+      begin
+        inc(id);
+        Jpeg.Assign(pdf.GSDisplay.GetPage(i));
+        if (Jpeg.Width > Jpeg.Height) or (hyousi and (i + 1 = 1)) then
+          sub := 1
+        else
+          sub := 0;
+        DataModule4.FDTable1.AppendRecord([id, i + 1, Jpeg, title_id,
+          title, sub]);
+      end;
       DataModule4.FDTable1.Close;
     finally
       pdf.Free;
+      Jpeg.Free;
       Screen.Cursor := crDefault;
       exitProc;
     end;
   end;
   exitProc;
-end;
-
-procedure TForm1.AddImagePage(Index: integer);
-var
-  ABmp: TGS_Image;
-begin
-  with DataModule4.FDTable1 do
-  begin
-    inc(id);
-    AppendRecord([id, Index + 1, nil, title_id, title, 0]);
-    Edit;
-  end;
-  ABmp := pdf.GSDisplay.GetPage(Index);
-  DataModule4.FDTable1.FieldByName('image').Assign(ABmp);
-  if (ABmp.Width > ABmp.Height) or (hyousi and (index + 1 = 1)) then
-    DataModule4.FDTable1.FieldByName('subimage').AsInteger := 1;
-  DataModule4.FDTable1.Post;
 end;
 
 procedure TForm1.Action1Execute(Sender: TObject);
@@ -286,28 +312,28 @@ end;
 
 procedure TForm1.FormCreate(Sender: TObject);
 var
-  bmp: TBitmap;
+  Jpeg: TJpegImage;
   p: ^TRect;
 begin
   with DataModule4.FDQuery1 do
   begin
     Open(query);
-    bmp := TBitmap.Create;
+    Jpeg := TJpegImage.Create;
     try
       while not Eof do
       begin
         title := FieldByName('title').AsString;
         if ListBox1.Items.IndexOf(title) = -1 then
         begin
-          bmp.Assign(FieldByName('image'));
+          Jpeg.Assign(FieldByName('image'));
           New(p);
-          p^ := makeRect(bmp);
+          p^ := makeRect(Jpeg);
           ListBox1.Items.AddObject(title, Pointer(p));
         end;
         Next;
       end;
     finally
-      bmp.Free;
+      Jpeg.Free;
     end;
   end;
   TabSheet3Resize(Sender);
@@ -401,27 +427,6 @@ begin
     Accept := true;
 end;
 
-function TForm1.makeRect(bmp: TBitmap): TRect;
-var
-  num, consw, consh: integer;
-begin
-  num := 120;
-  if bmp.Width > bmp.Height then
-  begin
-    consw := num;
-    consh := Round(num * bmp.Height / bmp.Width);
-  end
-  else
-  begin
-    consh := num;
-    consw := Round(num * bmp.Width / bmp.Height);
-  end;
-  result.Left := Random(PaintBox1.Width - consw);
-  result.Top := Random(PaintBox1.Height - consh);
-  result.Width := consw;
-  result.Height := consh;
-end;
-
 procedure TForm1.Memo1MouseUp(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: integer);
 begin
@@ -444,7 +449,7 @@ end;
 procedure TForm1.PaintBox1Paint(Sender: TObject);
 var
   rect: ^TRect;
-  bmp: TBitmap;
+  Jpeg: TJpegImage;
 begin
   if not DataModule4.FDQuery1.Active then
     DataModule4.FDQuery1.Open(query);
@@ -452,28 +457,28 @@ begin
   PaintBox1.Canvas.FillRect(PaintBox1.ClientRect);
   PaintBox1.Canvas.Pen.Color := clRed;
   PaintBox1.Canvas.Pen.Width := 10;
-  bmp := TBitmap.Create;
+  Jpeg := TJpegImage.Create;
   try
     for var i := 0 to ListBox1.Items.Count - 1 do
     begin
       if ListBox1.ItemIndex = i then
         continue;
       DataModule4.FDQuery1.Locate('title', ListBox1.Items[i]);
-      bmp.Assign(DataModule4.FDQuery1.FieldByName('image'));
+      Jpeg.Assign(DataModule4.FDQuery1.FieldByName('image'));
       rect := Pointer(ListBox1.Items.Objects[i]);
-      PaintBox1.Canvas.StretchDraw(rect^, bmp);
+      PaintBox1.Canvas.StretchDraw(rect^, Jpeg);
     end;
     id := ListBox1.ItemIndex;
     if id > -1 then
     begin
       DataModule4.FDQuery1.Locate('title', ListBox1.Items[id]);
-      bmp.Assign(DataModule4.FDQuery1.FieldByName('image'));
+      Jpeg.Assign(DataModule4.FDQuery1.FieldByName('image'));
       rect := Pointer(ListBox1.Items.Objects[id]);
       PaintBox1.Canvas.Rectangle(rect^);
-      PaintBox1.Canvas.StretchDraw(rect^, bmp);
+      PaintBox1.Canvas.StretchDraw(rect^, Jpeg);
     end;
   finally
-    bmp.Free;
+    Jpeg.Free;
   end;
 end;
 
@@ -642,6 +647,96 @@ end;
 procedure TForm1.versionExecute(Sender: TObject);
 begin
   AboutBox.ShowModal;
+end;
+
+function TForm1.ZipReader: Boolean;
+var
+  sub: integer;
+  s: string;
+  cnt: integer;
+  Jpeg: TJpegImage;
+  Zip: TZipFile;
+  p: ^TRect;
+  procedure exitProc;
+  begin
+    OKRightDlg.Edit1.Text := '';
+    DataModule4.FDQuery1.Close;
+    DataModule4.FDQuery1.Open(query);
+    PaintBox1Paint(nil);
+  end;
+
+begin
+  result := false;
+  s := OKRightDlg.OpenDialog1.FileName;
+  if ExtractFileExt(s) = '.zip' then
+  begin
+    title := OKRightDlg.Edit1.Text;
+    if ListBox1.Items.IndexOf(title) > -1 then
+      Exit;
+    hyousi := OKRightDlg.CheckBox1.Checked;
+    Screen.Cursor := crHourGlass;
+    with DataModule4.FDTable1 do
+    begin
+      Filtered := false;
+      Open;
+    end;
+    if DataModule4.FDTable1.RecordCount = 0 then
+    begin
+      id := 1;
+      title_id := 1;
+    end
+    else
+      with DataModule4.FDQuery1 do
+      begin
+        Open('select MAX(id) as id from pdfdatabase;');
+        id := FieldByName('id').AsInteger + 1;
+        Open('select MAX(title_id) as title_id from pdfdatabase;');
+        title_id := FieldByName('title_id').AsInteger + 1;
+        Close;
+      end;
+    Zip := TZipFile.Create;
+    Jpeg := TJpegImage.Create;
+    DataModule4.FDTable1.Filtered := false;
+    DataModule4.FDTable1.Open;
+    if not DirectoryExists('temp') then
+      MkDir('temp');
+    try
+      cnt := 1;
+      Zip.Open(s, zmRead);
+      for var i := 0 to Zip.FileCount - 1 do
+      begin
+        if ExtractFileExt(Zip.FileName[i]) <> '.jpg' then
+          continue;
+        s := Zip.FileName[i];
+        Zip.Extract(s, 'temp');
+        Jpeg.LoadFromFile('temp\' + s);
+        DeleteFile('temp\' + s);
+        if i = 0 then
+        begin
+          New(p);
+          p^ := makeRect(Jpeg);
+          ListBox1.Items.AddObject(title, Pointer(p));
+        end;
+        if (Jpeg.Width > Jpeg.Height) or (hyousi and (cnt = 1)) then
+          sub := 1
+        else
+          sub := 0;
+        DataModule4.FDTable1.AppendRecord([id, cnt, Jpeg, title_id,
+          title, sub]);
+        inc(id);
+        inc(cnt);
+        inc(title_id);
+      end;
+    finally
+      Zip.Free;
+      Jpeg.Free;
+      exitProc;
+      Screen.Cursor := crDefault;
+      DataModule4.FDTable1.Close;
+      RemoveDirectory('temp');
+    end;
+    result := true;
+  end;
 end;
 
 end.

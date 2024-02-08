@@ -85,7 +85,7 @@ object OKRightDlg: TOKRightDlg
     TabOrder = 4
   end
   object OpenDialog1: TOpenDialog
-    Filter = 'PDF|*.PDF'
+    Filter = 'PDF, ZIP|*.PDF;*.ZIP'
     Left = 456
     Top = 120
   end

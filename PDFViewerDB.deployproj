@@ -52,10 +52,10 @@
             <Required>True</Required>
         </DeployFile>
         <DeployFile Include="$(BDS)\bin\Artwork\Windows\UWP\delphi_UwpDefault_44.png" Condition="'$(Config)'=='Debug'">
-            <RemoteDir>PDFViewerDB\Assest\</RemoteDir>
-            <RemoteName>delphi_UwpDefault_44.png</RemoteName>
-            <DeployClass>File</DeployClass>
-            <Operation>0</Operation>
+            <RemoteDir>PDFViewerDB\Assets\</RemoteDir>
+            <RemoteName>Logo44x44.png</RemoteName>
+            <DeployClass>UWP_DelphiLogo44</DeployClass>
+            <Operation>1</Operation>
             <LocalCommand/>
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
@@ -106,10 +106,10 @@
             <Overwrite>True</Overwrite>
         </DeployFile>
         <DeployFile Include="$(BDS)\bin\Artwork\Windows\UWP\delphi_UwpDefault_150.png" Condition="'$(Config)'=='Debug'">
-            <RemoteDir>PDFViewerDB\Assest\</RemoteDir>
-            <RemoteName>delphi_UwpDefault_150.png</RemoteName>
-            <DeployClass>File</DeployClass>
-            <Operation>0</Operation>
+            <RemoteDir>PDFViewerDB\Assets\</RemoteDir>
+            <RemoteName>Logo150x150.png</RemoteName>
+            <DeployClass>UWP_DelphiLogo150</DeployClass>
+            <Operation>1</Operation>
             <LocalCommand/>
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
@@ -132,6 +132,24 @@
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
             <Required>True</Required>
+        </DeployFile>
+        <DeployFile Include="Win64\Debug\AppxManifest.xml" Condition="'$(Config)'=='Debug'">
+            <RemoteDir>PDFViewerDB\</RemoteDir>
+            <RemoteName>AppxManifest.xml</RemoteName>
+            <DeployClass>ProjectUWPManifest</DeployClass>
+            <Operation>1</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="Win64\Debug\PDFViewerDB.rsm" Condition="'$(Config)'=='Debug'">
+            <RemoteDir>PDFViewerDB\</RemoteDir>
+            <RemoteName>PDFViewerDB.rsm</RemoteName>
+            <DeployClass>DebugSymbols</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
         </DeployFile>
     </ItemGroup>
     <ItemGroup Condition="'$(Platform)'=='Win32'">

@@ -37,7 +37,8 @@ begin
   if OpenDialog1.Execute then
   begin
     Edit1.Text := ChangeFileExt(ExtractFileName(OpenDialog1.FileName), '');
-    OleContainer1.CreateObjectFromFile(OpenDialog1.FileName,false);
+    if ExtractFileExt(OpenDialog1.FileName) = '.pdf' then
+      OleContainer1.CreateObjectFromFile(OpenDialog1.FileName,false);
   end;
 end;
 
