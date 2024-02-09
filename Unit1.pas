@@ -15,7 +15,9 @@ uses
   FireDAC.Comp.Client, Vcl.ExtCtrls, Vcl.StdCtrls,
   Vcl.Menus, FireDAC.Stan.StorageBin, Vcl.ComCtrls, System.UITypes,
   FireDAC.Stan.ExprFuncs, FireDAC.Phys.SQLite, FireDAC.Phys.SQLiteDef,
-  FireDAC.Phys.SQLiteWrapper.Stat;
+  FireDAC.Phys.SQLiteWrapper.Stat, System.Rtti, System.Bindings.Outputs,
+  Vcl.Bind.Editors, Data.Bind.EngExt, Vcl.Bind.DBEngExt, Data.Bind.Components,
+  Data.Bind.DBScope;
 
 type
   TPageState = (pgSingle, pgSemi, pgDouble);
@@ -158,7 +160,6 @@ var
   begin
     OKRightDlg.OleContainer1.DestroyObject;
     OKRightDlg.Edit1.Text := '';
-    DataModule4.FDQuery1.Close;
     DataModule4.FDQuery1.Open(query);
     PaintBox1Paint(Sender);
   end;
@@ -184,38 +185,41 @@ begin
       New(p);
       p^ := makeRect(Jpeg);
       ListBox1.Items.AddObject(title, Pointer(p));
-      with DataModule4.FDTable1 do
+      with DataModule4.FDQuery1 do
       begin
-        Filtered := false;
-        Open;
-      end;
-      if DataModule4.FDTable1.RecordCount = 0 then
-      begin
-        id := 1;
-        title_id := 1;
-      end
-      else
-        with DataModule4.FDQuery1 do
+        Open('select COUNT(*) as cnt from pdfdatabase;');
+        if FieldByName('cnt').AsInteger = 0 then
+        begin
+          id := 1;
+          title_id := 1;
+        end
+        else
         begin
           Open('select MAX(id) as id from pdfdatabase;');
-          id := FieldByName('id').AsInteger;
+          id := FieldByName('id').AsInteger + 1;
           Open('select MAX(title_id) as title_id from pdfdatabase;');
           title_id := FieldByName('title_id').AsInteger + 1;
-          Close;
         end;
+        Open('select * from pdfdatabase;');
+      end;
+      DataModule4.FDMemTable1.CloneCursor(DataModule4.FDQuery1);
       for var i := 0 to pdf.GSDisplay.PageCount - 1 do
       begin
-        inc(id);
         Jpeg.Assign(pdf.GSDisplay.GetPage(i));
         if (Jpeg.Width > Jpeg.Height) or (hyousi and (i + 1 = 1)) then
           sub := 1
         else
           sub := 0;
-        DataModule4.FDTable1.AppendRecord([id, i + 1, Jpeg, title_id,
+        DataModule4.FDMemTable1.AppendRecord([id, i + 1, Jpeg, title_id,
           title, sub]);
+        inc(id);
       end;
-      DataModule4.FDTable1.Close;
     finally
+      with DataModule4 do
+      begin
+        FDBatchMove1.Execute;
+        FDMemTable1.Close;
+      end;
       pdf.Free;
       Jpeg.Free;
       Screen.Cursor := crDefault;
@@ -396,6 +400,7 @@ begin
     SQL.Add('select * from pdfdatabase where title = :str');
     Params.ParamByName('str').AsString := ListBox1.Items[ListBox1.ItemIndex];
     Open;
+    FetchAll;
     DataModule4.FDMemTable1.Data := Data;
     DataModule4.FDMemTable1.Open;
     Close;
@@ -543,6 +548,22 @@ begin
   end;
 end;
 
+procedure dirdelete(name: string);
+var
+  i: integer;
+  rec: TSearchRec;
+begin
+  i := FindFirst(name + '\*', faDirectory, rec);
+  while i = 0 do
+  begin
+    if (rec.name <> '.') and (rec.name <> '..') then
+      dirdelete(name + '\' + rec.name);
+    i := FindNext(rec);
+  end;
+  RemoveDir(name);
+  FindClose(rec);
+end;
+
 procedure TForm1.ToolButton7Click(Sender: TObject);
 var
   cnt: integer;
@@ -657,14 +678,6 @@ var
   Jpeg: TJpegImage;
   Zip: TZipFile;
   p: ^TRect;
-  procedure exitProc;
-  begin
-    OKRightDlg.Edit1.Text := '';
-    DataModule4.FDQuery1.Close;
-    DataModule4.FDQuery1.Open(query);
-    PaintBox1Paint(nil);
-  end;
-
 begin
   result := false;
   s := OKRightDlg.OpenDialog1.FileName;
@@ -675,29 +688,26 @@ begin
       Exit;
     hyousi := OKRightDlg.CheckBox1.Checked;
     Screen.Cursor := crHourGlass;
-    with DataModule4.FDTable1 do
+    with DataModule4.FDQuery1 do
     begin
-      Filtered := false;
-      Open;
-    end;
-    if DataModule4.FDTable1.RecordCount = 0 then
-    begin
-      id := 1;
-      title_id := 1;
-    end
-    else
-      with DataModule4.FDQuery1 do
+      Open('select COUNT(*) as cnt from pdfdatabase;');
+      if FieldByName('cnt').AsInteger = 0 then
+      begin
+        id := 1;
+        title_id := 1;
+      end
+      else
       begin
         Open('select MAX(id) as id from pdfdatabase;');
         id := FieldByName('id').AsInteger + 1;
         Open('select MAX(title_id) as title_id from pdfdatabase;');
         title_id := FieldByName('title_id').AsInteger + 1;
-        Close;
       end;
+      Open('select * from pdfdatabase;');
+    end;
     Zip := TZipFile.Create;
     Jpeg := TJpegImage.Create;
-    DataModule4.FDTable1.Filtered := false;
-    DataModule4.FDTable1.Open;
+    DataModule4.FDMemTable1.CloneCursor(DataModule4.FDQuery1);
     if not DirectoryExists('temp') then
       MkDir('temp');
     try
@@ -711,7 +721,7 @@ begin
         Zip.Extract(s, 'temp');
         Jpeg.LoadFromFile('temp\' + s);
         DeleteFile('temp\' + s);
-        if i = 0 then
+        if cnt = 1 then
         begin
           New(p);
           p^ := makeRect(Jpeg);
@@ -721,22 +731,26 @@ begin
           sub := 1
         else
           sub := 0;
-        DataModule4.FDTable1.AppendRecord([id, cnt, Jpeg, title_id,
+        DataModule4.FDMemTable1.AppendRecord([id, cnt, Jpeg, title_id,
           title, sub]);
         inc(id);
         inc(cnt);
-        inc(title_id);
       end;
     finally
       Zip.Free;
       Jpeg.Free;
-      exitProc;
       Screen.Cursor := crDefault;
-      DataModule4.FDTable1.Close;
-      RemoveDirectory('temp');
+      with DataModule4 do
+      begin
+        FDBatchMove1.Execute;
+        FDMemTable1.Close;
+      end;
+      OKRightDlg.Edit1.Text:='';
+      dirdelete(ExtractFilePath(Application.ExeName) + 'temp');
     end;
     result := true;
   end;
+  PaintBox1Paint(nil);
 end;
 
 end.

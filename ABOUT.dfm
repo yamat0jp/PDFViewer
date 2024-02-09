@@ -65,7 +65,7 @@ object AboutBox: TAboutBox
       Top = 40
       Width = 137
       Height = 13
-      Caption = #12496#12540#12472#12519#12531': 7770dbe '#36794#12426#12398#12467#12511#12483#12488
+      Caption = #12496#12540#12472#12519#12531': b09c842 '#36794#12426#12398#12467#12511#12483#12488
       IsControl = True
     end
     object Copyright: TLabel
@@ -79,11 +79,18 @@ object AboutBox: TAboutBox
     object Comments: TLabel
       Left = 8
       Top = 104
-      Width = 28
+      Width = 55
       Height = 13
-      Caption = #12467#12513#12531#12488
+      Caption = 'GhostScript'
       WordWrap = True
       IsControl = True
+    end
+    object Label1: TLabel
+      Left = 8
+      Top = 123
+      Width = 119
+      Height = 13
+      Caption = 'GhostScript-API-Wrapper'
     end
   end
   object OKButton: TButton

@@ -14,6 +14,7 @@ type
     Copyright: TLabel;
     Comments: TLabel;
     OKButton: TButton;
+    Label1: TLabel;
   private
     { Private 宣言 }
   public
