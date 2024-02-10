@@ -23,18 +23,18 @@
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
         </DeployFile>
-        <DeployFile Include="ZANSHO_NEW.pdf" Condition="'$(Config)'=='Release'">
+        <DeployFile Include="gsdll64.dll" Condition="'$(Config)'=='Release'">
             <RemoteDir>PDFViewerDB\</RemoteDir>
-            <RemoteName>ZANSHO_NEW.pdf</RemoteName>
+            <RemoteName>gsdll64.dll</RemoteName>
             <DeployClass>File</DeployClass>
             <Operation>0</Operation>
             <LocalCommand/>
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
         </DeployFile>
-        <DeployFile Include="gsdll64.dll" Condition="'$(Config)'=='Release'">
+        <DeployFile Include="ZANSHO_NEW.pdf" Condition="'$(Config)'=='Release'">
             <RemoteDir>PDFViewerDB\</RemoteDir>
-            <RemoteName>gsdll64.dll</RemoteName>
+            <RemoteName>ZANSHO_NEW.pdf</RemoteName>
             <DeployClass>File</DeployClass>
             <Operation>0</Operation>
             <LocalCommand/>
@@ -69,38 +69,11 @@
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
         </DeployFile>
-        <DeployFile Include="$(BDS)\bin64\midas.dll" Condition="'$(Config)'=='Debug'">
+        <DeployFile Include="Win64\Debug\AppxManifest.xml" Condition="'$(Config)'=='Debug'">
             <RemoteDir>PDFViewerDB\</RemoteDir>
-            <RemoteName>midas.dll</RemoteName>
-            <DeployClass>File</DeployClass>
-            <Operation>0</Operation>
-            <LocalCommand/>
-            <RemoteCommand/>
-            <Overwrite>True</Overwrite>
-        </DeployFile>
-        <DeployFile Include="$(BDS)\bin64\dbxadapter.dll" Condition="'$(Config)'=='Release'">
-            <RemoteDir>PDFViewerDB\</RemoteDir>
-            <RemoteName>dbxadapter.dll</RemoteName>
-            <DeployClass>File</DeployClass>
-            <Operation>0</Operation>
-            <LocalCommand/>
-            <RemoteCommand/>
-            <Overwrite>True</Overwrite>
-        </DeployFile>
-        <DeployFile Include="$(BDS)\bin64\dbxadapter.dll" Condition="'$(Config)'=='Debug'">
-            <RemoteDir>PDFViewerDB\</RemoteDir>
-            <RemoteName>dbxadapter.dll</RemoteName>
-            <DeployClass>File</DeployClass>
-            <Operation>0</Operation>
-            <LocalCommand/>
-            <RemoteCommand/>
-            <Overwrite>True</Overwrite>
-        </DeployFile>
-        <DeployFile Include="$(BDS)\bin64\midas.dll" Condition="'$(Config)'=='Release'">
-            <RemoteDir>PDFViewerDB\</RemoteDir>
-            <RemoteName>midas.dll</RemoteName>
-            <DeployClass>File</DeployClass>
-            <Operation>0</Operation>
+            <RemoteName>AppxManifest.xml</RemoteName>
+            <DeployClass>ProjectUWPManifest</DeployClass>
+            <Operation>1</Operation>
             <LocalCommand/>
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
@@ -133,44 +106,8 @@
             <Overwrite>True</Overwrite>
             <Required>True</Required>
         </DeployFile>
-        <DeployFile Include="Win64\Debug\AppxManifest.xml" Condition="'$(Config)'=='Debug'">
-            <RemoteDir>PDFViewerDB\</RemoteDir>
-            <RemoteName>AppxManifest.xml</RemoteName>
-            <DeployClass>ProjectUWPManifest</DeployClass>
-            <Operation>1</Operation>
-            <LocalCommand/>
-            <RemoteCommand/>
-            <Overwrite>True</Overwrite>
-        </DeployFile>
-        <DeployFile Include="Win64\Debug\PDFViewerDB.rsm" Condition="'$(Config)'=='Debug'">
-            <RemoteDir>PDFViewerDB\</RemoteDir>
-            <RemoteName>PDFViewerDB.rsm</RemoteName>
-            <DeployClass>DebugSymbols</DeployClass>
-            <Operation>0</Operation>
-            <LocalCommand/>
-            <RemoteCommand/>
-            <Overwrite>True</Overwrite>
-        </DeployFile>
     </ItemGroup>
     <ItemGroup Condition="'$(Platform)'=='Win32'">
-        <DeployFile Include="$(BDS)\bin\Artwork\Windows\UWP\delphi_UwpDefault_150.png" Condition="'$(Config)'=='Debug'">
-            <RemoteDir>PDFViewerDB\Assest\</RemoteDir>
-            <RemoteName>delphi_UwpDefault_150.png</RemoteName>
-            <DeployClass>File</DeployClass>
-            <Operation>0</Operation>
-            <LocalCommand/>
-            <RemoteCommand/>
-            <Overwrite>True</Overwrite>
-        </DeployFile>
-        <DeployFile Include="$(BDS)\bin\Artwork\Windows\UWP\delphi_UwpDefault_150.png" Condition="'$(Config)'=='Release'">
-            <RemoteDir>PDFViewerDB\Assest\</RemoteDir>
-            <RemoteName>delphi_UwpDefault_150.png</RemoteName>
-            <DeployClass>File</DeployClass>
-            <Operation>0</Operation>
-            <LocalCommand/>
-            <RemoteCommand/>
-            <Overwrite>True</Overwrite>
-        </DeployFile>
         <DeployFile Include="Win32\Release\AppxManifest.xml" Condition="'$(Config)'=='Release'">
             <RemoteDir>PDFViewerDB\</RemoteDir>
             <RemoteName>AppxManifest.xml</RemoteName>
@@ -216,18 +153,9 @@
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
         </DeployFile>
-        <DeployFile Include="$(BDS)\bin\Artwork\Windows\UWP\delphi_UwpDefault_44.png" Condition="'$(Config)'=='Debug'">
-            <RemoteDir>PDFViewerDB\Assest\</RemoteDir>
-            <RemoteName>delphi_UwpDefault_44.png</RemoteName>
-            <DeployClass>File</DeployClass>
-            <Operation>0</Operation>
-            <LocalCommand/>
-            <RemoteCommand/>
-            <Overwrite>True</Overwrite>
-        </DeployFile>
-        <DeployFile Include="$(BDS)\bin\Artwork\Windows\UWP\delphi_UwpDefault_44.png" Condition="'$(Config)'=='Release'">
-            <RemoteDir>PDFViewerDB\Assest\</RemoteDir>
-            <RemoteName>delphi_UwpDefault_44.png</RemoteName>
+        <DeployFile Include="Win32\Release\README.txt" Condition="'$(Config)'=='Release'">
+            <RemoteDir>PDFViewerDB\</RemoteDir>
+            <RemoteName>README.txt</RemoteName>
             <DeployClass>File</DeployClass>
             <Operation>0</Operation>
             <LocalCommand/>
@@ -243,45 +171,9 @@
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
         </DeployFile>
-        <DeployFile Include="Win32\Release\README.txt" Condition="'$(Config)'=='Release'">
-            <RemoteDir>PDFViewerDB\</RemoteDir>
-            <RemoteName>README.txt</RemoteName>
-            <DeployClass>File</DeployClass>
-            <Operation>0</Operation>
-            <LocalCommand/>
-            <RemoteCommand/>
-            <Overwrite>True</Overwrite>
-        </DeployFile>
-        <DeployFile Include="$(BDS)\bin\dbxadapter.dll" Condition="'$(Config)'=='Debug'">
-            <RemoteDir>PDFViewerDB\</RemoteDir>
-            <RemoteName>dbxadapter.dll</RemoteName>
-            <DeployClass>File</DeployClass>
-            <Operation>0</Operation>
-            <LocalCommand/>
-            <RemoteCommand/>
-            <Overwrite>True</Overwrite>
-        </DeployFile>
-        <DeployFile Include="$(BDS)\bin\dbxadapter.dll" Condition="'$(Config)'=='Release'">
-            <RemoteDir>PDFViewerDB\</RemoteDir>
-            <RemoteName>dbxadapter.dll</RemoteName>
-            <DeployClass>File</DeployClass>
-            <Operation>0</Operation>
-            <LocalCommand/>
-            <RemoteCommand/>
-            <Overwrite>True</Overwrite>
-        </DeployFile>
         <DeployFile Include="Win32\Release\firebird.msg" Condition="'$(Config)'=='Release'">
             <RemoteDir>PDFViewerDB\</RemoteDir>
             <RemoteName>firebird.msg</RemoteName>
-            <DeployClass>File</DeployClass>
-            <Operation>0</Operation>
-            <LocalCommand/>
-            <RemoteCommand/>
-            <Overwrite>True</Overwrite>
-        </DeployFile>
-        <DeployFile Include="Win32\Release\IDPLicense.txt" Condition="'$(Config)'=='Release'">
-            <RemoteDir>PDFViewerDB\</RemoteDir>
-            <RemoteName>IDPLicense.txt</RemoteName>
             <DeployClass>File</DeployClass>
             <Operation>0</Operation>
             <LocalCommand/>
@@ -297,9 +189,9 @@
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
         </DeployFile>
-        <DeployFile Include="Win32\Release\Microsoft.VC80.CRT.manifest" Condition="'$(Config)'=='Release'">
+        <DeployFile Include="Win32\Release\IDPLicense.txt" Condition="'$(Config)'=='Release'">
             <RemoteDir>PDFViewerDB\</RemoteDir>
-            <RemoteName>Microsoft.VC80.CRT.manifest</RemoteName>
+            <RemoteName>IDPLicense.txt</RemoteName>
             <DeployClass>File</DeployClass>
             <Operation>0</Operation>
             <LocalCommand/>
@@ -316,6 +208,15 @@
             <Overwrite>True</Overwrite>
             <Required>True</Required>
         </DeployFile>
+        <DeployFile Include="Win32\Release\Microsoft.VC80.CRT.manifest" Condition="'$(Config)'=='Release'">
+            <RemoteDir>PDFViewerDB\</RemoteDir>
+            <RemoteName>Microsoft.VC80.CRT.manifest</RemoteName>
+            <DeployClass>File</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
         <DeployFile Include="Win32\Release\icuin30.dll" Condition="'$(Config)'=='Release'">
             <RemoteDir>PDFViewerDB\</RemoteDir>
             <RemoteName>icuin30.dll</RemoteName>
@@ -328,24 +229,6 @@
         <DeployFile Include="Win32\Release\msvcr80.dll" Condition="'$(Config)'=='Release'">
             <RemoteDir>PDFViewerDB\</RemoteDir>
             <RemoteName>msvcr80.dll</RemoteName>
-            <DeployClass>File</DeployClass>
-            <Operation>0</Operation>
-            <LocalCommand/>
-            <RemoteCommand/>
-            <Overwrite>True</Overwrite>
-        </DeployFile>
-        <DeployFile Include="$(BDS)\bin\midas.dll" Condition="'$(Config)'=='Debug'">
-            <RemoteDir>PDFViewerDB\</RemoteDir>
-            <RemoteName>midas.dll</RemoteName>
-            <DeployClass>File</DeployClass>
-            <Operation>0</Operation>
-            <LocalCommand/>
-            <RemoteCommand/>
-            <Overwrite>True</Overwrite>
-        </DeployFile>
-        <DeployFile Include="$(BDS)\bin\midas.dll" Condition="'$(Config)'=='Release'">
-            <RemoteDir>PDFViewerDB\</RemoteDir>
-            <RemoteName>midas.dll</RemoteName>
             <DeployClass>File</DeployClass>
             <Operation>0</Operation>
             <LocalCommand/>

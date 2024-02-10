@@ -156,77 +156,68 @@ var
   sub: integer;
   Jpeg: TJpegImage;
   p: ^TRect;
-  procedure exitProc;
-  begin
+begin
+  try
+    if (OKRightDlg.ShowModal = mrOK) and (OKRightDlg.Edit1.Text <> '') and not ZipReader
+    then
+    begin
+      pdf := TGS_PdfConverter.Create;
+      Jpeg := TJpegImage.Create;
+      DataModule4.FDTable1.Open;
+      try
+        Screen.Cursor := crHourGlass;
+        pdf.Params.Device := DISPLAY_DEVICE_NAME;
+        pdf.UserParams.Clear;
+        pdf.ToPdf(OKRightDlg.OpenDialog1.FileName, '', false);
+        if pdf.GSDisplay.PageCount = 0 then
+          Exit;
+        title := OKRightDlg.Edit1.Text;
+        if ListBox1.Items.IndexOf(title) > -1 then
+          Exit;
+        hyousi := OKRightDlg.CheckBox1.Checked;
+        Jpeg.Assign(pdf.GSDisplay.GetPage(0));
+        New(p);
+        p^ := makeRect(Jpeg);
+        ListBox1.Items.AddObject(title, Pointer(p));
+        with DataModule4.FDQuery1 do
+        begin
+          Open('select COUNT(*) as cnt from pdfdatabase;');
+          if FieldByName('cnt').AsInteger = 0 then
+          begin
+            id := 1;
+            title_id := 1;
+          end
+          else
+          begin
+            Open('select MAX(id) as id from pdfdatabase;');
+            id := FieldByName('id').AsInteger + 1;
+            Open('select MAX(title_id) as title_id from pdfdatabase;');
+            title_id := FieldByName('title_id').AsInteger + 1;
+          end;
+          Close;
+        end;
+        for var i := 0 to pdf.GSDisplay.PageCount - 1 do
+        begin
+          Jpeg.Assign(pdf.GSDisplay.GetPage(i));
+          if (Jpeg.Width > Jpeg.Height) or (hyousi and (i + 1 = 1)) then
+            sub := 1
+          else
+            sub := 0;
+          DataModule4.FDTable1.AppendRecord([id, i + 1, Jpeg, title_id,
+            title, sub]);
+          inc(id);
+        end;
+      finally
+        pdf.Free;
+        Jpeg.Free;
+        Screen.Cursor := crDefault;
+      end;
+    end;
+  finally
     OKRightDlg.OleContainer1.DestroyObject;
     OKRightDlg.Edit1.Text := '';
-    DataModule4.FDQuery1.Open(query);
-    PaintBox1Paint(Sender);
   end;
-
-begin
-  if (OKRightDlg.ShowModal = mrOK) and (OKRightDlg.Edit1.Text <> '') and not ZipReader
-  then
-  begin
-    pdf := TGS_PdfConverter.Create;
-    Jpeg := TJpegImage.Create;
-    try
-      Screen.Cursor := crHourGlass;
-      pdf.Params.Device := DISPLAY_DEVICE_NAME;
-      pdf.UserParams.Clear;
-      pdf.ToPdf(OKRightDlg.OpenDialog1.FileName, '', false);
-      if pdf.GSDisplay.PageCount = 0 then
-        Exit;
-      title := OKRightDlg.Edit1.Text;
-      if ListBox1.Items.IndexOf(title) > -1 then
-        Exit;
-      hyousi := OKRightDlg.CheckBox1.Checked;
-      Jpeg.Assign(pdf.GSDisplay.GetPage(0));
-      New(p);
-      p^ := makeRect(Jpeg);
-      ListBox1.Items.AddObject(title, Pointer(p));
-      with DataModule4.FDQuery1 do
-      begin
-        Open('select COUNT(*) as cnt from pdfdatabase;');
-        if FieldByName('cnt').AsInteger = 0 then
-        begin
-          id := 1;
-          title_id := 1;
-        end
-        else
-        begin
-          Open('select MAX(id) as id from pdfdatabase;');
-          id := FieldByName('id').AsInteger + 1;
-          Open('select MAX(title_id) as title_id from pdfdatabase;');
-          title_id := FieldByName('title_id').AsInteger + 1;
-        end;
-        Open('select * from pdfdatabase;');
-      end;
-      DataModule4.FDMemTable1.CloneCursor(DataModule4.FDQuery1);
-      for var i := 0 to pdf.GSDisplay.PageCount - 1 do
-      begin
-        Jpeg.Assign(pdf.GSDisplay.GetPage(i));
-        if (Jpeg.Width > Jpeg.Height) or (hyousi and (i + 1 = 1)) then
-          sub := 1
-        else
-          sub := 0;
-        DataModule4.FDMemTable1.AppendRecord([id, i + 1, Jpeg, title_id,
-          title, sub]);
-        inc(id);
-      end;
-    finally
-      with DataModule4 do
-      begin
-        FDBatchMove1.Execute;
-        FDMemTable1.Close;
-      end;
-      pdf.Free;
-      Jpeg.Free;
-      Screen.Cursor := crDefault;
-      exitProc;
-    end;
-  end;
-  exitProc;
+  PaintBox1Paint(Sender);
 end;
 
 procedure TForm1.Action1Execute(Sender: TObject);
@@ -536,11 +527,11 @@ begin
     img1.Height := TabSheet3.Height;
     img2.Height := TabSheet3.Height;
     if (Sender = TabSheet3) and not img1.Picture.Graphic.Empty then
-      img1.Width := Round(img2.Height / img1.Picture.Graphic.Height *
+      img1.Width := Round(img1.Height / img1.Picture.Graphic.Height *
         img1.Picture.Graphic.Width);
     if (Sender = TabSheet3) and not img2.Picture.Graphic.Empty then
       img2.Width := Round(img2.Height / img2.Picture.Graphic.Height *
-        img1.Picture.Graphic.Width);
+        img2.Picture.Graphic.Width);
     img1.Left := -img1.Width + TabSheet3.Width div 2;
     img2.Left := TabSheet3.Width div 2;
     img1.Top := 0;
@@ -703,11 +694,10 @@ begin
         Open('select MAX(title_id) as title_id from pdfdatabase;');
         title_id := FieldByName('title_id').AsInteger + 1;
       end;
-      Open('select * from pdfdatabase;');
+      Close;
     end;
     Zip := TZipFile.Create;
     Jpeg := TJpegImage.Create;
-    DataModule4.FDMemTable1.CloneCursor(DataModule4.FDQuery1);
     if not DirectoryExists('temp') then
       MkDir('temp');
     try
@@ -731,7 +721,7 @@ begin
           sub := 1
         else
           sub := 0;
-        DataModule4.FDMemTable1.AppendRecord([id, cnt, Jpeg, title_id,
+        DataModule4.FDTable1.AppendRecord([id, cnt, Jpeg, title_id,
           title, sub]);
         inc(id);
         inc(cnt);
@@ -740,12 +730,7 @@ begin
       Zip.Free;
       Jpeg.Free;
       Screen.Cursor := crDefault;
-      with DataModule4 do
-      begin
-        FDBatchMove1.Execute;
-        FDMemTable1.Close;
-      end;
-      OKRightDlg.Edit1.Text:='';
+      OKRightDlg.Edit1.Text := '';
       dirdelete(ExtractFilePath(Application.ExeName) + 'temp');
     end;
     result := true;

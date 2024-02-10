@@ -182,12 +182,10 @@ object Form1: TForm1
         ParentShowHint = False
         Proportional = True
         ShowHint = True
+        Stretch = True
         OnDblClick = Image1DblClick
         OnMouseDown = Image1MouseDown
-        ExplicitLeft = 177
-        ExplicitTop = 31
-        ExplicitWidth = 443
-        ExplicitHeight = 417
+        ExplicitTop = -1
       end
     end
     object TabSheet3: TTabSheet
