@@ -120,7 +120,8 @@ implementation
 {$R *.dfm}
 
 uses SkiSys.GS_Api, SkiSys.GS_Converter, SkiSys.GS_ParameterConst,
-  SkiSys.GS_gdevdsp, Unit3, ABOUT, OKCANCL2, Unit4, System.Zip, Jpeg;
+  SkiSys.GS_gdevdsp, Unit3, ABOUT, OKCANCL2, Unit4, System.Zip, Jpeg,
+  System.Threading, System.NetEncoding;
 
 var
   id, title_id: integer;
@@ -130,7 +131,7 @@ var
 const
   query = 'select * from pdfdatabase where page_id = 1 order by id asc';
 
-function makeRect(jpg: TJpegImage): TRect;
+function makeRect(jpg: TGraphic): TRect;
 var
   num, consw, consh: integer;
 begin
@@ -153,8 +154,9 @@ end;
 
 procedure TForm1.OpenExecute(Sender: TObject);
 var
-  sub: integer;
-  Jpeg: TJpegImage;
+  sub, size: integer;
+  jpg: TJpegImage;
+  stream: TStream;
   p: ^TRect;
 begin
   try
@@ -162,22 +164,22 @@ begin
     then
     begin
       pdf := TGS_PdfConverter.Create;
-      Jpeg := TJpegImage.Create;
-      DataModule4.FDTable1.Open;
+      jpg := TJpegImage.Create;
+      stream := TMemoryStream.Create;
       try
         Screen.Cursor := crHourGlass;
         pdf.Params.Device := DISPLAY_DEVICE_NAME;
         pdf.UserParams.Clear;
         pdf.ToPdf(OKRightDlg.OpenDialog1.FileName, '', false);
-        if pdf.GSDisplay.PageCount = 0 then
+        size := pdf.GSDisplay.PageCount;
+        if size = 0 then
           Exit;
         title := OKRightDlg.Edit1.Text;
         if ListBox1.Items.IndexOf(title) > -1 then
           Exit;
         hyousi := OKRightDlg.CheckBox1.Checked;
-        Jpeg.Assign(pdf.GSDisplay.GetPage(0));
         New(p);
-        p^ := makeRect(Jpeg);
+        p^ := makeRect(pdf.GSDisplay.GetPage(0));
         ListBox1.Items.AddObject(title, Pointer(p));
         with DataModule4.FDQuery1 do
         begin
@@ -195,21 +197,32 @@ begin
             title_id := FieldByName('title_id').AsInteger + 1;
           end;
           Close;
-        end;
-        for var i := 0 to pdf.GSDisplay.PageCount - 1 do
-        begin
-          Jpeg.Assign(pdf.GSDisplay.GetPage(i));
-          if (Jpeg.Width > Jpeg.Height) or (hyousi and (i + 1 = 1)) then
-            sub := 1
-          else
-            sub := 0;
-          DataModule4.FDTable1.AppendRecord([id, i + 1, Jpeg, title_id,
-            title, sub]);
-          inc(id);
+          SQL.Text :=
+            ('insert into pdfdatabase (id, page_id, image, title_id, title, subimage) values (:id, :page_id, :image, :title_id, :title, :subimage);');
+          Params.ArraySize := size;
+          for var i := 0 to size - 1 do
+          begin
+            ParamByName('id').AsIntegers[i] := id;
+            ParamByName('page_id').AsIntegers[i] := i + 1;
+            jpg.Assign(pdf.GSDisplay.GetPage(i));
+            stream.Position := 0;
+            jpg.SaveToStream(stream);
+            ParamByName('image').LoadFromStream(stream, ftBlob, i);
+            ParamByName('title_id').AsIntegers[i] := title_id;
+            ParamByName('title').AsStrings[i] := title;
+            if (jpg.Width > jpg.Height) or (hyousi and (i + 1 = 1)) then
+              sub := 1
+            else
+              sub := 0;
+            ParamByName('subimage').AsIntegers[i] := sub;
+            inc(id);
+          end;
+          execute(size);
         end;
       finally
         pdf.Free;
-        Jpeg.Free;
+        jpg.Free;
+        stream.Free;
         Screen.Cursor := crDefault;
       end;
     end;
@@ -663,9 +676,10 @@ end;
 
 function TForm1.ZipReader: Boolean;
 var
-  sub: integer;
+  sub, size: integer;
   s: string;
   cnt: integer;
+  stream: TStream;
   Jpeg: TJpegImage;
   Zip: TZipFile;
   p: ^TRect;
@@ -695,15 +709,20 @@ begin
         title_id := FieldByName('title_id').AsInteger + 1;
       end;
       Close;
+      SQL.Text :=
+        'insert into pdfdatabase (id, page_id, image, title_id, title, subimage) values (:id, :page_id, :image, :title_id, :title, :subimage);';
     end;
     Zip := TZipFile.Create;
     Jpeg := TJpegImage.Create;
+    stream := TMemoryStream.Create;
     if not DirectoryExists('temp') then
       MkDir('temp');
     try
       cnt := 1;
       Zip.Open(s, zmRead);
-      for var i := 0 to Zip.FileCount - 1 do
+      size := Zip.FileCount;
+      DataModule4.FDQuery1.Params.ArraySize := size;
+      for var i := 0 to size - 1 do
       begin
         if ExtractFileExt(Zip.FileName[i]) <> '.jpg' then
           continue;
@@ -721,14 +740,27 @@ begin
           sub := 1
         else
           sub := 0;
-        DataModule4.FDTable1.AppendRecord([id, cnt, Jpeg, title_id,
-          title, sub]);
+        with DataModule4.FDQuery1 do
+        begin
+          ParamByName('id').AsIntegers[cnt - 1] := id;
+          ParamByName('page_id').AsIntegers[cnt - 1] := cnt;
+          stream.Position := 0;
+          Jpeg.SaveToStream(stream);
+          ParamByName('image').LoadFromStream(stream, ftBlob, cnt - 1);
+          ParamByName('title_id').AsIntegers[cnt - 1] := title_id;
+          ParamByName('title').AsStrings[cnt - 1] := title;
+          ParamByName('subimage').AsIntegers[cnt - 1] := sub;
+        end;
         inc(id);
         inc(cnt);
       end;
+      size := cnt - 1;
+      DataModule4.FDQuery1.Params.ArraySize := size;
+      DataModule4.FDQuery1.execute(size);
     finally
       Zip.Free;
       Jpeg.Free;
+      stream.Free;
       Screen.Cursor := crDefault;
       OKRightDlg.Edit1.Text := '';
       dirdelete(ExtractFilePath(Application.ExeName) + 'temp');
