@@ -4,8 +4,11 @@ object DataModule4: TDataModule4
   Width = 242
   object FDConnection1: TFDConnection
     Params.Strings = (
-      'Database=C:\Users\yamat\Documents\PDFViewerDB\DATA.SDB'
-      'DriverID=SQLite')
+      'Database=C:\Users\yamat\Documents\PDFViewerDB\PDFDATA.IB'
+      'User_Name=sysdba'
+      'Password=masterkey'
+      'OpenMode=OpenOrCreate'
+      'DriverID=IB')
     Connected = True
     LoginPrompt = False
     Left = 104

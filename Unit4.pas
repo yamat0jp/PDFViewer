@@ -10,7 +10,7 @@ uses
   FireDAC.Phys.SQLiteWrapper.Stat, FireDAC.VCLUI.Wait, FireDAC.Stan.Param,
   FireDAC.DatS, FireDAC.DApt.Intf, FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet,
   FireDAC.Comp.Client, FireDAC.Stan.StorageBin, FireDAC.Comp.BatchMove.DataSet,
-  FireDAC.Comp.BatchMove;
+  FireDAC.Comp.BatchMove, FireDAC.Phys.IB, FireDAC.Phys.IBDef;
 
 type
   TDataModule4 = class(TDataModule)
@@ -59,7 +59,7 @@ begin
     TFile.Copy('Readme.txt', s + '\Readme.txt');
   if not FileExists(s + '\ZANSHO_NEW.pdf') then
     TFile.Copy('ZANSHO_NEW.pdf', s + '\ZANSHO_NEW.pdf');
-  FDConnection1.Params.Database := s + '\DATA.SDB';
+  FDConnection1.Params.Database := s + '\PDFDATA.IB';
   FDConnection1.Open;
   if not(FDTable1.Exists and FDTable2.Exists) then
     FDQuery1.ExecSQL;

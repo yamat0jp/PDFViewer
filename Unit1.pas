@@ -17,7 +17,8 @@ uses
   FireDAC.Stan.ExprFuncs, FireDAC.Phys.SQLite, FireDAC.Phys.SQLiteDef,
   FireDAC.Phys.SQLiteWrapper.Stat, System.Rtti, System.Bindings.Outputs,
   Vcl.Bind.Editors, Data.Bind.EngExt, Vcl.Bind.DBEngExt, Data.Bind.Components,
-  Data.Bind.DBScope;
+  Data.Bind.DBScope, SkiSys.GS_Api, SkiSys.GS_Converter,
+  SkiSys.GS_ParameterConst, SkiSys.GS_gdevdsp;
 
 type
   TPageState = (pgSingle, pgSemi, pgDouble);
@@ -102,13 +103,13 @@ type
     double: TPageState;
     reverse: Boolean;
     pageList: TList<TPageLayout>;
-    hyousi: Boolean;
     procedure countPictures;
     function returnPos(page: integer; var double: TPageState): integer;
     function checkSemi(num: integer): Boolean;
     function ZipReader: Boolean;
   public
     { Public éŒ¾ }
+    pdf: TGS_PdfConverter;
   end;
 
 var
@@ -119,32 +120,31 @@ implementation
 
 {$R *.dfm}
 
-uses SkiSys.GS_Api, SkiSys.GS_Converter, SkiSys.GS_ParameterConst,
-  SkiSys.GS_gdevdsp, Unit3, ABOUT, OKCANCL2, Unit4, System.Zip, Jpeg,
-  System.Threading, System.NetEncoding;
-
-var
-  id, title_id: integer;
-  title: string;
-  pdf: TGS_PdfConverter;
+uses Jpeg, Unit3, ABOUT, OKCANCL2, Unit4, System.Zip, ZLib,
+  System.Threading, System.NetEncoding, System.SyncObjs, Thread;
 
 const
   query = 'select * from pdfdatabase where page_id = 1 order by id asc';
 
-function makeRect(jpg: TGraphic): TRect;
+var
+  hyousi: Boolean;
+  id, title_id: integer;
+  title: string;
+
+function makeRect(img: TGraphic): TRect;
 var
   num, consw, consh: integer;
 begin
   num := 120;
-  if jpg.Width > jpg.Height then
+  if img.Width > img.Height then
   begin
     consw := num;
-    consh := Round(num * jpg.Height / jpg.Width);
+    consh := Round(num * img.Height / img.Width);
   end
   else
   begin
     consh := num;
-    consw := Round(num * jpg.Width / jpg.Height);
+    consw := Round(num * img.Width / img.Height);
   end;
   result.Left := Random(Form1.PaintBox1.Width - consw);
   result.Top := Random(Form1.PaintBox1.Height - consh);
@@ -155,80 +155,82 @@ end;
 procedure TForm1.OpenExecute(Sender: TObject);
 var
   sub, size: integer;
-  jpg: TJpegImage;
-  stream: TStream;
   p: ^TRect;
+  img: TGraphic;
+  threads: TArray<TMyThread>;
 begin
-  try
-    if (OKRightDlg.ShowModal = mrOK) and (OKRightDlg.Edit1.Text <> '') and not ZipReader
-    then
-    begin
-      pdf := TGS_PdfConverter.Create;
-      jpg := TJpegImage.Create;
-      stream := TMemoryStream.Create;
-      try
-        Screen.Cursor := crHourGlass;
-        pdf.Params.Device := DISPLAY_DEVICE_NAME;
-        pdf.UserParams.Clear;
-        pdf.ToPdf(OKRightDlg.OpenDialog1.FileName, '', false);
-        size := pdf.GSDisplay.PageCount;
-        if size = 0 then
-          Exit;
-        title := OKRightDlg.Edit1.Text;
-        if ListBox1.Items.IndexOf(title) > -1 then
-          Exit;
-        hyousi := OKRightDlg.CheckBox1.Checked;
-        New(p);
-        p^ := makeRect(pdf.GSDisplay.GetPage(0));
-        ListBox1.Items.AddObject(title, Pointer(p));
+  if (OKRightDlg.ShowModal = mrOK) and (OKRightDlg.Edit1.Text <> '') and not ZipReader
+  then
+  begin
+    pdf := TGS_PdfConverter.Create;
+    Screen.Cursor := crHourGlass;
+    try
+      pdf.Params.Device := DISPLAY_DEVICE_NAME;
+      pdf.UserParams.Clear;
+      pdf.ToPdf(OKRightDlg.OpenDialog1.FileName, '', false);
+      size := pdf.GSDisplay.PageCount;
+      if size = 0 then
+        Exit;
+      title := OKRightDlg.Edit1.Text;
+      if ListBox1.Items.IndexOf(title) > -1 then
+        Exit;
+      hyousi := OKRightDlg.CheckBox1.Checked;
+      New(p);
+      p^ := makeRect(pdf.GSDisplay.GetPage(0));
+      ListBox1.Items.AddObject(title, Pointer(p));
+      with DataModule4.FDQuery1 do
+      begin
+        Open('select COUNT(*) as cnt from pdfdatabase;');
+        if FieldByName('cnt').AsInteger = 0 then
+        begin
+          id := 1;
+          title_id := 1;
+        end
+        else
+        begin
+          Open('select MAX(id) as id from pdfdatabase;');
+          id := FieldByName('id').AsInteger + 1;
+          Open('select MAX(title_id) as title_id from pdfdatabase;');
+          title_id := FieldByName('title_id').AsInteger + 1;
+        end;
+        Close;
+        SQL.Text :=
+          ('insert into pdfdatabase (id, page_id, image, title_id, title, subimage) values (:id, :page_id, :image, :title_id, :title, :subimage);');
+        Params.ArraySize := size;
+      end;
+      SetLength(threads, size);
+      for var i := 0 to size - 1 do
         with DataModule4.FDQuery1 do
         begin
-          Open('select COUNT(*) as cnt from pdfdatabase;');
-          if FieldByName('cnt').AsInteger = 0 then
-          begin
-            id := 1;
-            title_id := 1;
-          end
+          ParamByName('id').AsIntegers[i] := id + i;
+          ParamByName('page_id').AsIntegers[i] := i + 1;
+          ParamByName('title_id').AsIntegers[i] := title_id;
+          ParamByName('title').AsStrings[i] := title;
+          img := pdf.GSDisplay.GetPage(i);
+          if (img.Width > img.Height) or (hyousi and (i = 0)) then
+            sub := 1
           else
-          begin
-            Open('select MAX(id) as id from pdfdatabase;');
-            id := FieldByName('id').AsInteger + 1;
-            Open('select MAX(title_id) as title_id from pdfdatabase;');
-            title_id := FieldByName('title_id').AsInteger + 1;
-          end;
-          Close;
-          SQL.Text :=
-            ('insert into pdfdatabase (id, page_id, image, title_id, title, subimage) values (:id, :page_id, :image, :title_id, :title, :subimage);');
-          Params.ArraySize := size;
-          for var i := 0 to size - 1 do
-          begin
-            ParamByName('id').AsIntegers[i] := id;
-            ParamByName('page_id').AsIntegers[i] := i + 1;
-            jpg.Assign(pdf.GSDisplay.GetPage(i));
-            stream.Position := 0;
-            jpg.SaveToStream(stream);
-            ParamByName('image').LoadFromStream(stream, ftBlob, i);
-            ParamByName('title_id').AsIntegers[i] := title_id;
-            ParamByName('title').AsStrings[i] := title;
-            if (jpg.Width > jpg.Height) or (hyousi and (i + 1 = 1)) then
-              sub := 1
-            else
-              sub := 0;
-            ParamByName('subimage').AsIntegers[i] := sub;
-            inc(id);
-          end;
-          execute(size);
+            sub := 0;
+          ParamByName('subimage').AsIntegers[i] := sub;
+          threads[i] := TMyThread.Create(i, img);
         end;
-      finally
-        pdf.Free;
-        jpg.Free;
-        stream.Free;
-        Screen.Cursor := crDefault;
+      with DataModule4.FDQuery1 do
+      begin
+        for var i := 0 to size - 1 do
+        begin
+          threads[i].WaitFor;
+          ParamByName('image').LoadFromStream(threads[i].Stream, ftBlob, i);
+          threads[i].Free;
+        end;
+        Execute(size, 0);
       end;
+    finally
+      pdf.Free;
+      Finalize(threads);
+      Screen.Cursor := crDefault;
+      OKRightDlg.OleContainer1.DestroyObject;
+      OKRightDlg.Edit1.Text := '';
     end;
-  finally
-    OKRightDlg.OleContainer1.DestroyObject;
-    OKRightDlg.Edit1.Text := '';
   end;
   PaintBox1Paint(Sender);
 end;
@@ -320,28 +322,36 @@ end;
 
 procedure TForm1.FormCreate(Sender: TObject);
 var
-  Jpeg: TJpegImage;
+  bmp: TBitmap;
+  zs, tmp: TStream;
   p: ^TRect;
 begin
   with DataModule4.FDQuery1 do
   begin
     Open(query);
-    Jpeg := TJpegImage.Create;
+    bmp := TBitmap.Create;
     try
       while not Eof do
       begin
         title := FieldByName('title').AsString;
         if ListBox1.Items.IndexOf(title) = -1 then
         begin
-          Jpeg.Assign(FieldByName('image'));
+          tmp := CreateBlobStream(FieldByName('image'), bmRead);
+          zs := TZDecompressionStream.Create(tmp);
+          try
+            bmp.LoadFromStream(zs);
+          finally
+            tmp.Free;
+            zs.Free;
+          end;
           New(p);
-          p^ := makeRect(Jpeg);
+          p^ := makeRect(bmp);
           ListBox1.Items.AddObject(title, Pointer(p));
         end;
         Next;
       end;
     finally
-      Jpeg.Free;
+      bmp.Free;
     end;
   end;
   TabSheet3Resize(Sender);
@@ -458,7 +468,8 @@ end;
 procedure TForm1.PaintBox1Paint(Sender: TObject);
 var
   rect: ^TRect;
-  Jpeg: TJpegImage;
+  bmp: TBitmap;
+  zs, tmp: TStream;
 begin
   if not DataModule4.FDQuery1.Active then
     DataModule4.FDQuery1.Open(query);
@@ -466,28 +477,44 @@ begin
   PaintBox1.Canvas.FillRect(PaintBox1.ClientRect);
   PaintBox1.Canvas.Pen.Color := clRed;
   PaintBox1.Canvas.Pen.Width := 10;
-  Jpeg := TJpegImage.Create;
+  bmp := TBitmap.Create;
   try
     for var i := 0 to ListBox1.Items.Count - 1 do
     begin
       if ListBox1.ItemIndex = i then
         continue;
       DataModule4.FDQuery1.Locate('title', ListBox1.Items[i]);
-      Jpeg.Assign(DataModule4.FDQuery1.FieldByName('image'));
+      with DataModule4.FDQuery1 do
+        tmp := CreateBlobStream(FieldByName('image'), bmRead);
+      zs := TZDecompressionStream.Create(tmp);
+      try
+        bmp.LoadFromStream(zs);
+      finally
+        tmp.Free;
+        zs.Free;
+      end;
       rect := Pointer(ListBox1.Items.Objects[i]);
-      PaintBox1.Canvas.StretchDraw(rect^, Jpeg);
+      PaintBox1.Canvas.StretchDraw(rect^, bmp);
     end;
     id := ListBox1.ItemIndex;
     if id > -1 then
-    begin
-      DataModule4.FDQuery1.Locate('title', ListBox1.Items[id]);
-      Jpeg.Assign(DataModule4.FDQuery1.FieldByName('image'));
-      rect := Pointer(ListBox1.Items.Objects[id]);
-      PaintBox1.Canvas.Rectangle(rect^);
-      PaintBox1.Canvas.StretchDraw(rect^, Jpeg);
-    end;
+      with DataModule4.FDQuery1 do
+      begin
+        Locate('title', ListBox1.Items[id]);
+        tmp := CreateBlobStream(FieldByName('image'), bmRead);
+        zs := TZDecompressionStream.Create(tmp);
+        try
+          bmp.LoadFromStream(zs);
+        finally
+          zs.Free;
+          tmp.Free;
+        end;
+        rect := Pointer(ListBox1.Items.Objects[id]);
+        PaintBox1.Canvas.Rectangle(rect^);
+        PaintBox1.Canvas.StretchDraw(rect^, bmp);
+      end;
   finally
-    Jpeg.Free;
+    bmp.Free;
   end;
 end;
 
@@ -628,6 +655,7 @@ end;
 procedure TForm1.TrackBar1Change(Sender: TObject);
 var
   p: TPageLayout;
+  zs, tmp: TStream;
 begin
   if double = pgSingle then
     DataModule4.FDMemTable1.Locate('page_id', TrackBar1.Position + 1)
@@ -645,16 +673,40 @@ begin
     pgSingle, pgSemi:
       begin
         PageControl1.TabIndex := 1;
-        Image1.Picture.Assign(DataModule4.FDMemTable1.FieldByName('image'));
+        with DataModule4.FDMemTable1 do
+          tmp := CreateBlobStream(FieldByName('image'), bmRead);
+        zs := TZDecompressionStream.Create(tmp);
+        try
+          Image1.Picture.LoadFromStream(zs);
+        finally
+          tmp.Free;
+          zs.Free;
+        end;
         StatusBar1.Panels[3].Text := DataModule4.FDMemTable1.FieldByName
           ('page_id').AsString;
       end;
     pgDouble:
       begin
         PageControl1.TabIndex := 2;
-        Image2.Picture.Assign(DataModule4.FDMemTable1.FieldByName('image'));
+        with DataModule4.FDMemTable1 do
+          tmp := CreateBlobStream(FieldByName('image'), bmRead);
+        zs := TZDecompressionStream.Create(tmp);
+        try
+          Image2.Picture.LoadFromStream(zs);
+        finally
+          zs.Free;
+          tmp.Free;
+        end;
         DataModule4.FDMemTable1.Next;
-        Image3.Picture.Assign(DataModule4.FDMemTable1.FieldByName('image'));
+        with DataModule4.FDMemTable1 do
+          tmp := CreateBlobStream(FieldByName('image'), bmRead);
+        zs := TZDecompressionStream.Create(tmp);
+        try
+          Image3.Picture.LoadFromStream(zs);
+        finally
+          zs.Free;
+          tmp.Free;
+        end;
         StatusBar1.Panels[3].Text := Format('%d , %d', [p.Left, p.Right]);
       end;
   end;
@@ -676,13 +728,13 @@ end;
 
 function TForm1.ZipReader: Boolean;
 var
-  sub, size: integer;
-  s: string;
-  cnt: integer;
-  stream: TStream;
-  Jpeg: TJpegImage;
+  size: integer;
+  s, t: string;
+  cnt, sub: integer;
   Zip: TZipFile;
   p: ^TRect;
+  threads: TArray<TZipThread>;
+  jpg: TGraphic;
 begin
   result := false;
   s := OKRightDlg.OpenDialog1.FileName;
@@ -713,54 +765,60 @@ begin
         'insert into pdfdatabase (id, page_id, image, title_id, title, subimage) values (:id, :page_id, :image, :title_id, :title, :subimage);';
     end;
     Zip := TZipFile.Create;
-    Jpeg := TJpegImage.Create;
-    stream := TMemoryStream.Create;
     if not DirectoryExists('temp') then
       MkDir('temp');
+    jpg := TJpegImage.Create;
     try
       cnt := 1;
       Zip.Open(s, zmRead);
       size := Zip.FileCount;
+      SetLength(threads, size);
       DataModule4.FDQuery1.Params.ArraySize := size;
       for var i := 0 to size - 1 do
       begin
         if ExtractFileExt(Zip.FileName[i]) <> '.jpg' then
           continue;
-        s := Zip.FileName[i];
-        Zip.Extract(s, 'temp');
-        Jpeg.LoadFromFile('temp\' + s);
-        DeleteFile('temp\' + s);
-        if cnt = 1 then
+        t := Zip.FileName[i];
+        Zip.Extract(t, 'temp');
+        jpg.LoadFromFile('temp\' + t);
+        DeleteFile('temp\' + t);
+        if i = 0 then
         begin
           New(p);
-          p^ := makeRect(Jpeg);
+          p^ := makeRect(jpg);
           ListBox1.Items.AddObject(title, Pointer(p));
         end;
-        if (Jpeg.Width > Jpeg.Height) or (hyousi and (cnt = 1)) then
+        if (jpg.Width > jpg.Height) or (hyousi and (i = 0)) then
           sub := 1
         else
           sub := 0;
         with DataModule4.FDQuery1 do
         begin
-          ParamByName('id').AsIntegers[cnt - 1] := id;
-          ParamByName('page_id').AsIntegers[cnt - 1] := cnt;
-          stream.Position := 0;
-          Jpeg.SaveToStream(stream);
-          ParamByName('image').LoadFromStream(stream, ftBlob, cnt - 1);
-          ParamByName('title_id').AsIntegers[cnt - 1] := title_id;
-          ParamByName('title').AsStrings[cnt - 1] := title;
-          ParamByName('subimage').AsIntegers[cnt - 1] := sub;
+          ParamByName('id').AsIntegers[i] := id + i;
+          ParamByName('page_id').AsIntegers[i] := i + 1;
+          ParamByName('title_id').AsIntegers[i] := title_id;
+          ParamByName('title').AsStrings[i] := title;
+          ParamByName('subimage').AsIntegers[i] := sub;
         end;
-        inc(id);
+        threads[i] := TZipThread.Create(i, jpg);
         inc(cnt);
       end;
       size := cnt - 1;
-      DataModule4.FDQuery1.Params.ArraySize := size;
-      DataModule4.FDQuery1.execute(size);
+      with DataModule4.FDQuery1 do
+      begin
+        for var i := 0 to size - 1 do
+        begin
+          threads[i].WaitFor;
+          ParamByName('image').LoadFromStream(threads[i].Stream, ftBlob, i);
+          threads[i].Free;
+        end;
+        Params.ArraySize := size;
+        Execute(size, 0);
+      end;
     finally
+      jpg.Free;
+      Finalize(threads);
       Zip.Free;
-      Jpeg.Free;
-      stream.Free;
       Screen.Cursor := crDefault;
       OKRightDlg.Edit1.Text := '';
       dirdelete(ExtractFilePath(Application.ExeName) + 'temp');

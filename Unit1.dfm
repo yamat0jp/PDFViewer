@@ -196,7 +196,7 @@ object Form1: TForm1
         842
         466)
       object Image2: TImage
-        Left = 121
+        Left = 118
         Top = -252
         Width = 216
         Height = 372
@@ -11102,7 +11102,7 @@ object Form1: TForm1
         ExplicitTop = -209
       end
       object Image3: TImage
-        Left = 403
+        Left = 397
         Top = -252
         Width = 218
         Height = 372
@@ -22054,7 +22054,7 @@ object Form1: TForm1
         Width = 75
         Height = 25
         Caption = #22793#26356
-        TabOrder = 0
+        TabOrder = 2
         OnClick = Button1Click
       end
       object Edit1: TEdit
@@ -22062,14 +22062,14 @@ object Form1: TForm1
         Top = 72
         Width = 121
         Height = 23
-        TabOrder = 1
+        TabOrder = 0
       end
       object Edit2: TEdit
         Left = 223
         Top = 136
         Width = 121
         Height = 23
-        TabOrder = 2
+        TabOrder = 1
       end
       object Button2: TButton
         Left = 400
