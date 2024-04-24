@@ -13,12 +13,13 @@ type
     FIndex: integer;
     FImg: TGraphic;
     FStream: TStream;
+    function GetStream: TStream;
   protected
     procedure Execute; override;
   public
     constructor Create(AIndex: integer; AImg: TGraphic); virtual;
     destructor Destroy; override;
-    property Stream: TStream read FStream;
+    property Stream: TStream read GetStream;
   end;
 
   TZipThread = class(TMyThread)
@@ -91,12 +92,19 @@ begin
   end;
 end;
 
+function TMyThread.GetStream: TStream;
+begin
+  if not Finished then
+    WaitFor;
+  result := FStream;
+end;
+
 { TZipThread }
 
 constructor TZipThread.Create(AIndex: integer; AImg: TGraphic);
 begin
   inherited;
-  FImg:=TBitmap.Create;
+  FImg := TBitmap.Create;
   FImg.Assign(AImg);
 end;
 

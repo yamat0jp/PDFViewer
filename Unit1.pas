@@ -18,7 +18,7 @@ uses
   FireDAC.Phys.SQLiteWrapper.Stat, System.Rtti, System.Bindings.Outputs,
   Vcl.Bind.Editors, Data.Bind.EngExt, Vcl.Bind.DBEngExt, Data.Bind.Components,
   Data.Bind.DBScope, SkiSys.GS_Api, SkiSys.GS_Converter,
-  SkiSys.GS_ParameterConst, SkiSys.GS_gdevdsp;
+  SkiSys.GS_ParameterConst, SkiSys.GS_gdevdsp, System.Zip, Thread;
 
 type
   TPageState = (pgSingle, pgSemi, pgDouble);
@@ -103,10 +103,13 @@ type
     double: TPageState;
     reverse: Boolean;
     pageList: TList<TPageLayout>;
+    Zip: TZipFile;
+    threads: TArray<TZipThread>;
     procedure countPictures;
     function returnPos(page: integer; var double: TPageState): integer;
     function checkSemi(num: integer): Boolean;
     function ZipReader: Boolean;
+    function ZipLoop(i, j: integer): integer;
   public
     { Public êÈåæ }
     pdf: TGS_PdfConverter;
@@ -120,8 +123,8 @@ implementation
 
 {$R *.dfm}
 
-uses Jpeg, Unit3, ABOUT, OKCANCL2, Unit4, System.Zip, ZLib,
-  System.Threading, System.NetEncoding, System.SyncObjs, Thread;
+uses Jpeg, Unit3, ABOUT, OKCANCL2, Unit4, Zlib,
+  System.Threading, System.NetEncoding, System.SyncObjs;
 
 const
   query = 'select * from pdfdatabase where page_id = 1 order by id asc';
@@ -218,7 +221,6 @@ begin
       begin
         for var i := 0 to size - 1 do
         begin
-          threads[i].WaitFor;
           ParamByName('image').LoadFromStream(threads[i].Stream, ftBlob, i);
           threads[i].Free;
         end;
@@ -726,19 +728,64 @@ begin
   AboutBox.ShowModal;
 end;
 
+function TForm1.ZipLoop(i, j: integer): integer;
+var
+  s: string;
+  sub: integer;
+  jpg: TJpegImage;
+  p: ^TRect;
+begin
+  result := 0;
+  jpg := TJpegImage.Create;
+  try
+    for var k := i to j - 1 do
+    begin
+      if LowerCase(ExtractFileExt(Zip.FileName[k])) <> '.jpg' then
+        continue;
+      s := Zip.FileName[k];
+      Zip.Extract(s, 'temp');
+      jpg.LoadFromFile('temp\' + s);
+      DeleteFile('temp\' + s);
+      if k = 0 then
+      begin
+        New(p);
+        p^ := makeRect(jpg);
+        ListBox1.Items.AddObject(title, Pointer(p));
+      end;
+      if (jpg.Width > jpg.Height) or (hyousi and (k = 0)) then
+        sub := 1
+      else
+        sub := 0;
+      with DataModule4.FDQuery1 do
+      begin
+        ParamByName('id').AsIntegers[k] := id + k;
+        ParamByName('page_id').AsIntegers[k] := k + 1;
+        ParamByName('title_id').AsIntegers[k] := title_id;
+        ParamByName('title').AsStrings[k] := title;
+        ParamByName('subimage').AsIntegers[k] := sub;
+      end;
+      threads[k] := TZipThread.Create(k, jpg);
+      inc(result);
+    end;
+    for var m := i to i + result - 1 do
+    begin
+      DataModule4.FDQuery1.ParamByName('image')
+        .LoadFromStream(threads[m].Stream, ftBlob, m);
+      threads[m].Free;
+    end;
+  finally
+    jpg.Free;
+  end;
+end;
+
 function TForm1.ZipReader: Boolean;
 var
-  size: integer;
-  s, t: string;
-  cnt, sub: integer;
-  Zip: TZipFile;
-  p: ^TRect;
-  threads: TArray<TZipThread>;
-  jpg: TGraphic;
+  size, mid: integer;
+  s: string;
 begin
   result := false;
   s := OKRightDlg.OpenDialog1.FileName;
-  if ExtractFileExt(s) = '.zip' then
+  if LowerCase(ExtractFileExt(s)) = '.zip' then
   begin
     title := OKRightDlg.Edit1.Text;
     if ListBox1.Items.IndexOf(title) > -1 then
@@ -767,56 +814,17 @@ begin
     Zip := TZipFile.Create;
     if not DirectoryExists('temp') then
       MkDir('temp');
-    jpg := TJpegImage.Create;
+    Zip.Open(s, zmRead);
+    size := Zip.FileCount;
+    SetLength(threads, size);
     try
-      cnt := 1;
-      Zip.Open(s, zmRead);
-      size := Zip.FileCount;
-      SetLength(threads, size);
       DataModule4.FDQuery1.Params.ArraySize := size;
-      for var i := 0 to size - 1 do
-      begin
-        if ExtractFileExt(Zip.FileName[i]) <> '.jpg' then
-          continue;
-        t := Zip.FileName[i];
-        Zip.Extract(t, 'temp');
-        jpg.LoadFromFile('temp\' + t);
-        DeleteFile('temp\' + t);
-        if i = 0 then
-        begin
-          New(p);
-          p^ := makeRect(jpg);
-          ListBox1.Items.AddObject(title, Pointer(p));
-        end;
-        if (jpg.Width > jpg.Height) or (hyousi and (i = 0)) then
-          sub := 1
-        else
-          sub := 0;
-        with DataModule4.FDQuery1 do
-        begin
-          ParamByName('id').AsIntegers[i] := id + i;
-          ParamByName('page_id').AsIntegers[i] := i + 1;
-          ParamByName('title_id').AsIntegers[i] := title_id;
-          ParamByName('title').AsStrings[i] := title;
-          ParamByName('subimage').AsIntegers[i] := sub;
-        end;
-        threads[i] := TZipThread.Create(i, jpg);
-        inc(cnt);
-      end;
-      size := cnt - 1;
-      with DataModule4.FDQuery1 do
-      begin
-        for var i := 0 to size - 1 do
-        begin
-          threads[i].WaitFor;
-          ParamByName('image').LoadFromStream(threads[i].Stream, ftBlob, i);
-          threads[i].Free;
-        end;
-        Params.ArraySize := size;
-        Execute(size, 0);
-      end;
+      mid := 0;
+      while mid + 100 - 1 < size do
+        inc(mid, ZipLoop(mid, mid + 100 - 1));
+      size := mid + ZipLoop(mid, mid + size mod 100) - 1;
+      DataModule4.FDQuery1.Execute(size, 0);
     finally
-      jpg.Free;
       Finalize(threads);
       Zip.Free;
       Screen.Cursor := crDefault;
