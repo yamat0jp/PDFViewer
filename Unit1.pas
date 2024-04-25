@@ -760,13 +760,13 @@ begin
         img := jpg;
       end;
       DeleteFile('temp\' + s);
-      if k = 0 then
+      if (i = 0) and (cnt = 0) then
       begin
         New(p);
         p^ := makeRect(jpg);
         ListBox1.Items.AddObject(title, Pointer(p));
       end;
-      if (img.Width > img.Height) or (hyousi and (k = 0)) then
+      if (img.Width > img.Height) or (hyousi and (i = 0) and (cnt = 0)) then
         sub := 1
       else
         sub := 0;
@@ -787,7 +787,7 @@ begin
     for var m := 0 to cnt - 1 do
     begin
       DataModule4.FDQuery1.ParamByName('image')
-        .LoadFromStream(threads[m].Stream, ftBlob, m);
+        .LoadFromStream(threads[m].Stream, ftBlob, i + m);
       threads[m].Free;
     end;
   finally
