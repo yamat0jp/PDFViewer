@@ -731,12 +731,12 @@ function TForm1.ZipLoop(i, j: integer): integer;
 var
   s: string;
   bool: Boolean;
-  sub: integer;
+  sub, cnt: integer;
   img, bmp, jpg: TGraphic;
   p: ^TRect;
   threads: TArray<TMyThread>;
 begin
-  result := 0;
+  cnt := 0;
   bmp := TBitmap.Create;
   jpg := TJpegImage.Create;
   SetLength(threads, j - i);
@@ -772,19 +772,19 @@ begin
         sub := 0;
       with DataModule4.FDQuery1 do
       begin
-        ParamByName('id').AsIntegers[result + i] := id + result + i;
-        ParamByName('page_id').AsIntegers[result + i] := result + i + 1;
-        ParamByName('title_id').AsIntegers[result + i] := title_id;
-        ParamByName('title').AsStrings[result + i] := title;
-        ParamByName('subimage').AsIntegers[result + i] := sub;
+        ParamByName('id').AsIntegers[i + cnt] := id + i + cnt;
+        ParamByName('page_id').AsIntegers[i + cnt] := i + cnt + 1;
+        ParamByName('title_id').AsIntegers[i + cnt] := title_id;
+        ParamByName('title').AsStrings[i + cnt] := title;
+        ParamByName('subimage').AsIntegers[i + cnt] := sub;
       end;
       if bool then
-        threads[result] := TMyThread.Create(result, bmp)
+        threads[cnt] := TMyThread.Create(cnt, bmp)
       else
-        threads[result] := TZipThread.Create(result, jpg);
-      inc(result);
+        threads[cnt] := TZipThread.Create(cnt, jpg);
+      inc(cnt);
     end;
-    for var m := 0 to result - 1 do
+    for var m := 0 to cnt - 1 do
     begin
       DataModule4.FDQuery1.ParamByName('image')
         .LoadFromStream(threads[m].Stream, ftBlob, m);
@@ -795,6 +795,7 @@ begin
     bmp.Free;
     jpg.Free;
   end;
+  result := cnt;
 end;
 
 function TForm1.ZipReader: Boolean;
