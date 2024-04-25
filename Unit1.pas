@@ -104,7 +104,7 @@ type
     reverse: Boolean;
     pageList: TList<TPageLayout>;
     Zip: TZipFile;
-    threads: TArray<TZipThread>;
+    pdf: TGS_PdfConverter;
     procedure countPictures;
     function returnPos(page: integer; var double: TPageState): integer;
     function checkSemi(num: integer): Boolean;
@@ -112,7 +112,6 @@ type
     function ZipLoop(i, j: integer): integer;
   public
     { Public êÈåæ }
-    pdf: TGS_PdfConverter;
   end;
 
 var
@@ -731,20 +730,35 @@ end;
 function TForm1.ZipLoop(i, j: integer): integer;
 var
   s: string;
+  bool: Boolean;
   sub: integer;
-  jpg: TJpegImage;
+  img, bmp, jpg: TGraphic;
   p: ^TRect;
+  threads: TArray<TMyThread>;
 begin
   result := 0;
+  bmp := TBitmap.Create;
   jpg := TJpegImage.Create;
+  SetLength(threads, j - i);
   try
     for var k := i to j - 1 do
     begin
-      if LowerCase(ExtractFileExt(Zip.FileName[k])) <> '.jpg' then
+      s := LowerCase(ExtractFileExt(Zip.FileName[k]));
+      if (s <> '.jpg') and (s <> '.jpeg') and (s <> '.bmp') then
         continue;
+      bool := s = '.bmp';
       s := Zip.FileName[k];
       Zip.Extract(s, 'temp');
-      jpg.LoadFromFile('temp\' + s);
+      if bool then
+      begin
+        bmp.LoadFromFile('temp\' + s);
+        img := bmp;
+      end
+      else
+      begin
+        jpg.LoadFromFile('temp\' + s);
+        img := jpg;
+      end;
       DeleteFile('temp\' + s);
       if k = 0 then
       begin
@@ -752,28 +766,33 @@ begin
         p^ := makeRect(jpg);
         ListBox1.Items.AddObject(title, Pointer(p));
       end;
-      if (jpg.Width > jpg.Height) or (hyousi and (k = 0)) then
+      if (img.Width > img.Height) or (hyousi and (k = 0)) then
         sub := 1
       else
         sub := 0;
       with DataModule4.FDQuery1 do
       begin
-        ParamByName('id').AsIntegers[k] := id + k;
-        ParamByName('page_id').AsIntegers[k] := k + 1;
-        ParamByName('title_id').AsIntegers[k] := title_id;
-        ParamByName('title').AsStrings[k] := title;
-        ParamByName('subimage').AsIntegers[k] := sub;
+        ParamByName('id').AsIntegers[result + i] := id + result + i;
+        ParamByName('page_id').AsIntegers[result + i] := result + i + 1;
+        ParamByName('title_id').AsIntegers[result + i] := title_id;
+        ParamByName('title').AsStrings[result + i] := title;
+        ParamByName('subimage').AsIntegers[result + i] := sub;
       end;
-      threads[k] := TZipThread.Create(k, jpg);
+      if bool then
+        threads[result] := TMyThread.Create(result, bmp)
+      else
+        threads[result] := TZipThread.Create(result, jpg);
       inc(result);
     end;
-    for var m := i to i + result - 1 do
+    for var m := 0 to result - 1 do
     begin
       DataModule4.FDQuery1.ParamByName('image')
         .LoadFromStream(threads[m].Stream, ftBlob, m);
       threads[m].Free;
     end;
   finally
+    Finalize(threads);
+    bmp.Free;
     jpg.Free;
   end;
 end;
@@ -816,7 +835,6 @@ begin
       MkDir('temp');
     Zip.Open(s, zmRead);
     size := Zip.FileCount;
-    SetLength(threads, size);
     try
       DataModule4.FDQuery1.Params.ArraySize := size;
       mid := 0;
@@ -825,7 +843,6 @@ begin
       size := mid + ZipLoop(mid, mid + size mod 100) - 1;
       DataModule4.FDQuery1.Execute(size, 0);
     finally
-      Finalize(threads);
       Zip.Free;
       Screen.Cursor := crDefault;
       OKRightDlg.Edit1.Text := '';

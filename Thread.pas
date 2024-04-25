@@ -3,8 +3,7 @@ unit Thread;
 interface
 
 uses
-  System.Classes, Vcl.Graphics, Zlib, SkiSys.GS_Api, SkiSys.GS_Converter,
-  SkiSys.GS_ParameterConst, SkiSys.GS_gdevdsp, Data.DB, System.SyncObjs;
+  System.Classes, Vcl.Graphics, Zlib;
 
 type
   TMyThread = class(TThread)
@@ -17,14 +16,14 @@ type
   protected
     procedure Execute; override;
   public
-    constructor Create(AIndex: integer; AImg: TGraphic); virtual;
+    constructor Create(AIndex: integer; AImg: TGraphic);
     destructor Destroy; override;
     property Stream: TStream read GetStream;
   end;
 
   TZipThread = class(TMyThread)
   public
-    constructor Create(AIndex: integer; AImg: TGraphic); override;
+    constructor Create(AIndex: integer; AImg: TGraphic);
     destructor Destroy; override;
   end;
 
@@ -61,13 +60,12 @@ implementation
 
 }
 
-uses Unit4, Unit1;
-
 { TMyThread }
 
 constructor TMyThread.Create(AIndex: integer; AImg: TGraphic);
 begin
   inherited Create(false);
+  FreeOnTerminate := false;
   FIndex := AIndex;
   FImg := AImg;
   FStream := TMemoryStream.Create;
