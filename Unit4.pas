@@ -59,7 +59,7 @@ begin
     TFile.Copy('Readme.txt', s + '\Readme.txt');
   if not FileExists(s + '\ZANSHO_NEW.pdf') then
     TFile.Copy('ZANSHO_NEW.pdf', s + '\ZANSHO_NEW.pdf');
-  FDConnection1.Params.Database := s + '\PDFDATA.IB';
+  FDConnection1.Params.Database := s + '\PDFDATA.SDB';
   FDConnection1.Open;
   if not(FDTable1.Exists and FDTable2.Exists) then
     FDQuery1.ExecSQL;
