@@ -68,6 +68,7 @@ type
     Edit2: TEdit;
     Button1: TButton;
     Button2: TButton;
+    ProgressBar1: TProgressBar;
     procedure OpenExecute(Sender: TObject);
     procedure Action3Execute(Sender: TObject);
     procedure ListBox1DblClick(Sender: TObject);
@@ -798,6 +799,8 @@ begin
       else
         sub := 0;
       inc(cnt);
+      ProgressBar1.Position := ProgressBar1.Position + 1;
+      ProgressBar1.Update;
     end;
     for var m := 0 to cnt - 1 do
     begin
@@ -853,6 +856,9 @@ begin
     Zip.Free;
     if not DirectoryExists('tmp') then
       MkDir('tmp');
+    ProgressBar1.Max := size;
+    ProgressBar1.Position := 0;
+    ProgressBar1.Show;
     TZipFile.ExtractZipFile(s, 'tmp\');
     try
       DataModule4.FDQuery1.Params.ArraySize := size;
@@ -860,10 +866,11 @@ begin
       cnt := 0;
       while mid + 100 - 1 <= size do
       begin
-        inc(cnt, ZipLoop(cnt, 100));
+        inc(cnt, ZipLoop(mid, 100));
         inc(mid, 100);
       end;
-      inc(cnt, ZipLoop(cnt, size mod 100));
+      inc(cnt, ZipLoop(mid, size mod 100));
+      DataModule4.FDQuery1.Params.ArraySize := cnt;
       DataModule4.FDQuery1.Execute(cnt, 0);
     finally
       for var name in arr do
@@ -872,6 +879,11 @@ begin
       Screen.Cursor := crDefault;
       OKRightDlg.Edit1.Text := '';
       dirdelete(ExtractFilePath(Application.ExeName) + 'tmp');
+      TTask.Run(
+        procedure
+        begin
+          ProgressBar1.Hide;
+        end);
     end;
     result := true;
   end;
