@@ -103,13 +103,13 @@ type
     double: TPageState;
     reverse: Boolean;
     pageList: TList<TPageLayout>;
-    Zip: TZipFile;
     pdf: TGS_PdfConverter;
+    arr: TArray<string>;
     procedure countPictures;
     function returnPos(page: integer; var double: TPageState): integer;
     function checkSemi(num: integer): Boolean;
     function ZipReader: Boolean;
-    function ZipLoop(i, j: integer): integer;
+    function ZipLoop(Index, Count: integer): integer;
   public
     { Public éŒ¾ }
   end;
@@ -133,7 +133,7 @@ var
   id, title_id: integer;
   title: string;
 
-function makeRect(img: TGraphic): TRect;
+function makeRect(img: TGraphic): TRect; overload;
 var
   num, consw, consh: integer;
 begin
@@ -152,6 +152,29 @@ begin
   result.Top := Random(Form1.PaintBox1.Height - consh);
   result.Width := consw;
   result.Height := consh;
+end;
+
+procedure makeRect(var Rect: TRect); overload;
+var
+  s: TRect;
+  num, consw, consh: integer;
+begin
+  num := 120;
+  s := Rect;
+  if s.Width > s.Height then
+  begin
+    consw := num;
+    consh := Round(num * s.Height / s.Width);
+  end
+  else
+  begin
+    consh := num;
+    consw := Round(num * s.Width / s.Height);
+  end;
+  Rect.Left := Random(Form1.PaintBox1.Width - consw);
+  Rect.Top := Random(Form1.PaintBox1.Height - consh);
+  Rect.Width := consw;
+  Rect.Height := consh;
 end;
 
 procedure TForm1.OpenExecute(Sender: TObject);
@@ -468,7 +491,7 @@ end;
 
 procedure TForm1.PaintBox1Paint(Sender: TObject);
 var
-  rect: ^TRect;
+  Rect: ^TRect;
   bmp: TBitmap;
   zs, tmp: TStream;
 begin
@@ -494,8 +517,8 @@ begin
         tmp.Free;
         zs.Free;
       end;
-      rect := Pointer(ListBox1.Items.Objects[i]);
-      PaintBox1.Canvas.StretchDraw(rect^, bmp);
+      Rect := Pointer(ListBox1.Items.Objects[i]);
+      PaintBox1.Canvas.StretchDraw(Rect^, bmp);
     end;
     id := ListBox1.ItemIndex;
     if id > -1 then
@@ -510,9 +533,9 @@ begin
           zs.Free;
           tmp.Free;
         end;
-        rect := Pointer(ListBox1.Items.Objects[id]);
-        PaintBox1.Canvas.Rectangle(rect^);
-        PaintBox1.Canvas.StretchDraw(rect^, bmp);
+        Rect := Pointer(ListBox1.Items.Objects[id]);
+        PaintBox1.Canvas.Rectangle(Rect^);
+        PaintBox1.Canvas.StretchDraw(Rect^, bmp);
       end;
   finally
     bmp.Free;
@@ -727,81 +750,63 @@ begin
   AboutBox.ShowModal;
 end;
 
-function TForm1.ZipLoop(i, j: integer): integer;
+function TForm1.ZipLoop(Index, Count: integer): integer;
 var
   s: string;
-  bool: Boolean;
   sub, cnt: integer;
-  img, bmp, jpg: TGraphic;
+  Rect: TRect;
   p: ^TRect;
   threads: TArray<TMyThread>;
 begin
   cnt := 0;
-  bmp := TBitmap.Create;
-  jpg := TJpegImage.Create;
-  SetLength(threads, j - i);
+  SetLength(threads, Count);
   try
-    for var k := i to j - 1 do
+    for var k := Index to Index + Count - 1 do
     begin
-      s := LowerCase(ExtractFileExt(Zip.FileName[k]));
+      s := LowerCase(ExtractFileExt(arr[k]));
       if (s <> '.jpg') and (s <> '.jpeg') and (s <> '.bmp') then
         continue;
-      bool := s = '.bmp';
-      s := Zip.FileName[k];
-      Zip.Extract(s, 'temp');
-      if bool then
+      with DataModule4.FDQuery1 do
       begin
-        bmp.LoadFromFile('temp\' + s);
-        img := bmp;
-      end
-      else
-      begin
-        jpg.LoadFromFile('temp\' + s);
-        img := jpg;
+        ParamByName('id').AsIntegers[Index + cnt] := id + Index + cnt;
+        ParamByName('page_id').AsIntegers[Index + cnt] := Index + cnt + 1;
+        ParamByName('title_id').AsIntegers[Index + cnt] := title_id;
+        ParamByName('title').AsStrings[Index + cnt] := title;
+        ParamByName('subimage').AsIntegers[Index + cnt] := sub;
       end;
-      DeleteFile('temp\' + s);
-      if (i = 0) and (cnt = 0) then
+      s := 'tmp\' + arr[k];
+      threads[cnt] := TMyThread.Create(cnt, s, Rect);
+      if (Index = 0) and (cnt = 0) then
       begin
         New(p);
-        p^ := makeRect(jpg);
+        makeRect(Rect);
+        p^ := Rect;
         ListBox1.Items.AddObject(title, Pointer(p));
       end;
-      if (img.Width > img.Height) or (hyousi and (i = 0) and (cnt = 0)) then
+      if (Rect.Width > Rect.Height) or (hyousi and (Index = 0) and (cnt = 0))
+      then
         sub := 1
       else
         sub := 0;
-      with DataModule4.FDQuery1 do
-      begin
-        ParamByName('id').AsIntegers[i + cnt] := id + i + cnt;
-        ParamByName('page_id').AsIntegers[i + cnt] := i + cnt + 1;
-        ParamByName('title_id').AsIntegers[i + cnt] := title_id;
-        ParamByName('title').AsStrings[i + cnt] := title;
-        ParamByName('subimage').AsIntegers[i + cnt] := sub;
-      end;
-      if bool then
-        threads[cnt] := TMyThread.Create(cnt, bmp)
-      else
-        threads[cnt] := TZipThread.Create(cnt, jpg);
       inc(cnt);
     end;
     for var m := 0 to cnt - 1 do
     begin
       DataModule4.FDQuery1.ParamByName('image')
-        .LoadFromStream(threads[m].Stream, ftBlob, i + m);
+        .LoadFromStream(threads[m].Stream, ftBlob, Index + m);
       threads[m].Free;
     end;
   finally
     Finalize(threads);
-    bmp.Free;
-    jpg.Free;
   end;
   result := cnt;
 end;
 
 function TForm1.ZipReader: Boolean;
 var
-  size, mid: integer;
+  size, mid, cnt: integer;
   s: string;
+  Zip: TZipFile;
 begin
   result := false;
   s := OKRightDlg.OpenDialog1.FileName;
@@ -832,22 +837,32 @@ begin
         'insert into pdfdatabase (id, page_id, image, title_id, title, subimage) values (:id, :page_id, :image, :title_id, :title, :subimage);';
     end;
     Zip := TZipFile.Create;
-    if not DirectoryExists('temp') then
-      MkDir('temp');
     Zip.Open(s, zmRead);
     size := Zip.FileCount;
+    arr := Copy(Zip.FileNames, 0, size);
+    Zip.Close;
+    Zip.Free;
+    if not DirectoryExists('tmp') then
+      MkDir('tmp');
+    TZipFile.ExtractZipFile(s, 'tmp\');
     try
       DataModule4.FDQuery1.Params.ArraySize := size;
       mid := 0;
-      while mid + 100 - 1 < size do
-        inc(mid, ZipLoop(mid, mid + 100 - 1));
-      size := mid + ZipLoop(mid, mid + size mod 100) - 1;
-      DataModule4.FDQuery1.Execute(size, 0);
+      cnt := 0;
+      while mid + 100 - 1 <= size do
+      begin
+        inc(cnt, ZipLoop(cnt, 100));
+        inc(mid, 100);
+      end;
+      inc(cnt, ZipLoop(cnt, size mod 100));
+      DataModule4.FDQuery1.Execute(cnt, 0);
     finally
-      Zip.Free;
+      for var name in arr do
+        DeleteFile('tmp\' + name);
+      Finalize(arr);
       Screen.Cursor := crDefault;
       OKRightDlg.Edit1.Text := '';
-      dirdelete(ExtractFilePath(Application.ExeName) + 'temp');
+      dirdelete(ExtractFilePath(Application.ExeName) + 'tmp');
     end;
     result := true;
   end;

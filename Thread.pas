@@ -3,7 +3,7 @@ unit Thread;
 interface
 
 uses
-  System.Classes, Vcl.Graphics, Zlib;
+  System.Classes, Vcl.Graphics, Zlib, System.SysUtils, Jpeg, System.Types;
 
 type
   TMyThread = class(TThread)
@@ -11,12 +11,15 @@ type
     { Private êÈåæ }
     FIndex: integer;
     FImg: TGraphic;
+    FIns: Boolean;
     FStream: TStream;
     function GetStream: TStream;
   protected
     procedure Execute; override;
   public
-    constructor Create(AIndex: integer; AImg: TGraphic);
+    constructor Create(AIndex: integer; AImg: TGraphic); overload;
+    constructor Create(AIndex: integer; const FileName: string;
+      var ARect: TRect); overload;
     destructor Destroy; override;
     property Stream: TStream read GetStream;
   end;
@@ -68,12 +71,43 @@ begin
   FreeOnTerminate := false;
   FIndex := AIndex;
   FImg := AImg;
+  FIns := false;
+  FStream := TMemoryStream.Create;
+end;
+
+constructor TMyThread.Create(AIndex: integer; const FileName: string;
+  var ARect: TRect);
+var
+  s: string;
+  jpg: TJpegImage;
+begin
+  inherited Create(false);
+  FreeOnTerminate := false;
+  FIndex := AIndex;
+  s := LowerCase(ExtractFileExt(FileName));
+  FImg := TBitmap.Create;
+  if s = '.bmp' then
+    FImg.LoadFromFile(FileName)
+  else if (s = '.jpg') or (s = '.jpeg') then
+  begin
+    jpg := TJpegImage.Create;
+    try
+      jpg.LoadFromFile(FileName);
+      FImg.Assign(jpg);
+    finally
+      jpg.Free;
+    end;
+  end;
+  ARect := Rect(0, 0, FImg.Width, FImg.Height);
+  FIns := true;
   FStream := TMemoryStream.Create;
 end;
 
 destructor TMyThread.Destroy;
 begin
   FStream.Free;
+  if FIns then
+    FImg.Free;
   inherited;
 end;
 
