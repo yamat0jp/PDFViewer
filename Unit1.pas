@@ -816,7 +816,7 @@ end;
 
 function TForm1.ZipReader: Boolean;
 var
-  size, mid, cnt: integer;
+  size, cnt: integer;
   s: string;
   Zip: TZipFile;
 begin
@@ -862,14 +862,10 @@ begin
     TZipFile.ExtractZipFile(s, 'tmp\');
     try
       DataModule4.FDQuery1.Params.ArraySize := size;
-      mid := 0;
       cnt := 0;
-      while mid + 100 - 1 <= size do
-      begin
-        inc(cnt, ZipLoop(mid, 100));
-        inc(mid, 100);
-      end;
-      inc(cnt, ZipLoop(mid, size mod 100));
+      while cnt + 100 - 1 <= size do
+        inc(cnt, ZipLoop(cnt, 100));
+      inc(cnt, ZipLoop(cnt, size mod 100));
       DataModule4.FDQuery1.Params.ArraySize := cnt;
       DataModule4.FDQuery1.Execute(cnt, 0);
     finally
