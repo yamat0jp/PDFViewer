@@ -165,6 +165,7 @@ object Form1: TForm1
         OnDblClick = ListBox1DblClick
         OnDragDrop = ListBox1DragDrop
         OnDragOver = ListBox1DragOver
+        OnKeyDown = ListBox1KeyDown
         ExplicitHeight = 465
       end
     end

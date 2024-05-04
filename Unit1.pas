@@ -98,6 +98,8 @@ type
     procedure PageControl1MouseEnter(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure Action1Execute(Sender: TObject);
+    procedure ListBox1KeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
   private
     { Private éŒ¾ }
     double: TPageState;
@@ -468,6 +470,13 @@ procedure TForm1.ListBox1DragOver(Sender, Source: TObject; X, Y: integer;
 begin
   if ListBox1.ItemIndex > 0 then
     Accept := true;
+end;
+
+procedure TForm1.ListBox1KeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  if Key = VK_RETURN then
+    ListBox1DblClick(Sender);
 end;
 
 procedure TForm1.Memo1MouseUp(Sender: TObject; Button: TMouseButton;
