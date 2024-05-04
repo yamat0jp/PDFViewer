@@ -129,9 +129,11 @@ object Form1: TForm1
     MultiLine = True
     TabOrder = 4
     TabPosition = tpRight
+    OnChange = PageControl1Change
     OnChanging = PageControl1Changing
     OnMouseEnter = PageControl1MouseEnter
-    ExplicitWidth = 869
+    OnMouseMove = Image1MouseMove
+    ExplicitWidth = 852
     ExplicitHeight = 473
     object TabSheet1: TTabSheet
       Caption = 'TabSheet1'
@@ -186,7 +188,8 @@ object Form1: TForm1
         ShowHint = True
         Stretch = True
         OnDblClick = Image1DblClick
-        OnMouseDown = Image1MouseDown
+        OnMouseDown = Image1MoueDown
+        OnMouseMove = Image1MouseMove
         ExplicitTop = -1
         ExplicitWidth = 842
       end
@@ -194,6 +197,8 @@ object Form1: TForm1
     object TabSheet3: TTabSheet
       Caption = 'TabSheet3'
       ImageIndex = 2
+      OnMouseDown = Image2MouseDown
+      OnMouseMove = Image2MouseMove
       OnResize = TabSheet3Resize
       DesignSize = (
         825
@@ -11101,6 +11106,9 @@ object Form1: TForm1
           FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
           FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF}
         Stretch = True
+        OnDblClick = Image1DblClick
+        OnMouseDown = Image2MouseDown
+        OnMouseMove = Image2MouseMove
         ExplicitLeft = -31
         ExplicitTop = -209
       end
@@ -22007,6 +22015,9 @@ object Form1: TForm1
           FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
           FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF}
         Stretch = True
+        OnDblClick = Image1DblClick
+        OnMouseDown = Image2MouseDown
+        OnMouseMove = Image2MouseMove
         ExplicitLeft = 63
         ExplicitTop = -209
       end
@@ -22032,7 +22043,6 @@ object Form1: TForm1
         ReadOnly = True
         TabOrder = 0
         OnMouseUp = Memo1MouseUp
-        ExplicitWidth = 842
       end
     end
     object TabSheet5: TTabSheet
@@ -22058,14 +22068,16 @@ object Form1: TForm1
         Width = 75
         Height = 25
         Caption = #22793#26356
+        Default = True
         TabOrder = 2
         OnClick = Button1Click
       end
       object Edit1: TEdit
         Left = 223
-        Top = 72
+        Top = 77
         Width = 121
         Height = 23
+        PasswordChar = '*'
         TabOrder = 0
       end
       object Edit2: TEdit
@@ -22073,6 +22085,7 @@ object Form1: TForm1
         Top = 136
         Width = 121
         Height = 23
+        PasswordChar = '*'
         TabOrder = 1
       end
       object Button2: TButton
@@ -22081,6 +22094,7 @@ object Form1: TForm1
         Width = 75
         Height = 25
         Action = Back
+        Cancel = True
         TabOrder = 3
       end
     end
@@ -22094,9 +22108,8 @@ object Form1: TForm1
     Orientation = pbVertical
     TabOrder = 5
     Visible = False
-    ExplicitLeft = 825
-    ExplicitTop = 0
-    ExplicitHeight = 466
+    ExplicitLeft = 852
+    ExplicitHeight = 473
   end
   object PopupMenu1: TPopupMenu
     Left = 208

@@ -1,5 +1,13 @@
 program PDFViewerDB;
 
+
+
+
+
+
+
+{$R *.dres}
+
 uses
   Vcl.Forms,
   Vcl.Controls,

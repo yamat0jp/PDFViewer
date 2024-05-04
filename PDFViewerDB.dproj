@@ -160,6 +160,14 @@
             <DesignClass>TDataModule</DesignClass>
         </DCCReference>
         <DCCReference Include="Thread.pas"/>
+        <RcItem Include="left.png">
+            <ResourceType>RCDATA</ResourceType>
+            <ResourceId>PngImage_1</ResourceId>
+        </RcItem>
+        <RcItem Include="right.png">
+            <ResourceType>RCDATA</ResourceType>
+            <ResourceId>PngImage_2</ResourceId>
+        </RcItem>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
@@ -359,6 +367,12 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
+                <DeployFile LocalName="Win64\Debug\PDFViewerDB.rsm" Configuration="Debug" Class="DebugSymbols">
+                    <Platform Name="Win64">
+                        <RemoteName>PDFViewerDB.rsm</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
                 <DeployFile LocalName="Win64\Release\AppxManifest.xml" Configuration="Release" Class="ProjectUWPManifest">
                     <Platform Name="Win64">
                         <Overwrite>true</Overwrite>
@@ -380,6 +394,18 @@
                     <Platform Name="Win64">
                         <RemoteDir>.\</RemoteDir>
                         <RemoteName>gsdll64.dll</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="left.png" Configuration="Debug" Class="ProjectFile">
+                    <Platform Name="Win64">
+                        <RemoteDir>.\</RemoteDir>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="right.png" Configuration="Debug" Class="ProjectFile">
+                    <Platform Name="Win64">
+                        <RemoteDir>.\</RemoteDir>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>

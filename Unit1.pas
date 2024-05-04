@@ -94,13 +94,20 @@ type
     procedure Image1DblClick(Sender: TObject);
     procedure Memo1MouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: integer);
-    procedure Image1MouseDown(Sender: TObject; Button: TMouseButton;
+    procedure Image1MoueDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: integer);
-    procedure PageControl1MouseEnter(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure Action1Execute(Sender: TObject);
     procedure ListBox1KeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
+    procedure PageControl1Change(Sender: TObject);
+    procedure Image1MouseMove(Sender: TObject; Shift: TShiftState;
+      X, Y: integer);
+    procedure Image2MouseDown(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: integer);
+    procedure Image2MouseMove(Sender: TObject; Shift: TShiftState;
+      X, Y: integer);
+    procedure PageControl1MouseEnter(Sender: TObject);
   private
     { Private êÈåæ }
     double: TPageState;
@@ -125,7 +132,7 @@ implementation
 
 {$R *.dfm}
 
-uses Jpeg, Unit3, ABOUT, OKCANCL2, Unit4, Zlib,
+uses Jpeg, Unit3, ABOUT, OKCANCL2, Unit4, Zlib, PngImage,
   System.Threading, System.NetEncoding, System.SyncObjs;
 
 const
@@ -353,6 +360,8 @@ var
   zs, tmp: TStream;
   p: ^TRect;
 begin
+  Screen.Cursors[1] := LoadCursor(hInstance, 'left.png');
+  Screen.Cursors[2] := LoadCursor(hInstance, 'right.png');
   with DataModule4.FDQuery1 do
   begin
     Open(query);
@@ -401,18 +410,87 @@ begin
 end;
 
 procedure TForm1.Image1DblClick(Sender: TObject);
+var
+  ctr: TControl;
 begin
-  if WindowState = wsNormal then
-    WindowState := wsMaximized
-  else
-    WindowState := wsNormal;
+  ctr := Sender as TControl;
+  if ctr.Cursor = crDefault then
+    if WindowState = wsNormal then
+      WindowState := wsMaximized
+    else
+      WindowState := wsNormal;
 end;
 
-procedure TForm1.Image1MouseDown(Sender: TObject; Button: TMouseButton;
+procedure TForm1.Image1MoueDown(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: integer);
 begin
-  if Button = TMouseButton.mbRight then
-    PageControl1.ActivePageIndex := 3;
+  case Button of
+    TMouseButton.mbRight:
+      PageControl1.ActivePageIndex := 3;
+    TMouseButton.mbLeft:
+      if X < PageControl1.Width div 3 then
+        TrackBar1.Position := TrackBar1.Position - 1
+      else if X > 2 * PageControl1.Width div 3 then
+        TrackBar1.Position := TrackBar1.Position + 1;
+  end;
+end;
+
+procedure TForm1.Image1MouseMove(Sender: TObject; Shift: TShiftState;
+  X, Y: integer);
+var
+  ctr: TControl;
+begin
+  ctr := Sender as TControl;
+  if X < PageControl1.Width div 3 then
+    ctr.Cursor := 1
+  else if X > 2 * PageControl1.Width div 3 then
+    ctr.Cursor := 2
+  else
+    ctr.Cursor := crDefault;
+end;
+
+procedure TForm1.Image2MouseDown(Sender: TObject; Button: TMouseButton;
+  Shift: TShiftState; X, Y: integer);
+var
+  ctr: TControl;
+begin
+  ctr := Sender as TControl;
+  case Button of
+    TMouseButton.mbRight:
+      PageControl1.ActivePageIndex := 3;
+    TMouseButton.mbLeft:
+      if ctr.Cursor = 1 then
+        TrackBar1.Position := TrackBar1.Position - 1
+      else if ctr.Cursor = 2 then
+        TrackBar1.Position := TrackBar1.Position + 1;
+  end;
+end;
+
+procedure TForm1.Image2MouseMove(Sender: TObject; Shift: TShiftState;
+  X, Y: integer);
+var
+  ctr: TControl;
+  len: integer;
+begin
+  ctr := Sender as TControl;
+  len := (PageControl1.Width div 2) - ctr.Width;
+  if (not reverse and (Sender = Image2)) or (reverse and (Sender = Image3)) then
+  begin
+    if len < 2 * PageControl1.Width div 3 then
+    begin
+      if X < len then
+        ctr.Cursor := 1
+      else
+        ctr.Cursor := crDefault;
+    end
+    else
+      ctr.Cursor := crDefault;
+  end
+  else if (len > 2 * PageControl1.Width div 3) or (X < PageControl1.Width div 6)
+  then
+    ctr.Cursor := crDefault
+  else
+    ctr.Cursor := 2;
 end;
 
 procedure TForm1.ListBox1Click(Sender: TObject);
@@ -484,7 +562,16 @@ procedure TForm1.Memo1MouseUp(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: integer);
 begin
   if Button = TMouseButton.mbRight then
-    PageControl1.ActivePageIndex := 1;
+    if double = pgSingle then
+      PageControl1.ActivePageIndex := 1
+    else
+      PageControl1.ActivePageIndex := 2;
+end;
+
+procedure TForm1.PageControl1Change(Sender: TObject);
+begin
+  if PageControl1.ActivePageIndex = 4 then
+    Edit1.SetFocus;
 end;
 
 procedure TForm1.PageControl1Changing(Sender: TObject;
@@ -496,7 +583,10 @@ end;
 procedure TForm1.PageControl1MouseEnter(Sender: TObject);
 begin
   if PageControl1.ActivePageIndex = 3 then
-    PageControl1.ActivePageIndex := 1;
+    if double = pgSingle then
+      PageControl1.ActivePageIndex := 1
+    else
+      PageControl1.ActivePageIndex := 2;
 end;
 
 procedure TForm1.PaintBox1Paint(Sender: TObject);
