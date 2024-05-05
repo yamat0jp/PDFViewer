@@ -138,6 +138,8 @@ uses Jpeg, Unit3, ABOUT, OKCANCL2, Unit4, Zlib, PngImage,
 
 const
   query = 'select * from pdfdatabase where page_id = 1 order by id asc';
+  crLeft = 5;
+  crRight = 6;
 
 var
   hyousi: Boolean;
@@ -368,8 +370,8 @@ var
   zs, tmp: TStream;
   p: ^TRect;
 begin
-  Screen.Cursors[1] := LoadCursorFromFile('left.png');
-  Screen.Cursors[2] := LoadCursorFromFile('right.png');
+  Screen.Cursors[crLeft] := LoadCursorFromFile('C:\Users\yamat\Documents\GitHub\2023\pdfviewer\left.cur');
+  Screen.Cursors[crRight] := LoadCursorFromFile('C:\Users\yamat\Documents\GitHub\2023\pdfviewer\right.cur');
   with DataModule4.FDQuery1 do
   begin
     Open(query);
@@ -436,9 +438,9 @@ begin
     TMouseButton.mbRight:
       PageControl1.ActivePageIndex := 3;
     TMouseButton.mbLeft:
-      if Image1.Cursor = 1 then
+      if Image1.Cursor = crLeft then
         TrackBar1.Position := TrackBar1.Position - 1
-      else if Image1.Cursor = 2 then
+      else if Image1.Cursor = crRight then
         TrackBar1.Position := TrackBar1.Position + 1;
   end;
 end;
@@ -450,9 +452,9 @@ var
 begin
   ctr := Sender as TControl;
   if X < PageControl1.Width div 3 then
-    ctr.Cursor := 1
+    ctr.Cursor := crLeft
   else if X > 2 * PageControl1.Width div 3 then
-    ctr.Cursor := 2
+    ctr.Cursor := crRight
   else
     ctr.Cursor := crDefault;
 end;
@@ -467,9 +469,9 @@ begin
     TMouseButton.mbRight:
       PageControl1.ActivePageIndex := 3;
     TMouseButton.mbLeft:
-      if ctr.Cursor = 1 then
+      if ctr.Cursor = crLeft then
         TrackBar1.Position := TrackBar1.Position - 1
-      else if ctr.Cursor = 2 then
+      else if ctr.Cursor = crRight then
         TrackBar1.Position := TrackBar1.Position + 1;
   end;
 end;
@@ -487,7 +489,7 @@ begin
     if len < 2 * PageControl1.Width div 3 then
     begin
       if X < len then
-        ctr.Cursor := 1
+        ctr.Cursor := crLeft
       else
         ctr.Cursor := crDefault;
     end
@@ -498,7 +500,7 @@ begin
   then
     ctr.Cursor := crDefault
   else
-    ctr.Cursor := 2;
+    ctr.Cursor := crRight;
 end;
 
 procedure TForm1.ListBox1Click(Sender: TObject);
