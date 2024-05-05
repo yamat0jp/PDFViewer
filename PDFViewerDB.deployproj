@@ -5,24 +5,6 @@
     </ProjectExtensions>
     <PropertyGroup/>
     <ItemGroup Condition="'$(Platform)'=='Win64'">
-        <DeployFile Include="right.png" Condition="'$(Config)'=='Debug'">
-            <RemoteDir>PDFViewerDB\</RemoteDir>
-            <RemoteName>right.png</RemoteName>
-            <DeployClass>ProjectFile</DeployClass>
-            <Operation>0</Operation>
-            <LocalCommand/>
-            <RemoteCommand/>
-            <Overwrite>True</Overwrite>
-        </DeployFile>
-        <DeployFile Include="right.png" Condition="'$(Config)'=='Release'">
-            <RemoteDir>PDFViewerDB\</RemoteDir>
-            <RemoteName>right.png</RemoteName>
-            <DeployClass>ProjectFile</DeployClass>
-            <Operation>0</Operation>
-            <LocalCommand/>
-            <RemoteCommand/>
-            <Overwrite>True</Overwrite>
-        </DeployFile>
         <DeployFile Include="README.txt" Condition="'$(Config)'=='Release'">
             <RemoteDir>PDFViewerDB\</RemoteDir>
             <RemoteName>README.txt</RemoteName>
@@ -32,18 +14,18 @@
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
         </DeployFile>
-        <DeployFile Include="left.png" Condition="'$(Config)'=='Debug'">
+        <DeployFile Include="right.cur" Condition="'$(Config)'=='Debug'">
             <RemoteDir>PDFViewerDB\</RemoteDir>
-            <RemoteName>left.png</RemoteName>
+            <RemoteName>right.cur</RemoteName>
             <DeployClass>ProjectFile</DeployClass>
             <Operation>0</Operation>
             <LocalCommand/>
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
         </DeployFile>
-        <DeployFile Include="left.png" Condition="'$(Config)'=='Release'">
+        <DeployFile Include="right.cur" Condition="'$(Config)'=='Release'">
             <RemoteDir>PDFViewerDB\</RemoteDir>
-            <RemoteName>left.png</RemoteName>
+            <RemoteName>right.cur</RemoteName>
             <DeployClass>ProjectFile</DeployClass>
             <Operation>0</Operation>
             <LocalCommand/>
@@ -114,6 +96,15 @@
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
         </DeployFile>
+        <DeployFile Include="left.cur" Condition="'$(Config)'=='Debug'">
+            <RemoteDir>PDFViewerDB\</RemoteDir>
+            <RemoteName>left.cur</RemoteName>
+            <DeployClass>ProjectFile</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
         <DeployFile Include="$(BDS)\bin\Artwork\Windows\UWP\delphi_UwpDefault_150.png" Condition="'$(Config)'=='Debug'">
             <RemoteDir>PDFViewerDB\Assets\</RemoteDir>
             <RemoteName>Logo150x150.png</RemoteName>
@@ -141,6 +132,15 @@
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
             <Required>True</Required>
+        </DeployFile>
+        <DeployFile Include="left.cur" Condition="'$(Config)'=='Release'">
+            <RemoteDir>PDFViewerDB\</RemoteDir>
+            <RemoteName>left.cur</RemoteName>
+            <DeployClass>ProjectFile</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
         </DeployFile>
     </ItemGroup>
     <ItemGroup Condition="'$(Platform)'=='Win32'">

@@ -124,7 +124,7 @@ object Form1: TForm1
     Top = 25
     Width = 856
     Height = 474
-    ActivePage = TabSheet2
+    ActivePage = TabSheet1
     Align = alClient
     MultiLine = True
     TabOrder = 4
@@ -168,7 +168,6 @@ object Form1: TForm1
         OnDragDrop = ListBox1DragDrop
         OnDragOver = ListBox1DragOver
         OnKeyDown = ListBox1KeyDown
-        ExplicitHeight = 465
       end
     end
     object TabSheet2: TTabSheet
