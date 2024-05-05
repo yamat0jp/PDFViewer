@@ -278,7 +278,8 @@ end;
 
 procedure TForm1.Action2Execute(Sender: TObject);
 begin
-  TrackBar1.Position:=TrackBar1.Max-TrackBar1.Position;
+  if DataModule4.FDMemTable1.Active then
+    TrackBar1.Position:=TrackBar1.Max-TrackBar1.Position;
 end;
 
 procedure TForm1.Action3Execute(Sender: TObject);
