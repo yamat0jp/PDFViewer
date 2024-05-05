@@ -69,6 +69,7 @@ type
     Button1: TButton;
     Button2: TButton;
     ProgressBar1: TProgressBar;
+    Action2: TAction;
     procedure OpenExecute(Sender: TObject);
     procedure Action3Execute(Sender: TObject);
     procedure ListBox1DblClick(Sender: TObject);
@@ -108,6 +109,7 @@ type
     procedure Image2MouseMove(Sender: TObject; Shift: TShiftState;
       X, Y: integer);
     procedure PageControl1MouseEnter(Sender: TObject);
+    procedure Action2Execute(Sender: TObject);
   private
     { Private êÈåæ }
     double: TPageState;
@@ -274,6 +276,11 @@ begin
   PageControl1.TabIndex := 4;
 end;
 
+procedure TForm1.Action2Execute(Sender: TObject);
+begin
+  TrackBar1.Position:=TrackBar1.Max-TrackBar1.Position;
+end;
+
 procedure TForm1.Action3Execute(Sender: TObject);
 begin
   Close;
@@ -360,8 +367,8 @@ var
   zs, tmp: TStream;
   p: ^TRect;
 begin
-  Screen.Cursors[1] := LoadCursor(hInstance, 'left.png');
-  Screen.Cursors[2] := LoadCursor(hInstance, 'right.png');
+  Screen.Cursors[1] := LoadCursorFromFile('left.png');
+  Screen.Cursors[2] := LoadCursorFromFile('right.png');
   with DataModule4.FDQuery1 do
   begin
     Open(query);
@@ -428,9 +435,9 @@ begin
     TMouseButton.mbRight:
       PageControl1.ActivePageIndex := 3;
     TMouseButton.mbLeft:
-      if X < PageControl1.Width div 3 then
+      if Image1.Cursor = 1 then
         TrackBar1.Position := TrackBar1.Position - 1
-      else if X > 2 * PageControl1.Width div 3 then
+      else if Image1.Cursor = 2 then
         TrackBar1.Position := TrackBar1.Position + 1;
   end;
 end;
@@ -527,6 +534,10 @@ begin
   end;
   Form3.Hide;
   doubleScreenExecute(Sender);
+  if Action2.Checked then
+    TrackBar1.Position := TrackBar1.Max
+  else
+    TrackBar1.Position := 0;
   TrackBar1Change(Sender);
 end;
 
@@ -780,13 +791,18 @@ procedure TForm1.TrackBar1Change(Sender: TObject);
 var
   p: TPageLayout;
   zs, tmp: TStream;
+  pos: integer;
 begin
+  if Action2.Checked then
+    pos := TrackBar1.Max - TrackBar1.Position
+  else
+    pos := TrackBar1.Position;
   if double = pgSingle then
-    DataModule4.FDMemTable1.Locate('page_id', TrackBar1.Position + 1)
+    DataModule4.FDMemTable1.Locate('page_id', pos + 1)
   else
   begin
-    p := pageList[TrackBar1.Position];
-    if checkSemi(TrackBar1.Position) then
+    p := pageList[pos];
+    if checkSemi(pos) then
       double := pgSemi
     else
       double := pgDouble;

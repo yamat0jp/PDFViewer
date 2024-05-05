@@ -22154,6 +22154,9 @@ object Form1: TForm1
               item
                 Action = Action1
                 Caption = '&Password'
+              end
+              item
+                Action = Action2
               end>
             Caption = '&Setting'
           end
@@ -22230,6 +22233,12 @@ object Form1: TForm1
       Category = '&Setting'
       Caption = 'Password'
       OnExecute = Action1Execute
+    end
+    object Action2: TAction
+      Category = '&Setting'
+      AutoCheck = True
+      Caption = 'Return'
+      OnExecute = Action2Execute
     end
   end
 end
