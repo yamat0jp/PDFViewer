@@ -5,10 +5,46 @@
     </ProjectExtensions>
     <PropertyGroup/>
     <ItemGroup Condition="'$(Platform)'=='Win64'">
+        <DeployFile Include="right.png" Condition="'$(Config)'=='Debug'">
+            <RemoteDir>PDFViewerDB\</RemoteDir>
+            <RemoteName>right.png</RemoteName>
+            <DeployClass>ProjectFile</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="right.png" Condition="'$(Config)'=='Release'">
+            <RemoteDir>PDFViewerDB\</RemoteDir>
+            <RemoteName>right.png</RemoteName>
+            <DeployClass>ProjectFile</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
         <DeployFile Include="README.txt" Condition="'$(Config)'=='Release'">
             <RemoteDir>PDFViewerDB\</RemoteDir>
             <RemoteName>README.txt</RemoteName>
             <DeployClass>File</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="left.png" Condition="'$(Config)'=='Debug'">
+            <RemoteDir>PDFViewerDB\</RemoteDir>
+            <RemoteName>left.png</RemoteName>
+            <DeployClass>ProjectFile</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="left.png" Condition="'$(Config)'=='Release'">
+            <RemoteDir>PDFViewerDB\</RemoteDir>
+            <RemoteName>left.png</RemoteName>
+            <DeployClass>ProjectFile</DeployClass>
             <Operation>0</Operation>
             <LocalCommand/>
             <RemoteCommand/>

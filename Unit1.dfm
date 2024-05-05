@@ -129,7 +129,6 @@ object Form1: TForm1
     MultiLine = True
     TabOrder = 4
     TabPosition = tpRight
-    OnChange = PageControl1Change
     OnChanging = PageControl1Changing
     OnMouseEnter = PageControl1MouseEnter
     OnMouseMove = Image1MouseMove

@@ -101,7 +101,6 @@ type
     procedure Action1Execute(Sender: TObject);
     procedure ListBox1KeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
-    procedure PageControl1Change(Sender: TObject);
     procedure Image1MouseMove(Sender: TObject; Shift: TShiftState;
       X, Y: integer);
     procedure Image2MouseDown(Sender: TObject; Button: TMouseButton;
@@ -274,6 +273,7 @@ end;
 procedure TForm1.Action1Execute(Sender: TObject);
 begin
   PageControl1.TabIndex := 4;
+  Edit1.SetFocus;
 end;
 
 procedure TForm1.Action2Execute(Sender: TObject);
@@ -297,7 +297,7 @@ end;
 
 procedure TForm1.Button1Click(Sender: TObject);
 begin
-  if Edit1.Text = Unit1.password then
+  if (Edit1.Text = Unit1.password)and(Edit1.Text <> Edit2.Text) then
   begin
     Unit1.password := Edit2.Text;
     Edit1.Text := '';
@@ -577,12 +577,6 @@ begin
       PageControl1.ActivePageIndex := 1
     else
       PageControl1.ActivePageIndex := 2;
-end;
-
-procedure TForm1.PageControl1Change(Sender: TObject);
-begin
-  if PageControl1.ActivePageIndex = 4 then
-    Edit1.SetFocus;
 end;
 
 procedure TForm1.PageControl1Changing(Sender: TObject;
