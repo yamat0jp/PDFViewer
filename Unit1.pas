@@ -281,7 +281,7 @@ end;
 procedure TForm1.Action2Execute(Sender: TObject);
 begin
   if DataModule4.FDMemTable1.Active then
-    TrackBar1.Position:=TrackBar1.Max-TrackBar1.Position;
+    TrackBar1.Position := TrackBar1.Max - TrackBar1.Position;
 end;
 
 procedure TForm1.Action3Execute(Sender: TObject);
@@ -300,7 +300,7 @@ end;
 
 procedure TForm1.Button1Click(Sender: TObject);
 begin
-  if (Edit1.Text = Unit1.password)and(Edit1.Text <> Edit2.Text) then
+  if (Edit1.Text = Unit1.password) and (Edit1.Text <> Edit2.Text) then
   begin
     Unit1.password := Edit2.Text;
     Edit1.Text := '';
@@ -370,8 +370,10 @@ var
   zs, tmp: TStream;
   p: ^TRect;
 begin
-  Screen.Cursors[crLeft] := LoadCursorFromFile('C:\Users\yamat\Documents\GitHub\2023\pdfviewer\left.cur');
-  Screen.Cursors[crRight] := LoadCursorFromFile('C:\Users\yamat\Documents\GitHub\2023\pdfviewer\right.cur');
+  Screen.Cursors[crLeft] := LoadCursorFromFile
+    ('C:\Users\yamat\Documents\GitHub\2023\pdfviewer\left.cur');
+  Screen.Cursors[crRight] := LoadCursorFromFile
+    ('C:\Users\yamat\Documents\GitHub\2023\pdfviewer\right.cur');
   with DataModule4.FDQuery1 do
   begin
     Open(query);
@@ -509,6 +511,9 @@ begin
 end;
 
 procedure TForm1.ListBox1DblClick(Sender: TObject);
+var
+  id: integer;
+  s: string;
 begin
   if ListBox1.ItemIndex = -1 then
     Exit;
@@ -524,10 +529,12 @@ begin
   TrackBar1.SetFocus;
   with DataModule4.FDQuery1 do
   begin
+    s := ListBox1.Items[ListBox1.ItemIndex];
+    id := Lookup('title', s, 'title_id');
     Close;
     SQL.Clear;
-    SQL.Add('select * from pdfdatabase where title = :str');
-    Params.ParamByName('str').AsString := ListBox1.Items[ListBox1.ItemIndex];
+    SQL.Add('select * from pdfdatabase where title_id = :id');
+    Params.ParamByName('id').AsInteger := id;
     Open;
     FetchAll;
     DataModule4.FDMemTable1.Data := Data;
