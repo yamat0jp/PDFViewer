@@ -1,13 +1,5 @@
 program PDFViewerDB;
 
-
-
-
-
-
-
-
-
 {$R *.dres}
 
 uses

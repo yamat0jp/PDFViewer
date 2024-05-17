@@ -14,7 +14,7 @@ uses Winapi.Windows, System.SysUtils, System.Classes, Vcl.Graphics, Vcl.Forms,
 type
   TPasswordDlg = class(TForm)
     Label1: TLabel;
-    Password: TEdit;
+    PASSWORD: TEdit;
     OKBtn: TButton;
     CancelBtn: TButton;
     procedure CancelBtnClick(Sender: TObject);
@@ -33,8 +33,7 @@ implementation
 
 procedure TPasswordDlg.CancelBtnClick(Sender: TObject);
 begin
-  ModalResult:=mrCancel;
+  ModalResult := mrCancel;
 end;
 
 end.
-

@@ -196,6 +196,8 @@ object Form1: TForm1
     object TabSheet3: TTabSheet
       Caption = 'TabSheet3'
       ImageIndex = 2
+      ParentShowHint = False
+      ShowHint = True
       OnMouseDown = Image2MouseDown
       OnMouseMove = Image2MouseMove
       OnResize = TabSheet3Resize

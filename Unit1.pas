@@ -402,6 +402,7 @@ begin
       bmp.Free;
     end;
   end;
+  TabSheet3.Hint := Image1.Hint;
   TabSheet3Resize(Sender);
   pageList := TList<TPageLayout>.Create;
   hyousi := true;
@@ -513,7 +514,6 @@ end;
 procedure TForm1.ListBox1DblClick(Sender: TObject);
 var
   id: integer;
-  s: string;
 begin
   if ListBox1.ItemIndex = -1 then
     Exit;
@@ -529,9 +529,7 @@ begin
   TrackBar1.SetFocus;
   with DataModule4.FDQuery1 do
   begin
-    s := ListBox1.Items[ListBox1.ItemIndex];
-    id := Lookup('title', s, 'title_id');
-    Close;
+    id := Lookup('title', ListBox1.Items[ListBox1.ItemIndex], 'title_id');
     SQL.Clear;
     SQL.Add('select * from pdfdatabase where title_id = :id');
     Params.ParamByName('id').AsInteger := id;
