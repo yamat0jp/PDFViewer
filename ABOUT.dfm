@@ -3,8 +3,8 @@ object AboutBox: TAboutBox
   Top = 108
   BorderStyle = bsDialog
   Caption = #12496#12540#12472#12519#12531#24773#22577
-  ClientHeight = 213
-  ClientWidth = 298
+  ClientHeight = 212
+  ClientWidth = 294
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -63,9 +63,9 @@ object AboutBox: TAboutBox
     object Version: TLabel
       Left = 88
       Top = 40
-      Width = 134
+      Width = 128
       Height = 13
-      Caption = #12496#12540#12472#12519#12531':9847a33 '#36794#12426#12398#12467#12511#12483#12488
+      Caption = #12496#12540#12472#12519#12531':009daff '#36794#12426#12398#12467#12511#12483#12488
       IsControl = True
     end
     object Copyright: TLabel
