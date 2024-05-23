@@ -3,17 +3,16 @@ unit Thread;
 interface
 
 uses
-  System.Classes, Vcl.Graphics, Zlib, System.SysUtils, Jpeg, System.Types;
+  System.Classes, Vcl.Graphics, Zlib, System.SysUtils, System.Types, Vcl.Skia;
 
 type
   TMyThread = class(TThread)
   private
     { Private êÈåæ }
     FIndex: integer;
-    FImg: TGraphic;
-    FIns: Boolean;
-    FStream: TStream;
-    function GetStream: TStream;
+    FImg: TBitmap;
+    FStream: TMemoryStream;
+    function GetStream: TMemoryStream;
   protected
     procedure Execute; override;
   public
@@ -21,7 +20,7 @@ type
     constructor Create(AIndex: integer; const FileName: string;
       var ARect: TRect); overload;
     destructor Destroy; override;
-    property Stream: TStream read GetStream;
+    property Stream: TMemoryStream read GetStream;
   end;
 
   TZipThread = class(TMyThread)
@@ -70,8 +69,8 @@ begin
   inherited Create(false);
   FreeOnTerminate := false;
   FIndex := AIndex;
-  FImg := AImg;
-  FIns := false;
+  FImg:=TBitmap.Create;
+  FImg.Assign(AImg);
   FStream := TMemoryStream.Create;
 end;
 
@@ -79,35 +78,30 @@ constructor TMyThread.Create(AIndex: integer; const FileName: string;
   var ARect: TRect);
 var
   s: string;
-  jpg: TJpegImage;
+  pic: TPicture;
 begin
   inherited Create(false);
   FreeOnTerminate := false;
   FIndex := AIndex;
   s := LowerCase(ExtractFileExt(FileName));
+  FStream := TMemoryStream.Create;
   FImg := TBitmap.Create;
-  if s = '.bmp' then
-    FImg.LoadFromFile(FileName)
-  else if (s = '.jpg') or (s = '.jpeg') then
-  begin
-    jpg := TJpegImage.Create;
-    try
-      jpg.LoadFromFile(FileName);
-      FImg.Assign(jpg);
-    finally
-      jpg.Free;
-    end;
+  pic:=TPicture.Create;
+  try
+    pic.LoadFromFile(FileName);
+    FImg.Width:=pic.Graphic.Width;
+    FImg.Height:=pic.Graphic.Height;
+    FImg.Canvas.Draw(0,0,pic.Graphic);
+  finally
+    pic.Free;
   end;
   ARect := Rect(0, 0, FImg.Width, FImg.Height);
-  FIns := true;
-  FStream := TMemoryStream.Create;
 end;
 
 destructor TMyThread.Destroy;
 begin
   FStream.Free;
-  if FIns then
-    FImg.Free;
+  FImg.Free;
   inherited;
 end;
 
@@ -124,7 +118,7 @@ begin
   end;
 end;
 
-function TMyThread.GetStream: TStream;
+function TMyThread.GetStream: TMemoryStream;
 begin
   if not Finished then
     WaitFor;

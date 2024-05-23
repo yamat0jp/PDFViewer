@@ -133,7 +133,7 @@ implementation
 
 {$R *.dfm}
 
-uses Jpeg, Unit3, ABOUT, OKCANCL2, Unit4, Zlib, PngImage,
+uses Unit3, ABOUT, OKCANCL2, Unit4, Zlib,
   System.Threading, System.NetEncoding, System.SyncObjs;
 
 const
@@ -875,14 +875,23 @@ var
   Rect: TRect;
   p: ^TRect;
   threads: TArray<TMyThread>;
+  ls: TList<string>;
 begin
   cnt := 0;
+  ls:=TList<string>.Create;
   SetLength(threads, Count);
   try
+    ls.Add('.bmp');
+    ls.Add('.jpg');
+    ls.Add('.jpeg');
+    ls.Add('.png');
+    ls.Add('.gif');
+    ls.Add('.webp');
+    ls.Add('.svg');
     for var k := Index to Index + Count - 1 do
     begin
       s := LowerCase(ExtractFileExt(arr[k]));
-      if (s <> '.jpg') and (s <> '.jpeg') and (s <> '.bmp') then
+      if ls.IndexOf(s) = -1 then
         continue;
       with DataModule4.FDQuery1 do
       begin
@@ -918,6 +927,7 @@ begin
     end;
   finally
     Finalize(threads);
+    ls.Free;
   end;
   result := cnt;
 end;
