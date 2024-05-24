@@ -250,7 +250,7 @@ begin
           else
             sub := 0;
           ParamByName('subimage').AsIntegers[i] := sub;
-          threads[i] := TMyThread.Create(i, img);
+          threads[i] := TMyThread.Create(img);
         end;
       with DataModule4.FDQuery1 do
       begin
@@ -902,7 +902,7 @@ begin
         ParamByName('subimage').AsIntegers[Index + cnt] := sub;
       end;
       s := 'tmp\' + arr[k];
-      threads[cnt] := TMyThread.Create(cnt, s, Rect);
+      threads[cnt] := TMyThread.Create(s, Rect);
       if (Index = 0) and (cnt = 0) then
       begin
         New(p);

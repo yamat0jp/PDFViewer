@@ -3,30 +3,23 @@ unit Thread;
 interface
 
 uses
-  System.Classes, Vcl.Graphics, Zlib, System.SysUtils, System.Types, Vcl.Skia;
+  System.Classes, Vcl.Graphics, Zlib, System.SysUtils, System.Types, Vcl.Skia,
+  Vcl.Imaging.jpeg, Vcl.Imaging.pngimage, Vcl.Imaging.GIFImg;
 
 type
   TMyThread = class(TThread)
   private
     { Private êÈåæ }
-    FIndex: integer;
     FImg: TBitmap;
     FStream: TMemoryStream;
     function GetStream: TMemoryStream;
   protected
     procedure Execute; override;
   public
-    constructor Create(AIndex: integer; AImg: TGraphic); overload;
-    constructor Create(AIndex: integer; const FileName: string;
-      var ARect: TRect); overload;
+    constructor Create(AImg: TGraphic); overload;
+    constructor Create(const FileName: string; var ARect: TRect); overload;
     destructor Destroy; override;
     property Stream: TMemoryStream read GetStream;
-  end;
-
-  TZipThread = class(TMyThread)
-  public
-    constructor Create(AIndex: integer; AImg: TGraphic);
-    destructor Destroy; override;
   end;
 
 implementation
@@ -64,34 +57,29 @@ implementation
 
 { TMyThread }
 
-constructor TMyThread.Create(AIndex: integer; AImg: TGraphic);
+constructor TMyThread.Create(AImg: TGraphic);
 begin
   inherited Create(false);
   FreeOnTerminate := false;
-  FIndex := AIndex;
-  FImg:=TBitmap.Create;
+  FImg := TBitmap.Create;
   FImg.Assign(AImg);
   FStream := TMemoryStream.Create;
 end;
 
-constructor TMyThread.Create(AIndex: integer; const FileName: string;
-  var ARect: TRect);
+constructor TMyThread.Create(const FileName: string; var ARect: TRect);
 var
-  s: string;
   pic: TPicture;
 begin
   inherited Create(false);
   FreeOnTerminate := false;
-  FIndex := AIndex;
-  s := LowerCase(ExtractFileExt(FileName));
   FStream := TMemoryStream.Create;
   FImg := TBitmap.Create;
-  pic:=TPicture.Create;
+  pic := TPicture.Create;
   try
     pic.LoadFromFile(FileName);
-    FImg.Width:=pic.Graphic.Width;
-    FImg.Height:=pic.Graphic.Height;
-    FImg.Canvas.Draw(0,0,pic.Graphic);
+    FImg.Width := pic.Graphic.Width;
+    FImg.Height := pic.Graphic.Height;
+    FImg.Canvas.Draw(0, 0, pic.Graphic);
   finally
     pic.Free;
   end;
@@ -123,21 +111,6 @@ begin
   if not Finished then
     WaitFor;
   result := FStream;
-end;
-
-{ TZipThread }
-
-constructor TZipThread.Create(AIndex: integer; AImg: TGraphic);
-begin
-  inherited;
-  FImg := TBitmap.Create;
-  FImg.Assign(AImg);
-end;
-
-destructor TZipThread.Destroy;
-begin
-  FImg.Free;
-  inherited;
 end;
 
 end.
