@@ -992,10 +992,10 @@ begin
       Finalize(arr);
       Screen.Cursor := crDefault;
       OKRightDlg.Edit1.Text := '';
-      dirdelete(ExtractFilePath(Application.ExeName) + 'tmp');
       TTask.Run(
         procedure
         begin
+          dirdelete(ExtractFilePath(Application.ExeName) + 'tmp');
           ProgressBar1.Hide;
         end);
     end;
