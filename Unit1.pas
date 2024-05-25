@@ -429,7 +429,6 @@ procedure TForm1.Image1DblClick(Sender: TObject);
 var
   ctr: TControl;
 begin
-  dm := false;
   ctr := Sender as TControl;
   if ctr.Cursor = crDefault then
     if WindowState = wsNormal then
@@ -470,7 +469,7 @@ begin
   else
   begin
     ctr.Cursor := crDefault;
-    if dm then
+    if dm and (WindowState <> wsMaximized) then
     begin
       Top := Top + Y - dp.Y;
       Left := Left + X - dp.X;
