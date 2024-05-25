@@ -112,10 +112,11 @@ type
   private
     { Private êÈåæ }
     double: TPageState;
-    reverse: Boolean;
+    reverse, dm: Boolean;
     pageList: TList<TPageLayout>;
     pdf: TGS_PdfConverter;
     arr: TArray<string>;
+    dp: TPoint;
     procedure countPictures;
     function returnPos(page: integer; var double: TPageState): integer;
     function checkSemi(num: integer): Boolean;
@@ -444,7 +445,13 @@ begin
       if Image1.Cursor = crLeft then
         TrackBar1.Position := TrackBar1.Position - 1
       else if Image1.Cursor = crRight then
-        TrackBar1.Position := TrackBar1.Position + 1;
+        TrackBar1.Position := TrackBar1.Position + 1
+      else
+      begin
+        Image1.BeginDrag(true);
+        dp := Point(X, Y);
+        dm := true;
+      end;
   end;
 end;
 
@@ -459,7 +466,14 @@ begin
   else if X > 2 * PageControl1.Width div 3 then
     ctr.Cursor := crRight
   else
+  begin
     ctr.Cursor := crDefault;
+    if dm then
+    begin
+      Top := Top + Y - dp.Y;
+      Left := Left + X - dp.X;
+    end;
+  end;
 end;
 
 procedure TForm1.Image2MouseDown(Sender: TObject; Button: TMouseButton;
@@ -878,7 +892,7 @@ var
   ls: TList<string>;
 begin
   cnt := 0;
-  ls:=TList<string>.Create;
+  ls := TList<string>.Create;
   SetLength(threads, Count);
   try
     ls.Add('.bmp');
