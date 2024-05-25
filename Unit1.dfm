@@ -124,7 +124,7 @@ object Form1: TForm1
     Top = 25
     Width = 856
     Height = 474
-    ActivePage = TabSheet2
+    ActivePage = TabSheet1
     Align = alClient
     MultiLine = True
     TabOrder = 4
@@ -189,6 +189,7 @@ object Form1: TForm1
         OnDblClick = Image1DblClick
         OnMouseDown = Image1MoueDown
         OnMouseMove = Image1MouseMove
+        OnMouseUp = Image1MouseUp
         ExplicitTop = -1
         ExplicitWidth = 842
       end
@@ -11110,6 +11111,7 @@ object Form1: TForm1
         OnDblClick = Image1DblClick
         OnMouseDown = Image2MouseDown
         OnMouseMove = Image2MouseMove
+        OnMouseUp = Image1MouseUp
         ExplicitLeft = -31
         ExplicitTop = -209
       end
@@ -22019,6 +22021,7 @@ object Form1: TForm1
         OnDblClick = Image1DblClick
         OnMouseDown = Image2MouseDown
         OnMouseMove = Image2MouseMove
+        OnMouseUp = Image1MouseUp
         ExplicitLeft = 63
         ExplicitTop = -209
       end

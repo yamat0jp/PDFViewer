@@ -109,6 +109,8 @@ type
       X, Y: integer);
     procedure PageControl1MouseEnter(Sender: TObject);
     procedure Action2Execute(Sender: TObject);
+    procedure Image1MouseUp(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: integer);
   private
     { Private êÈåæ }
     double: TPageState;
@@ -427,6 +429,7 @@ procedure TForm1.Image1DblClick(Sender: TObject);
 var
   ctr: TControl;
 begin
+  dm := false;
   ctr := Sender as TControl;
   if ctr.Cursor = crDefault then
     if WindowState = wsNormal then
@@ -448,7 +451,6 @@ begin
         TrackBar1.Position := TrackBar1.Position + 1
       else
       begin
-        Image1.BeginDrag(true);
         dp := Point(X, Y);
         dm := true;
       end;
@@ -476,6 +478,12 @@ begin
   end;
 end;
 
+procedure TForm1.Image1MouseUp(Sender: TObject; Button: TMouseButton;
+  Shift: TShiftState; X, Y: integer);
+begin
+  dm := false;
+end;
+
 procedure TForm1.Image2MouseDown(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: integer);
 var
@@ -489,7 +497,12 @@ begin
       if ctr.Cursor = crLeft then
         TrackBar1.Position := TrackBar1.Position - 1
       else if ctr.Cursor = crRight then
-        TrackBar1.Position := TrackBar1.Position + 1;
+        TrackBar1.Position := TrackBar1.Position + 1
+      else
+      begin
+        dm := true;
+        dp := Point(Mouse.CursorPos.X - Left, Mouse.CursorPos.Y - Top);
+      end;
   end;
 end;
 
@@ -518,6 +531,11 @@ begin
     ctr.Cursor := crDefault
   else
     ctr.Cursor := crRight;
+  if dm and (ctr.Cursor = crDefault) then
+  begin
+    Left := Mouse.CursorPos.X - dp.X;
+    Top := Mouse.CursorPos.Y - dp.Y;
+  end;
 end;
 
 procedure TForm1.ListBox1Click(Sender: TObject);
