@@ -63,9 +63,9 @@ object AboutBox: TAboutBox
     object Version: TLabel
       Left = 88
       Top = 40
-      Width = 131
+      Width = 134
       Height = 13
-      Caption = #12496#12540#12472#12519#12531':baf129c '#36794#12426#12398#12467#12511#12483#12488
+      Caption = #12496#12540#12472#12519#12531':a6e2c3c '#36794#12426#12398#12467#12511#12483#12488
       IsControl = True
     end
     object Copyright: TLabel
@@ -91,6 +91,13 @@ object AboutBox: TAboutBox
       Width = 119
       Height = 13
       Caption = 'GhostScript-API-Wrapper'
+    end
+    object Label2: TLabel
+      Left = 8
+      Top = 142
+      Width = 57
+      Height = 13
+      Caption = 'Skia4Delphi'
     end
   end
   object OKButton: TButton

@@ -15,6 +15,7 @@ type
     Comments: TLabel;
     OKButton: TButton;
     Label1: TLabel;
+    Label2: TLabel;
   private
     { Private 宣言 }
   public
