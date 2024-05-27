@@ -70,6 +70,11 @@ type
     Button2: TButton;
     ProgressBar1: TProgressBar;
     Action2: TAction;
+    CheckBox1: TCheckBox;
+    Timer1: TTimer;
+    Label3: TLabel;
+    Edit3: TEdit;
+    UpDown1: TUpDown;
     procedure OpenExecute(Sender: TObject);
     procedure Action3Execute(Sender: TObject);
     procedure ListBox1DblClick(Sender: TObject);
@@ -111,6 +116,11 @@ type
     procedure Action2Execute(Sender: TObject);
     procedure Image1MouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: integer);
+    procedure UpDown1Click(Sender: TObject; Button: TUDBtnType);
+    procedure Timer1Timer(Sender: TObject);
+    procedure CheckBox1Click(Sender: TObject);
+    procedure TabSheet3MouseMove(Sender: TObject; Shift: TShiftState;
+      X, Y: integer);
   private
     { Private êÈåæ }
     double: TPageState;
@@ -120,6 +130,7 @@ type
     arr: TArray<string>;
     dp: TPoint;
     procedure countPictures;
+    procedure moment;
     function returnPos(page: integer; var double: TPageState): integer;
     function checkSemi(num: integer): Boolean;
     function ZipReader: Boolean;
@@ -319,6 +330,17 @@ begin
   end;
 end;
 
+procedure TForm1.CheckBox1Click(Sender: TObject);
+begin
+  if CheckBox1.Checked then
+  begin
+    FormStyle := fsStayOnTop;
+  end
+  else
+    FormStyle := fsNormal;
+  Edit3.Enabled := CheckBox1.Checked;
+end;
+
 procedure TForm1.doubleScreenExecute(Sender: TObject);
 var
   cnt: integer;
@@ -450,6 +472,7 @@ begin
         TrackBar1.Position := TrackBar1.Position + 1
       else
       begin
+        moment;
         dp := Point(X, Y);
         dm := true;
       end;
@@ -499,6 +522,7 @@ begin
         TrackBar1.Position := TrackBar1.Position + 1
       else
       begin
+        moment;
         dm := true;
         dp := Point(Mouse.CursorPos.X - Left, Mouse.CursorPos.Y - Top);
       end;
@@ -515,17 +539,13 @@ begin
   len := (PageControl1.Width div 2) - ctr.Width;
   if (not reverse and (Sender = Image2)) or (reverse and (Sender = Image3)) then
   begin
-    if len < 2 * PageControl1.Width div 3 then
-    begin
-      if X < len then
-        ctr.Cursor := crLeft
-      else
-        ctr.Cursor := crDefault;
-    end
+    if (len < PageControl1.Width div 3) and (X + len < PageControl1.Width div 3)
+    then
+      ctr.Cursor := crLeft
     else
       ctr.Cursor := crDefault;
   end
-  else if (len > 2 * PageControl1.Width div 3) or (X < PageControl1.Width div 6)
+  else if (len > PageControl1.Width div 3) or (X < PageControl1.Width div 6)
   then
     ctr.Cursor := crDefault
   else
@@ -616,6 +636,16 @@ begin
       PageControl1.ActivePageIndex := 1
     else
       PageControl1.ActivePageIndex := 2;
+end;
+
+procedure TForm1.moment;
+begin
+  if CheckBox1.Checked then
+    Timer1.Enabled := not Timer1.Enabled;
+  if Timer1.Enabled then
+    Image1.Hint := 'ÉyÅ[ÉWÇﬂÇ≠ÇË'
+  else
+    Image1.Hint := 'àÍéûí‚é~';
 end;
 
 procedure TForm1.PageControl1Changing(Sender: TObject;
@@ -716,6 +746,17 @@ begin
   TabSheet3Resize(Sender);
 end;
 
+procedure TForm1.TabSheet3MouseMove(Sender: TObject; Shift: TShiftState;
+  X, Y: integer);
+begin
+  if X < PageControl1.Width div 2 then
+    TabSheet3.Cursor := crLeft
+  else if X > PageControl1.Width div 2 then
+    TabSheet3.Cursor := crRight
+  else
+    TabSheet3.Cursor := crDefault;
+end;
+
 procedure TForm1.TabSheet3Resize(Sender: TObject);
 var
   img1, img2: TImage;
@@ -744,6 +785,24 @@ begin
     img2.Left := TabSheet3.Width div 2;
     img1.Top := 0;
     img2.Top := 0;
+  end;
+end;
+
+procedure TForm1.Timer1Timer(Sender: TObject);
+begin
+  if reverse then
+  begin
+    if TrackBar1.Position = 0 then
+      TrackBar1.Position := TrackBar1.Max;
+  end
+  else if TrackBar1.Position = TrackBar1.Max then
+    TrackBar1.Position := 0;
+  case PageControl1.ActivePageIndex of
+    1, 2:
+      if reverse then
+        TrackBar1.Position := TrackBar1.Position - 1
+      else
+        TrackBar1.Position := TrackBar1.Position + 1;
   end;
 end;
 
@@ -892,6 +951,12 @@ begin
     ListBox1.ItemIndex := 0;
     DeleteExecute(Sender);
   end;
+end;
+
+procedure TForm1.UpDown1Click(Sender: TObject; Button: TUDBtnType);
+begin
+  Timer1.Enabled := CheckBox1.Checked and not(UpDown1.Position = 0);
+  Timer1.Interval := UpDown1.Position * 1000;
 end;
 
 procedure TForm1.versionExecute(Sender: TObject);

@@ -132,7 +132,7 @@ object Form1: TForm1
     TabPosition = tpRight
     OnChanging = PageControl1Changing
     OnMouseEnter = PageControl1MouseEnter
-    OnMouseMove = Image1MouseMove
+    OnMouseMove = TabSheet3MouseMove
     ExplicitWidth = 852
     ExplicitHeight = 473
     object TabSheet1: TTabSheet
@@ -201,7 +201,7 @@ object Form1: TForm1
       ParentShowHint = False
       ShowHint = True
       OnMouseDown = Image2MouseDown
-      OnMouseMove = Image2MouseMove
+      OnMouseMove = TabSheet3MouseMove
       OnResize = TabSheet3Resize
       DesignSize = (
         825
@@ -22067,6 +22067,13 @@ object Form1: TForm1
         Height = 15
         Caption = 'new password'
       end
+      object Label3: TLabel
+        Left = 560
+        Top = 123
+        Width = 59
+        Height = 15
+        Caption = #12506#12540#12472#12417#12367#12426
+      end
       object Button1: TButton
         Left = 246
         Top = 235
@@ -22101,6 +22108,35 @@ object Form1: TForm1
         Action = Back
         Cancel = True
         TabOrder = 3
+      end
+      object CheckBox1: TCheckBox
+        Left = 544
+        Top = 80
+        Width = 97
+        Height = 17
+        Caption = 'StayOnTop'
+        TabOrder = 4
+        OnClick = CheckBox1Click
+      end
+      object Edit3: TEdit
+        Left = 640
+        Top = 120
+        Width = 41
+        Height = 23
+        Enabled = False
+        TabOrder = 5
+        Text = '0'
+      end
+      object UpDown1: TUpDown
+        Left = 681
+        Top = 120
+        Width = 16
+        Height = 23
+        Associate = Edit3
+        Max = 60
+        Increment = 5
+        TabOrder = 6
+        OnClick = UpDown1Click
       end
     end
   end
@@ -22246,5 +22282,11 @@ object Form1: TForm1
       Caption = 'Return'
       OnExecute = Action2Execute
     end
+  end
+  object Timer1: TTimer
+    Enabled = False
+    OnTimer = Timer1Timer
+    Left = 624
+    Top = 280
   end
 end
