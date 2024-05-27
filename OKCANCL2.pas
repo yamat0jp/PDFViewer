@@ -50,6 +50,8 @@ begin
       OleContainer1.CreateObjectFromFile(OpenDialog1.FileName, false)
     else if s = '.zip' then
     begin
+      Exit;
+      Form1.task.Wait;
       Zip := TZipFile.Create;
       pic := TPicture.Create;
       st := TMemoryStream.Create;

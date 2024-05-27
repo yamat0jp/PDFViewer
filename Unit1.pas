@@ -18,7 +18,9 @@ uses
   FireDAC.Phys.SQLiteWrapper.Stat, System.Rtti, System.Bindings.Outputs,
   Vcl.Bind.Editors, Data.Bind.EngExt, Vcl.Bind.DBEngExt, Data.Bind.Components,
   Data.Bind.DBScope, SkiSys.GS_Api, SkiSys.GS_Converter,
-  SkiSys.GS_ParameterConst, SkiSys.GS_gdevdsp, System.Zip, Thread;
+  SkiSys.GS_ParameterConst, SkiSys.GS_gdevdsp, System.Zip, Thread,
+  System.Threading,
+  System.IOUtils;
 
 type
   TPageState = (pgSingle, pgSemi, pgDouble);
@@ -130,12 +132,15 @@ type
     dp: TPoint;
     procedure countPictures;
     procedure moment;
+    procedure remove(path: string);
     function returnPos(page: integer; var double: TPageState): integer;
     function checkSemi(num: integer): Boolean;
     function ZipReader: Boolean;
     function ZipLoop(Index, Count: integer): integer;
+    procedure dirdelete(Name: string);
   public
     arr: TArray<string>;
+    task: ITask;
     { Public êÈåæ }
   end;
 
@@ -148,7 +153,7 @@ implementation
 {$R *.dfm}
 
 uses Unit3, ABOUT, OKCANCL2, Unit4, Zlib,
-  System.Threading, System.NetEncoding, System.SyncObjs;
+  System.NetEncoding, System.SyncObjs;
 
 const
   query = 'select * from pdfdatabase where page_id = 1 order by id asc';
@@ -307,7 +312,6 @@ procedure TForm1.BackExecute(Sender: TObject);
 begin
   PageControl1.TabIndex := 0;
   Panel2.Hide;
-  doubleScreen.Enabled := false;
   ReversePage.Enabled := false;
   DataModule4.FDMemTable1.Close;
 end;
@@ -431,6 +435,15 @@ begin
   TabSheet3Resize(Sender);
   pageList := TList<TPageLayout>.Create;
   hyousi := true;
+  task := TTask.Run(
+    procedure
+    var
+      s: string;
+    begin
+      s := ExtractFilePath(Application.ExeName) + 'tmp';
+      remove(s);
+      dirdelete(s);
+    end);
 end;
 
 procedure TForm1.FormDestroy(Sender: TObject);
@@ -441,32 +454,32 @@ begin
 end;
 
 procedure TForm1.FormKeyDown(Sender: TObject; var Key: Word;
-  Shift: TShiftState);
+Shift: TShiftState);
 var
   bmp: TBitmap;
 begin
   if Key = vkEscape then
-    if Form3.Visible and (MessageDlg('íÜífÇµÇƒÇ‡Ç«ÇËÇ‹Ç∑Ç©?', mtConfirmation,
-      [mbYes, mbNo], 0) = mrYes) then
+  begin
+    bmp := TBitmap.Create;
+    try
+      bmp.Width := Image1.Width;
+      bmp.Height := Image1.Height;
+      Image1.Picture.Assign(bmp);
+      Image2.Picture.Assign(bmp);
+      Image3.Picture.Assign(bmp);
+    finally
+      bmp.Free;
+    end;
+    if not Form3.Visible then
+      BackExecute(Sender)
+    else if MessageDlg('íÜífÇµÇƒÇ‡Ç«ÇËÇ‹Ç∑Ç©?', mtConfirmation, [mbYes, mbNo], 0) = mrYes
+    then
     begin
       DataModule4.FDQuery1.Cancel;
       Form3.Hide;
       abort := true;
-    end
-    else
-    begin
-      bmp:=TBitmap.Create;
-      try
-        bmp.Width:=Image1.Width;
-        bmp.Height:=Image1.Height;
-        Image1.Picture.Assign(bmp);
-        Image2.Picture.Assign(bmp);
-        Image3.Picture.Assign(bmp);
-      finally
-        bmp.Free;
-      end;
-      BackExecute(Sender);
     end;
+  end;
 end;
 
 procedure TForm1.Image1DblClick(Sender: TObject);
@@ -482,7 +495,7 @@ begin
 end;
 
 procedure TForm1.Image1MoueDown(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; X, Y: integer);
+Shift: TShiftState; X, Y: integer);
 begin
   case Button of
     TMouseButton.mbRight:
@@ -502,7 +515,7 @@ begin
 end;
 
 procedure TForm1.Image1MouseMove(Sender: TObject; Shift: TShiftState;
-  X, Y: integer);
+X, Y: integer);
 var
   ctr: TControl;
 begin
@@ -523,13 +536,13 @@ begin
 end;
 
 procedure TForm1.Image1MouseUp(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; X, Y: integer);
+Shift: TShiftState; X, Y: integer);
 begin
   dm := false;
 end;
 
 procedure TForm1.Image2MouseDown(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; X, Y: integer);
+Shift: TShiftState; X, Y: integer);
 var
   ctr: TControl;
 begin
@@ -552,7 +565,7 @@ begin
 end;
 
 procedure TForm1.Image2MouseMove(Sender: TObject; Shift: TShiftState;
-  X, Y: integer);
+X, Y: integer);
 var
   ctr: TControl;
   len: integer;
@@ -648,21 +661,21 @@ begin
 end;
 
 procedure TForm1.ListBox1DragOver(Sender, Source: TObject; X, Y: integer;
-  State: TDragState; var Accept: Boolean);
+State: TDragState; var Accept: Boolean);
 begin
   if ListBox1.ItemIndex > 0 then
     Accept := true;
 end;
 
 procedure TForm1.ListBox1KeyDown(Sender: TObject; var Key: Word;
-  Shift: TShiftState);
+Shift: TShiftState);
 begin
   if Key = VK_RETURN then
     ListBox1DblClick(Sender);
 end;
 
 procedure TForm1.Memo1MouseUp(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; X, Y: integer);
+Shift: TShiftState; X, Y: integer);
 begin
   if Button = TMouseButton.mbRight then
     if double = pgSingle then
@@ -683,7 +696,7 @@ begin
 end;
 
 procedure TForm1.PageControl1Changing(Sender: TObject;
-  var AllowChange: Boolean);
+var AllowChange: Boolean);
 begin
   AllowChange := false;
 end;
@@ -750,6 +763,36 @@ begin
   end;
 end;
 
+procedure TForm1.remove(path: string);
+var
+  ls: TStringList;
+  rec: TSearchRec;
+  i: integer;
+begin
+  if not DirectoryExists(path) then
+    Exit;
+  ls := TStringList.Create;
+  i := FindFirst(path + '\*', faAnyFile, rec);
+  try
+    while i = 0 do
+    begin
+      if rec.Attr = faDirectory then
+      begin
+        if (rec.Name <> '.') and (rec.Name <> '..') then
+          remove(rec.Name);
+      end
+      else
+        ls.Add(path + '\' + rec.Name);
+      i := FindNext(rec);
+    end;
+    for var name in ls do
+      DeleteFile(name);
+  finally
+    FindClose(rec);
+    ls.Free;
+  end;
+end;
+
 procedure TForm1.RePaintExecute(Sender: TObject);
 begin
   PaintBox1Paint(Sender);
@@ -781,7 +824,7 @@ begin
 end;
 
 procedure TForm1.TabSheet3MouseMove(Sender: TObject; Shift: TShiftState;
-  X, Y: integer);
+X, Y: integer);
 begin
   if X < PageControl1.Width div 3 then
     TabSheet3.Cursor := crLeft
@@ -840,7 +883,7 @@ begin
   end;
 end;
 
-procedure dirdelete(name: string);
+procedure TForm1.dirdelete(Name: string);
 var
   i: integer;
   rec: TSearchRec;
@@ -848,8 +891,8 @@ begin
   i := FindFirst(name + '\*', faDirectory, rec);
   while i = 0 do
   begin
-    if (rec.name <> '.') and (rec.name <> '..') then
-      dirdelete(name + '\' + rec.name);
+    if (rec.Name <> '.') and (rec.Name <> '..') then
+      dirdelete(name + '\' + rec.Name);
     i := FindNext(rec);
   end;
   RemoveDir(name);
