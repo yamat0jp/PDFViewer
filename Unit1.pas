@@ -550,6 +550,7 @@ begin
     ctr.Cursor := crDefault
   else
     ctr.Cursor := crRight;
+  TabSheet3.Cursor := ctr.Cursor;
   if dm and (ctr.Cursor = crDefault) then
   begin
     Left := Mouse.CursorPos.X - dp.X;
