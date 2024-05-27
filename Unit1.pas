@@ -124,10 +124,9 @@ type
   private
     { Private êÈåæ }
     double: TPageState;
-    reverse, dm: Boolean;
+    reverse, dm, abort: Boolean;
     pageList: TList<TPageLayout>;
     pdf: TGS_PdfConverter;
-    arr: TArray<string>;
     dp: TPoint;
     procedure countPictures;
     procedure moment;
@@ -136,6 +135,7 @@ type
     function ZipReader: Boolean;
     function ZipLoop(Index, Count: integer): integer;
   public
+    arr: TArray<string>;
     { Public êÈåæ }
   end;
 
@@ -442,9 +442,31 @@ end;
 
 procedure TForm1.FormKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
+var
+  bmp: TBitmap;
 begin
   if Key = vkEscape then
-    BackExecute(Sender);
+    if Form3.Visible and (MessageDlg('íÜífÇµÇƒÇ‡Ç«ÇËÇ‹Ç∑Ç©?', mtConfirmation,
+      [mbYes, mbNo], 0) = mrYes) then
+    begin
+      DataModule4.FDQuery1.Cancel;
+      Form3.Hide;
+      abort := true;
+    end
+    else
+    begin
+      bmp:=TBitmap.Create;
+      try
+        bmp.Width:=Image1.Width;
+        bmp.Height:=Image1.Height;
+        Image1.Picture.Assign(bmp);
+        Image2.Picture.Assign(bmp);
+        Image3.Picture.Assign(bmp);
+      finally
+        bmp.Free;
+      end;
+      BackExecute(Sender);
+    end;
 end;
 
 procedure TForm1.Image1DblClick(Sender: TObject);
@@ -585,7 +607,17 @@ begin
     SQL.Clear;
     SQL.Add('select * from pdfdatabase where title_id = :id');
     Params.ParamByName('id').AsInteger := id;
+    Filtered := true;
+    abort := false;
     Open;
+    Filtered := false;
+    if abort then
+    begin
+      Close;
+      Open(query);
+      BackExecute(Sender);
+      Exit;
+    end;
     FetchAll;
     DataModule4.FDMemTable1.Data := Data;
     DataModule4.FDMemTable1.Open;
@@ -1034,7 +1066,6 @@ function TForm1.ZipReader: Boolean;
 var
   size, cnt: integer;
   s: string;
-  Zip: TZipFile;
 begin
   result := false;
   s := OKRightDlg.OpenDialog1.FileName;
@@ -1064,12 +1095,7 @@ begin
       SQL.Text :=
         'insert into pdfdatabase (id, page_id, image, title_id, title, subimage) values (:id, :page_id, :image, :title_id, :title, :subimage);';
     end;
-    Zip := TZipFile.Create;
-    Zip.Open(s, zmRead);
-    size := Zip.FileCount;
-    arr := Copy(Zip.FileNames, 0, size);
-    Zip.Close;
-    Zip.Free;
+    size := Length(arr);
     if not DirectoryExists('tmp') then
       MkDir('tmp');
     ProgressBar1.Max := size;

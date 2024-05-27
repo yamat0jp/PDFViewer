@@ -32,6 +32,8 @@ implementation
 
 {$R *.dfm}
 
+uses Unit1;
+
 procedure TOKRightDlg.SpeedButton1Click(Sender: TObject);
 var
   s: string;
@@ -60,6 +62,7 @@ begin
               (LowerCase(ExtractFileExt(Zip.FileName[0])) = '.jpg') then
             begin
               Zip.Read(0, st, head);
+              Form1.arr:=zip.FileNames;
               pic.LoadFromStream(st);
               Clipboard.Assign(pic);
               OleContainer1.Paste;

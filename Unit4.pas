@@ -28,6 +28,7 @@ type
     FDTable1TITLE: TStringField;
     FDTable1SUBIMAGE: TIntegerField;
     procedure DataModuleCreate(Sender: TObject);
+    procedure FDQuery1FilterRecord(DataSet: TDataSet; var Accept: Boolean);
   private
     { Private êÈåæ }
   public
@@ -39,7 +40,7 @@ var
 
 implementation
 
-uses System.IOUtils, Vcl.Forms;
+uses System.IOUtils, Vcl.Forms, Unit3;
 
 {%CLASSGROUP 'Vcl.Controls.TControl'}
 {$R *.dfm}
@@ -55,6 +56,13 @@ begin
     FDQuery1.ExecSQL;
   FDTable1.Open;
   FDTable2.Open;
+end;
+
+procedure TDataModule4.FDQuery1FilterRecord(DataSet: TDataSet;
+  var Accept: Boolean);
+begin
+  if Assigned(Form3) and Form3.Visible then
+    Application.ProcessMessages;
 end;
 
 end.

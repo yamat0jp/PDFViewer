@@ -62,6 +62,7 @@ object DataModule4: TDataModule4
     end
   end
   object FDQuery1: TFDQuery
+    OnFilterRecord = FDQuery1FilterRecord
     Connection = FDConnection1
     FetchOptions.AssignedValues = [evRowsetSize]
     FetchOptions.RowsetSize = 300
