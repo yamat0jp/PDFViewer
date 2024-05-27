@@ -749,9 +749,9 @@ end;
 procedure TForm1.TabSheet3MouseMove(Sender: TObject; Shift: TShiftState;
   X, Y: integer);
 begin
-  if X < PageControl1.Width div 2 then
+  if X < PageControl1.Width div 3 then
     TabSheet3.Cursor := crLeft
-  else if X > PageControl1.Width div 2 then
+  else if X > 2 * PageControl1.Width div 3 then
     TabSheet3.Cursor := crRight
   else
     TabSheet3.Cursor := crDefault;
