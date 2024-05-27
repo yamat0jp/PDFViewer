@@ -647,6 +647,7 @@ begin
     Image1.Hint := 'ÉyÅ[ÉWÇﬂÇ≠ÇË'
   else
     Image1.Hint := 'àÍéûí‚é~';
+  TabSheet3.Hint := Image1.Hint;
 end;
 
 procedure TForm1.PageControl1Changing(Sender: TObject;
@@ -868,7 +869,7 @@ begin
       if bool then
       begin
         pageList.Add(p);
-        continue;
+        p.Left := DataModule4.FDMemTable1.FieldByName('page_id').AsInteger;
       end
       else
         p.Right := DataModule4.FDMemTable1.FieldByName('page_id').AsInteger;
@@ -990,14 +991,6 @@ begin
       s := LowerCase(ExtractFileExt(arr[k]));
       if ls.IndexOf(s) = -1 then
         continue;
-      with DataModule4.FDQuery1 do
-      begin
-        ParamByName('id').AsIntegers[Index + cnt] := id + Index + cnt;
-        ParamByName('page_id').AsIntegers[Index + cnt] := Index + cnt + 1;
-        ParamByName('title_id').AsIntegers[Index + cnt] := title_id;
-        ParamByName('title').AsStrings[Index + cnt] := title;
-        ParamByName('subimage').AsIntegers[Index + cnt] := sub;
-      end;
       s := 'tmp\' + arr[k];
       threads[cnt] := TMyThread.Create(s, Rect);
       if (Index = 0) and (cnt = 0) then
@@ -1012,6 +1005,14 @@ begin
         sub := 1
       else
         sub := 0;
+      with DataModule4.FDQuery1 do
+      begin
+        ParamByName('id').AsIntegers[Index + cnt] := id + Index + cnt;
+        ParamByName('page_id').AsIntegers[Index + cnt] := Index + cnt + 1;
+        ParamByName('title_id').AsIntegers[Index + cnt] := title_id;
+        ParamByName('title').AsStrings[Index + cnt] := title;
+        ParamByName('subimage').AsIntegers[Index + cnt] := sub;
+      end;
       inc(cnt);
       ProgressBar1.Position := ProgressBar1.Position + 1;
       ProgressBar1.Update;

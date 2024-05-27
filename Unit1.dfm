@@ -144,9 +144,8 @@ object Form1: TForm1
         Height = 466
         Align = alClient
         OnPaint = PaintBox1Paint
-        ExplicitLeft = 277
-        ExplicitTop = 2
-        ExplicitWidth = 562
+        ExplicitLeft = 286
+        ExplicitTop = -1
       end
       object ListBox1: TListBox
         Left = 0
@@ -196,6 +195,7 @@ object Form1: TForm1
       end
     end
     object TabSheet3: TTabSheet
+      Hint = #21491#12463#12522#12483#12463'::Help'
       Caption = 'TabSheet3'
       ImageIndex = 2
       ParentShowHint = False
