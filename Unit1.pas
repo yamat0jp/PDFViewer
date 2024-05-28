@@ -126,7 +126,7 @@ type
   private
     { Private êÈåæ }
     double: TPageState;
-    reverse, dm, abort: Boolean;
+    reverse, dm: Boolean;
     pageList: TList<TPageLayout>;
     pdf: TGS_PdfConverter;
     dp: TPoint;
@@ -378,7 +378,7 @@ begin
     Exit;
   with DataModule4.FDTable1 do
   begin
-    Filter := 'title = ' + QuotedStr(ListBox1.Items[id]);
+    Filter := 'title_id = ' + ListBox1.ItemIndex.ToString;
     Filtered := true;
     Open;
     First;
@@ -468,13 +468,7 @@ begin
       bmp.Free;
     end;
     if not Form3.Visible then
-      BackExecute(Sender)
-    else if MessageDlg('íÜífÇµÇƒÇ‡Ç«ÇËÇ‹Ç∑Ç©?', mtConfirmation, [mbYes, mbNo], 0) = mrYes
-    then
-    begin
-      DataModule4.FDQuery1.AbortJob;
-      abort := true;
-    end;
+      BackExecute(Sender);
   end;
 end;
 
@@ -616,16 +610,7 @@ begin
     SQL.Clear;
     SQL.Add('select * from pdfdatabase where title_id = :id');
     Params.ParamByName('id').AsInteger := id;
-    abort := false;
     Open;
-    if abort then
-    begin
-      BackExecute(Sender);
-      Form3.Hide;
-      Close;
-      Open(query);
-      Exit;
-    end;
     Form3.Label2.Caption := 'Fetching';
     FetchAll;
     DataModule4.FDMemTable1.Data := Data;
