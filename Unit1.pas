@@ -476,7 +476,6 @@ begin
     then
     begin
       DataModule4.FDQuery1.Cancel;
-      Form3.Hide;
       abort := true;
     end;
   end;
@@ -606,6 +605,7 @@ begin
     Exit;
   Form3.Left := Left + (Width - Form3.Width) div 2;
   Form3.Top := Top + (Height - Form3.Height) div 2;
+  Form3.Label2.Caption:='Filtering [Cancel ESC]';
   Form3.Show;
   Application.ProcessMessages;
   PageControl1.TabIndex := 1;
@@ -626,11 +626,14 @@ begin
     Filtered := false;
     if abort then
     begin
+      BackExecute(Sender);
+      Form3.Hide;
       Close;
       Open(query);
-      BackExecute(Sender);
       Exit;
     end;
+    Form3.Label2.Caption:='Fetching';
+    Application.ProcessMessages;
     FetchAll;
     DataModule4.FDMemTable1.Data := Data;
     DataModule4.FDMemTable1.Open;

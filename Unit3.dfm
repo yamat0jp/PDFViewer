@@ -11410,4 +11410,30 @@ object Form3: TForm3
       02020202020202020202020202020202020202020202020202020202020FFFD9}
     Proportional = True
   end
+  object Label1: TLabel
+    Left = 144
+    Top = 232
+    Width = 26
+    Height = 15
+    Caption = 'Now'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -12
+    Font.Name = 'Segoe UI'
+    Font.Style = [fsBold]
+    ParentFont = False
+  end
+  object Label2: TLabel
+    Left = 192
+    Top = 232
+    Width = 36
+    Height = 15
+    Caption = 'Label2'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -12
+    Font.Name = 'Segoe UI'
+    Font.Style = [fsBold]
+    ParentFont = False
+  end
 end

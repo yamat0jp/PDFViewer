@@ -207,7 +207,7 @@ object Form1: TForm1
         825
         466)
       object Image2: TImage
-        Left = 113
+        Left = 112
         Top = -252
         Width = 216
         Height = 372
@@ -11117,7 +11117,7 @@ object Form1: TForm1
         ExplicitTop = -209
       end
       object Image3: TImage
-        Left = 387
+        Left = 385
         Top = -252
         Width = 218
         Height = 372

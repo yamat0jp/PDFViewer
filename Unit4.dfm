@@ -12,8 +12,6 @@ object DataModule4: TDataModule4
   object FDTable1: TFDTable
     IndexFieldNames = 'ID;TITLE_ID;PAGE_ID'
     Connection = FDConnection1
-    FetchOptions.AssignedValues = [evRowsetSize]
-    FetchOptions.RowsetSize = 30
     ResourceOptions.AssignedValues = [rvEscapeExpand]
     TableName = 'pdfdatabase'
     Left = 104
@@ -64,8 +62,6 @@ object DataModule4: TDataModule4
   object FDQuery1: TFDQuery
     OnFilterRecord = FDQuery1FilterRecord
     Connection = FDConnection1
-    FetchOptions.AssignedValues = [evRowsetSize]
-    FetchOptions.RowsetSize = 300
     SQL.Strings = (
       'CREATE TABLE pdfdatabase '
       '('
