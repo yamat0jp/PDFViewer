@@ -132,12 +132,10 @@ type
     dp: TPoint;
     procedure countPictures;
     procedure moment;
-    procedure remove(path: string);
     function returnPos(page: integer; var double: TPageState): integer;
     function checkSemi(num: integer): Boolean;
     function ZipReader: Boolean;
     function ZipLoop(Index, Count: integer): integer;
-    procedure dirdelete(Name: string);
   public
     arr: TArray<string>;
     task: ITask;
@@ -441,8 +439,7 @@ begin
       s: string;
     begin
       s := ExtractFilePath(Application.ExeName) + 'tmp';
-      remove(s);
-      dirdelete(s);
+      TDirectory.Delete(s,true);
     end);
 end;
 
@@ -766,36 +763,6 @@ begin
   end;
 end;
 
-procedure TForm1.remove(path: string);
-var
-  ls: TStringList;
-  rec: TSearchRec;
-  i: integer;
-begin
-  if not DirectoryExists(path) then
-    Exit;
-  ls := TStringList.Create;
-  i := FindFirst(path + '\*', faAnyFile, rec);
-  try
-    while i = 0 do
-    begin
-      if rec.Attr = faDirectory then
-      begin
-        if (rec.Name <> '.') and (rec.Name <> '..') then
-          remove(rec.Name);
-      end
-      else
-        ls.Add(path + '\' + rec.Name);
-      i := FindNext(rec);
-    end;
-    for var name in ls do
-      DeleteFile(name);
-  finally
-    FindClose(rec);
-    ls.Free;
-  end;
-end;
-
 procedure TForm1.RePaintExecute(Sender: TObject);
 begin
   PaintBox1Paint(Sender);
@@ -884,22 +851,6 @@ begin
       else
         TrackBar1.Position := TrackBar1.Position + 1;
   end;
-end;
-
-procedure TForm1.dirdelete(Name: string);
-var
-  i: integer;
-  rec: TSearchRec;
-begin
-  i := FindFirst(name + '\*', faDirectory, rec);
-  while i = 0 do
-  begin
-    if (rec.Name <> '.') and (rec.Name <> '..') then
-      dirdelete(name + '\' + rec.Name);
-    i := FindNext(rec);
-  end;
-  RemoveDir(name);
-  FindClose(rec);
 end;
 
 procedure TForm1.ToolButton7Click(Sender: TObject);
@@ -1147,7 +1098,7 @@ begin
     ProgressBar1.Max := size;
     ProgressBar1.Position := 0;
     ProgressBar1.Show;
-    TZipFile.ExtractZipFile(s, 'tmp\');
+    TZipFile.ExtractZipFile(s, 'tmp');
     try
       DataModule4.FDQuery1.Params.ArraySize := size;
       cnt := 0;
@@ -1165,7 +1116,7 @@ begin
       TTask.Run(
         procedure
         begin
-          dirdelete(ExtractFilePath(Application.ExeName) + 'tmp');
+          TDirectory.Delete(ExtractFilePath(Application.ExeName) + 'tmp',true);
           ProgressBar1.Hide;
         end);
     end;
