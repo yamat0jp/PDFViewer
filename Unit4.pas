@@ -10,7 +10,8 @@ uses
   FireDAC.Phys.SQLiteWrapper.Stat, FireDAC.VCLUI.Wait, FireDAC.Stan.Param,
   FireDAC.DatS, FireDAC.DApt.Intf, FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet,
   FireDAC.Comp.Client, FireDAC.Stan.StorageBin, FireDAC.Comp.BatchMove.DataSet,
-  FireDAC.Comp.BatchMove, FireDAC.Phys.IB, FireDAC.Phys.IBDef;
+  FireDAC.Comp.BatchMove, FireDAC.Phys.IB, FireDAC.Phys.IBDef,
+  FireDAC.VCLUI.Async, FireDAC.Comp.UI;
 
 type
   TDataModule4 = class(TDataModule)
@@ -27,8 +28,8 @@ type
     FDTable1TITLE_ID: TIntegerField;
     FDTable1TITLE: TStringField;
     FDTable1SUBIMAGE: TIntegerField;
+    FDGUIxAsyncExecuteDialog1: TFDGUIxAsyncExecuteDialog;
     procedure DataModuleCreate(Sender: TObject);
-    procedure FDQuery1FilterRecord(DataSet: TDataSet; var Accept: Boolean);
   private
     { Private êÈåæ }
   public
@@ -56,13 +57,6 @@ begin
     FDQuery1.ExecSQL;
   FDTable1.Open;
   FDTable2.Open;
-end;
-
-procedure TDataModule4.FDQuery1FilterRecord(DataSet: TDataSet;
-  var Accept: Boolean);
-begin
-  if Assigned(Form3) and Form3.Visible then
-    Application.ProcessMessages;
 end;
 
 end.

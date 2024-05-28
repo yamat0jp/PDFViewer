@@ -60,8 +60,9 @@ object DataModule4: TDataModule4
     end
   end
   object FDQuery1: TFDQuery
-    OnFilterRecord = FDQuery1FilterRecord
     Connection = FDConnection1
+    ResourceOptions.AssignedValues = [rvCmdExecMode]
+    ResourceOptions.CmdExecMode = amNonBlocking
     SQL.Strings = (
       'CREATE TABLE pdfdatabase '
       '('
@@ -102,6 +103,11 @@ object DataModule4: TDataModule4
     UpdateOptions.AutoCommitUpdates = True
     StoreDefs = True
     Left = 168
+    Top = 8
+  end
+  object FDGUIxAsyncExecuteDialog1: TFDGUIxAsyncExecuteDialog
+    Provider = 'Forms'
+    Left = 56
     Top = 8
   end
 end

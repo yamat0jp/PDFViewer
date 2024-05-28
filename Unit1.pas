@@ -439,7 +439,7 @@ begin
       s: string;
     begin
       s := ExtractFilePath(Application.ExeName) + 'tmp';
-      TDirectory.Delete(s,true);
+      TDirectory.Delete(s, true);
     end);
 end;
 
@@ -472,7 +472,7 @@ begin
     else if MessageDlg('’†’f‚µ‚Ä‚à‚Ç‚è‚Ü‚·‚©?', mtConfirmation, [mbYes, mbNo], 0) = mrYes
     then
     begin
-      DataModule4.FDQuery1.Cancel;
+      DataModule4.FDQuery1.AbortJob;
       abort := true;
     end;
   end;
@@ -602,9 +602,8 @@ begin
     Exit;
   Form3.Left := Left + (Width - Form3.Width) div 2;
   Form3.Top := Top + (Height - Form3.Height) div 2;
-  Form3.Label2.Caption:='Filtering [Cancel ESC]';
+  Form3.Label2.Caption := 'Filtering';
   Form3.Show;
-  Application.ProcessMessages;
   PageControl1.TabIndex := 1;
   Back.Enabled := true;
   doubleScreen.Enabled := true;
@@ -617,10 +616,8 @@ begin
     SQL.Clear;
     SQL.Add('select * from pdfdatabase where title_id = :id');
     Params.ParamByName('id').AsInteger := id;
-    Filtered := true;
     abort := false;
     Open;
-    Filtered := false;
     if abort then
     begin
       BackExecute(Sender);
@@ -629,8 +626,7 @@ begin
       Open(query);
       Exit;
     end;
-    Form3.Label2.Caption:='Fetching';
-    Application.ProcessMessages;
+    Form3.Label2.Caption := 'Fetching';
     FetchAll;
     DataModule4.FDMemTable1.Data := Data;
     DataModule4.FDMemTable1.Open;
@@ -1116,7 +1112,7 @@ begin
       TTask.Run(
         procedure
         begin
-          TDirectory.Delete(ExtractFilePath(Application.ExeName) + 'tmp',true);
+          TDirectory.Delete(ExtractFilePath(Application.ExeName) + 'tmp', true);
           ProgressBar1.Hide;
         end);
     end;
