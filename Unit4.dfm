@@ -10,9 +10,13 @@ object DataModule4: TDataModule4
     Top = 64
   end
   object FDTable1: TFDTable
+    Filtered = True
     IndexFieldNames = 'ID;TITLE_ID;PAGE_ID'
     Connection = FDConnection1
-    ResourceOptions.AssignedValues = [rvEscapeExpand]
+    FetchOptions.AssignedValues = [evMode, evLiveWindowFastFirst]
+    FetchOptions.Mode = fmManual
+    ResourceOptions.AssignedValues = [rvEscapeExpand, rvCmdExecMode]
+    ResourceOptions.CmdExecMode = amCancelDialog
     TableName = 'pdfdatabase'
     Left = 104
     Top = 120
@@ -61,8 +65,6 @@ object DataModule4: TDataModule4
   end
   object FDQuery1: TFDQuery
     Connection = FDConnection1
-    ResourceOptions.AssignedValues = [rvCmdExecMode]
-    ResourceOptions.CmdExecMode = amNonBlocking
     SQL.Strings = (
       'CREATE TABLE pdfdatabase '
       '('
@@ -102,8 +104,8 @@ object DataModule4: TDataModule4
     UpdateOptions.CheckRequired = False
     UpdateOptions.AutoCommitUpdates = True
     StoreDefs = True
-    Left = 168
-    Top = 8
+    Left = 176
+    Top = 32
   end
   object FDGUIxAsyncExecuteDialog1: TFDGUIxAsyncExecuteDialog
     Provider = 'Forms'

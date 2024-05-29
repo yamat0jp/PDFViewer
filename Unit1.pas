@@ -378,13 +378,10 @@ begin
     Exit;
   with DataModule4.FDTable1 do
   begin
-    Filter := 'title_id = ' + ListBox1.ItemIndex.ToString;
-    Filtered := true;
-    Open;
+    Filter := 'title = ' + QuotedStr(ListBox1.Items[id]);
     First;
     while not Eof do
       Delete;
-    Close;
   end;
   Dispose(Pointer(ListBox1.Items.Objects[id]));
   ListBox1.Items.Delete(id);
@@ -396,11 +393,10 @@ var
   bmp: TBitmap;
   zs, tmp: TStream;
   p: ^TRect;
+  s: string;
 begin
-  Screen.Cursors[crLeft] := LoadCursorFromFile
-    ('C:\Users\yamat\Documents\GitHub\2023\pdfviewer\left.cur');
-  Screen.Cursors[crRight] := LoadCursorFromFile
-    ('C:\Users\yamat\Documents\GitHub\2023\pdfviewer\right.cur');
+  Screen.Cursors[crLeft] := LoadCursorFromFile('..\..\left.cur');
+  Screen.Cursors[crRight] := LoadCursorFromFile('..\..\right.cur');
   with DataModule4.FDQuery1 do
   begin
     Open(query);
@@ -433,14 +429,9 @@ begin
   TabSheet3Resize(Sender);
   pageList := TList<TPageLayout>.Create;
   hyousi := true;
-  task := TTask.Run(
-    procedure
-    var
-      s: string;
-    begin
-      s := ExtractFilePath(Application.ExeName) + 'tmp';
-      TDirectory.Delete(s, true);
-    end);
+  s := ExtractFilePath(Application.ExeName) + 'tmp';
+  if DirectoryExists(s) then
+    TDirectory.Delete(s, true);
 end;
 
 procedure TForm1.FormDestroy(Sender: TObject);
@@ -451,7 +442,7 @@ begin
 end;
 
 procedure TForm1.FormKeyDown(Sender: TObject; var Key: Word;
-Shift: TShiftState);
+  Shift: TShiftState);
 var
   bmp: TBitmap;
 begin
@@ -485,7 +476,7 @@ begin
 end;
 
 procedure TForm1.Image1MoueDown(Sender: TObject; Button: TMouseButton;
-Shift: TShiftState; X, Y: integer);
+  Shift: TShiftState; X, Y: integer);
 begin
   case Button of
     TMouseButton.mbRight:
@@ -505,7 +496,7 @@ begin
 end;
 
 procedure TForm1.Image1MouseMove(Sender: TObject; Shift: TShiftState;
-X, Y: integer);
+  X, Y: integer);
 var
   ctr: TControl;
 begin
@@ -526,13 +517,13 @@ begin
 end;
 
 procedure TForm1.Image1MouseUp(Sender: TObject; Button: TMouseButton;
-Shift: TShiftState; X, Y: integer);
+  Shift: TShiftState; X, Y: integer);
 begin
   dm := false;
 end;
 
 procedure TForm1.Image2MouseDown(Sender: TObject; Button: TMouseButton;
-Shift: TShiftState; X, Y: integer);
+  Shift: TShiftState; X, Y: integer);
 var
   ctr: TControl;
 begin
@@ -555,7 +546,7 @@ begin
 end;
 
 procedure TForm1.Image2MouseMove(Sender: TObject; Shift: TShiftState;
-X, Y: integer);
+  X, Y: integer);
 var
   ctr: TControl;
   len: integer;
@@ -589,8 +580,6 @@ begin
 end;
 
 procedure TForm1.ListBox1DblClick(Sender: TObject);
-var
-  id: integer;
 begin
   if ListBox1.ItemIndex = -1 then
     Exit;
@@ -604,19 +593,12 @@ begin
   ReversePage.Enabled := true;
   Panel2.Show;
   TrackBar1.SetFocus;
-  with DataModule4.FDQuery1 do
+  with DataModule4.FDTable1 do
   begin
-    id := Lookup('title', ListBox1.Items[ListBox1.ItemIndex], 'title_id');
-    SQL.Clear;
-    SQL.Add('select * from pdfdatabase where title_id = :id');
-    Params.ParamByName('id').AsInteger := id;
-    Open;
+    Filter := 'title = ' + QuotedStr(ListBox1.Items[ListBox1.ItemIndex]);
     Form3.Label2.Caption := 'Fetching';
-    FetchAll;
     DataModule4.FDMemTable1.Data := Data;
     DataModule4.FDMemTable1.Open;
-    Close;
-    Open(query);
   end;
   Form3.Hide;
   doubleScreenExecute(Sender);
@@ -642,21 +624,21 @@ begin
 end;
 
 procedure TForm1.ListBox1DragOver(Sender, Source: TObject; X, Y: integer;
-State: TDragState; var Accept: Boolean);
+  State: TDragState; var Accept: Boolean);
 begin
   if ListBox1.ItemIndex > 0 then
     Accept := true;
 end;
 
 procedure TForm1.ListBox1KeyDown(Sender: TObject; var Key: Word;
-Shift: TShiftState);
+  Shift: TShiftState);
 begin
   if Key = VK_RETURN then
     ListBox1DblClick(Sender);
 end;
 
 procedure TForm1.Memo1MouseUp(Sender: TObject; Button: TMouseButton;
-Shift: TShiftState; X, Y: integer);
+  Shift: TShiftState; X, Y: integer);
 begin
   if Button = TMouseButton.mbRight then
     if double = pgSingle then
@@ -677,7 +659,7 @@ begin
 end;
 
 procedure TForm1.PageControl1Changing(Sender: TObject;
-var AllowChange: Boolean);
+  var AllowChange: Boolean);
 begin
   AllowChange := false;
 end;
@@ -775,7 +757,7 @@ begin
 end;
 
 procedure TForm1.TabSheet3MouseMove(Sender: TObject; Shift: TShiftState;
-X, Y: integer);
+  X, Y: integer);
 begin
   if X < PageControl1.Width div 3 then
     TabSheet3.Cursor := crLeft
@@ -1079,6 +1061,7 @@ begin
     ProgressBar1.Max := size;
     ProgressBar1.Position := 0;
     ProgressBar1.Show;
+    DataModule4.FDConnection1.ResourceOptions.CmdExecMode := amBlocking;
     TZipFile.ExtractZipFile(s, 'tmp');
     try
       DataModule4.FDQuery1.Params.ArraySize := size;

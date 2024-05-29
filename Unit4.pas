@@ -56,6 +56,7 @@ begin
   if not(FDTable1.Exists and FDTable2.Exists) then
     FDQuery1.ExecSQL;
   FDTable1.Open;
+  FDTable1.FetchOptions.Mode:=fmAll;
   FDTable2.Open;
 end;
 

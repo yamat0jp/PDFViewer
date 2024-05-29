@@ -60,7 +60,6 @@ begin
           begin
             Zip.Open(OpenDialog1.FileName, zmRead);
             Form1.arr:=zip.FileNames;
-            Exit;
             if (Zip.FileCount > 0) and
               (LowerCase(ExtractFileExt(Zip.FileName[0])) = '.jpg') then
             begin
