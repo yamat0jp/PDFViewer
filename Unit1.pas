@@ -77,6 +77,7 @@ type
     Label3: TLabel;
     Edit3: TEdit;
     UpDown1: TUpDown;
+    ProgressBar2: TProgressBar;
     procedure OpenExecute(Sender: TObject);
     procedure Action3Execute(Sender: TObject);
     procedure ListBox1DblClick(Sender: TObject);
@@ -128,17 +129,24 @@ type
     double: TPageState;
     reverse, dm: Boolean;
     pageList: TList<TPageLayout>;
+    fileList: TList<string>;
     pdf: TGS_PdfConverter;
     dp: TPoint;
+    hyousi: Boolean;
+    id_num, title_id: integer;
+    title: string;
     procedure countPictures;
     procedure moment;
+    procedure progressEvent(Sender: TObject; FileName: string;
+      Header: TZipHeader; Position: Int64);
+    procedure refreshLib;
+    procedure LoadFromSQL(out bmp: TBitmap);
     function returnPos(page: integer; var double: TPageState): integer;
     function checkSemi(num: integer): Boolean;
     function ZipReader: Boolean;
     function ZipLoop(Index, Count: integer): integer;
   public
     arr: TArray<string>;
-    task: ITask;
     { Public éŒ¾ }
   end;
 
@@ -157,11 +165,6 @@ const
   query = 'select * from pdfdatabase where page_id = 1 order by id asc';
   crLeft = 5;
   crRight = 6;
-
-var
-  hyousi: Boolean;
-  id, title_id: integer;
-  title: string;
 
 function makeRect(img: TGraphic): TRect; overload;
 var
@@ -238,13 +241,13 @@ begin
         Open('select COUNT(*) as cnt from pdfdatabase;');
         if FieldByName('cnt').AsInteger = 0 then
         begin
-          id := 1;
+          id_num := 1;
           title_id := 1;
         end
         else
         begin
           Open('select MAX(id) as id from pdfdatabase;');
-          id := FieldByName('id').AsInteger + 1;
+          id_num := FieldByName('id').AsInteger + 1;
           Open('select MAX(title_id) as title_id from pdfdatabase;');
           title_id := FieldByName('title_id').AsInteger + 1;
         end;
@@ -257,7 +260,7 @@ begin
       for var i := 0 to size - 1 do
         with DataModule4.FDQuery1 do
         begin
-          ParamByName('id').AsIntegers[i] := id + i;
+          ParamByName('id').AsIntegers[i] := id_num + i;
           ParamByName('page_id').AsIntegers[i] := i + 1;
           ParamByName('title_id').AsIntegers[i] := title_id;
           ParamByName('title').AsStrings[i] := title;
@@ -307,7 +310,19 @@ begin
 end;
 
 procedure TForm1.BackExecute(Sender: TObject);
+var
+  bmp: TBitmap;
 begin
+  bmp := TBitmap.Create;
+  try
+    bmp.Width := Image1.Width;
+    bmp.Height := Image1.Height;
+    Image1.Picture.Assign(bmp);
+    Image2.Picture.Assign(bmp);
+    Image3.Picture.Assign(bmp);
+  finally
+    bmp.Free;
+  end;
   PageControl1.TabIndex := 0;
   Panel2.Hide;
   ReversePage.Enabled := false;
@@ -371,27 +386,26 @@ end;
 
 procedure TForm1.DeleteExecute(Sender: TObject);
 var
-  id: integer;
+  ind: integer;
 begin
-  id := ListBox1.ItemIndex;
-  if id = -1 then
+  ind := ListBox1.ItemIndex;
+  if ind = -1 then
     Exit;
   with DataModule4.FDTable1 do
   begin
-    Filter := 'title = ' + QuotedStr(ListBox1.Items[id]);
+    Filter := 'title = ' + QuotedStr(ListBox1.Items[ind]);
     First;
     while not Eof do
       Delete;
   end;
-  Dispose(Pointer(ListBox1.Items.Objects[id]));
-  ListBox1.Items.Delete(id);
+  Dispose(Pointer(ListBox1.Items.Objects[ind]));
+  ListBox1.Items.Delete(ind);
   PaintBox1Paint(Sender);
 end;
 
 procedure TForm1.FormCreate(Sender: TObject);
 var
   bmp: TBitmap;
-  zs, tmp: TStream;
   p: ^TRect;
   s: string;
 begin
@@ -400,21 +414,13 @@ begin
   with DataModule4.FDQuery1 do
   begin
     Open(query);
-    bmp := TBitmap.Create;
     try
       while not Eof do
       begin
         title := FieldByName('title').AsString;
         if ListBox1.Items.IndexOf(title) = -1 then
         begin
-          tmp := CreateBlobStream(FieldByName('image'), bmRead);
-          zs := TZDecompressionStream.Create(tmp);
-          try
-            bmp.LoadFromStream(zs);
-          finally
-            tmp.Free;
-            zs.Free;
-          end;
+          LoadFromSQL(bmp);
           New(p);
           p^ := makeRect(bmp);
           ListBox1.Items.AddObject(title, Pointer(p));
@@ -443,24 +449,9 @@ end;
 
 procedure TForm1.FormKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
-var
-  bmp: TBitmap;
 begin
   if Key = vkEscape then
-  begin
-    bmp := TBitmap.Create;
-    try
-      bmp.Width := Image1.Width;
-      bmp.Height := Image1.Height;
-      Image1.Picture.Assign(bmp);
-      Image2.Picture.Assign(bmp);
-      Image3.Picture.Assign(bmp);
-    finally
-      bmp.Free;
-    end;
-    if not Form3.Visible then
-      BackExecute(Sender);
-  end;
+    BackExecute(Sender);
 end;
 
 procedure TForm1.Image1DblClick(Sender: TObject);
@@ -581,32 +572,21 @@ end;
 
 procedure TForm1.ListBox1DblClick(Sender: TObject);
 begin
-  if ListBox1.ItemIndex = -1 then
-    Exit;
-  Form3.Left := Left + (Width - Form3.Width) div 2;
-  Form3.Top := Top + (Height - Form3.Height) div 2;
-  Form3.Label2.Caption := 'Filtering';
-  Form3.Show;
-  PageControl1.TabIndex := 1;
-  Back.Enabled := true;
-  doubleScreen.Enabled := true;
-  ReversePage.Enabled := true;
-  Panel2.Show;
-  TrackBar1.SetFocus;
-  with DataModule4.FDTable1 do
+  if (ListBox1.ItemIndex > -1) and (Form3.ShowModal = mrOK) then
   begin
-    Filter := 'title = ' + QuotedStr(ListBox1.Items[ListBox1.ItemIndex]);
-    Form3.Label2.Caption := 'Fetching';
-    DataModule4.FDMemTable1.Data := Data;
-    DataModule4.FDMemTable1.Open;
+    PageControl1.TabIndex := 1;
+    Back.Enabled := true;
+    doubleScreen.Enabled := true;
+    ReversePage.Enabled := true;
+    Panel2.Show;
+    TrackBar1.SetFocus;
+    doubleScreenExecute(Sender);
+    if Action2.Checked then
+      TrackBar1.Position := TrackBar1.Max
+    else
+      TrackBar1.Position := 0;
+    TrackBar1Change(Sender);
   end;
-  Form3.Hide;
-  doubleScreenExecute(Sender);
-  if Action2.Checked then
-    TrackBar1.Position := TrackBar1.Max
-  else
-    TrackBar1.Position := 0;
-  TrackBar1Change(Sender);
 end;
 
 procedure TForm1.ListBox1DragDrop(Sender, Source: TObject; X, Y: integer);
@@ -635,6 +615,24 @@ procedure TForm1.ListBox1KeyDown(Sender: TObject; var Key: Word;
 begin
   if Key = VK_RETURN then
     ListBox1DblClick(Sender);
+end;
+
+procedure TForm1.LoadFromSQL(out bmp: TBitmap);
+var
+  zs, sm: TStream;
+begin
+  with DataModule4.FDQuery1 do
+  begin
+    sm := CreateBlobStream(FieldByName('image'), bmRead);
+    zs := TZDecompressionStream.Create(sm);
+    bmp := TBitmap.Create;
+    try
+      bmp.LoadFromStream(zs);
+    finally
+      sm.Free;
+      zs.Free;
+    end;
+  end;
 end;
 
 procedure TForm1.Memo1MouseUp(Sender: TObject; Button: TMouseButton;
@@ -677,7 +675,6 @@ procedure TForm1.PaintBox1Paint(Sender: TObject);
 var
   Rect: ^TRect;
   bmp: TBitmap;
-  zs, tmp: TStream;
 begin
   if not DataModule4.FDQuery1.Active then
     DataModule4.FDQuery1.Open(query);
@@ -692,37 +689,55 @@ begin
       if ListBox1.ItemIndex = i then
         continue;
       DataModule4.FDQuery1.Locate('title', ListBox1.Items[i]);
-      with DataModule4.FDQuery1 do
-        tmp := CreateBlobStream(FieldByName('image'), bmRead);
-      zs := TZDecompressionStream.Create(tmp);
-      try
-        bmp.LoadFromStream(zs);
-      finally
-        tmp.Free;
-        zs.Free;
-      end;
+      LoadFromSQL(bmp);
       Rect := Pointer(ListBox1.Items.Objects[i]);
       PaintBox1.Canvas.StretchDraw(Rect^, bmp);
     end;
-    id := ListBox1.ItemIndex;
-    if id > -1 then
+    id_num := ListBox1.ItemIndex;
+    if id_num > -1 then
       with DataModule4.FDQuery1 do
       begin
-        Locate('title', ListBox1.Items[id]);
-        tmp := CreateBlobStream(FieldByName('image'), bmRead);
-        zs := TZDecompressionStream.Create(tmp);
-        try
-          bmp.LoadFromStream(zs);
-        finally
-          zs.Free;
-          tmp.Free;
-        end;
-        Rect := Pointer(ListBox1.Items.Objects[id]);
+        Locate('title', ListBox1.Items[id_num]);
+        LoadFromSQL(bmp);
+        Rect := Pointer(ListBox1.Items.Objects[id_num]);
         PaintBox1.Canvas.Rectangle(Rect^);
         PaintBox1.Canvas.StretchDraw(Rect^, bmp);
       end;
   finally
     bmp.Free;
+  end;
+end;
+
+procedure TForm1.progressEvent(Sender: TObject; FileName: string;
+  Header: TZipHeader; Position: Int64);
+begin
+  ProgressBar1.Position := 100 * Position div Header.CompressedSize;
+  ProgressBar1.Update;
+end;
+
+procedure TForm1.refreshLib;
+var
+  img: TBitmap;
+  Rect: PRect;
+begin
+  for var i := 0 to ListBox1.Items.Count - 1 do
+    Dispose(Pointer(ListBox1.Items.Objects[i]));
+  ListBox1.Items.Clear;
+  with DataModule4.FDQuery1 do
+  begin
+    Open(query);
+    while not Eof do
+    begin
+      LoadFromSQL(img);
+      try
+        New(Rect);
+        Rect^ := makeRect(img);
+        ListBox1.Items.AddObject(FieldByName('title').AsString, Pointer(Rect));
+      finally
+        img.Free;
+      end;
+      Next;
+    end;
   end;
 end;
 
@@ -959,76 +974,61 @@ begin
 end;
 
 function TForm1.ZipLoop(Index, Count: integer): integer;
-var
-  s: string;
-  sub, cnt: integer;
-  Rect: TRect;
-  p: ^TRect;
-  threads: TArray<TMyThread>;
-  ls: TList<string>;
 begin
-  cnt := 0;
-  ls := TList<string>.Create;
-  SetLength(threads, Count);
-  try
-    ls.Add('.bmp');
-    ls.Add('.jpg');
-    ls.Add('.jpeg');
-    ls.Add('.png');
-    ls.Add('.gif');
-    ls.Add('.webp');
-    ls.Add('.svg');
-    for var k := Index to Index + Count - 1 do
+  result := Count;
+  TParallel.For(Index, Index + Count - 1,
+    procedure(k: integer)
+    var
+      sub: integer;
+      s: string;
+      img: TPicture;
+      bmp: TBitmap;
+      st, zs: TStream;
     begin
-      s := LowerCase(ExtractFileExt(arr[k]));
-      if ls.IndexOf(s) = -1 then
-        continue;
-      s := 'tmp\' + arr[k];
-      threads[cnt] := TMyThread.Create(s, Rect);
-      if (Index = 0) and (cnt = 0) then
-      begin
-        New(p);
-        makeRect(Rect);
-        p^ := Rect;
-        ListBox1.Items.AddObject(title, Pointer(p));
+      TThread.Synchronize(nil,
+        procedure
+        begin
+          s := fileList[k];
+          ProgressBar2.Position := ProgressBar2.Position + 1;
+          ProgressBar2.Update;
+        end);
+      img := TPicture.Create;
+      bmp := TBitmap.Create;
+      st := TMemoryStream.Create;
+      zs := TZCompressionStream.Create(clMax, st);
+      try
+        img.LoadFromFile(s);
+        bmp.Canvas.Draw(0, 0, img.Graphic);
+        bmp.SaveToStream(zs);
+        if (img.Width > img.Height) or ((Index = 0) and (k = 0) and hyousi) then
+          sub := 1
+        else
+          sub := 0;
+        with DataModule4.FDQuery1 do
+        begin
+          Params[0].AsIntegers[Index + k] := id_num + Index + k;
+          Params[1].AsIntegers[Index + k] := Index + k + 1;
+          Params[2].LoadFromStream(st, ftBlob, k);
+          Params[3].AsIntegers[Index + k] := title_id;
+          Params[4].AsStrings[Index + k] := title;
+          Params[5].AsIntegers[Index + k] := sub;
+        end;
+      finally
+        img.Free;
+        bmp.Free;
+        st.Free;
+        zs.Free;
       end;
-      if (Rect.Width > Rect.Height) or (hyousi and (Index = 0) and (cnt = 0))
-      then
-        sub := 1
-      else
-        sub := 0;
-      with DataModule4.FDQuery1 do
-      begin
-        ParamByName('id').AsIntegers[Index + cnt] := id + Index + cnt;
-        ParamByName('page_id').AsIntegers[Index + cnt] := Index + cnt + 1;
-        ParamByName('title_id').AsIntegers[Index + cnt] := title_id;
-        ParamByName('title').AsStrings[Index + cnt] := title;
-        ParamByName('subimage').AsIntegers[Index + cnt] := sub;
-      end;
-      inc(cnt);
-      ProgressBar1.Position := ProgressBar1.Position + 1;
-      ProgressBar1.Update;
-    end;
-    for var m := 0 to cnt - 1 do
-    begin
-      DataModule4.FDQuery1.ParamByName('image')
-        .LoadFromStream(threads[m].Stream, ftBlob, Index + m);
-      threads[m].Free;
-    end;
-  finally
-    Finalize(threads);
-    ls.Free;
-  end;
-  result := cnt;
+    end);
 end;
 
 function TForm1.ZipReader: Boolean;
 var
-  size, cnt: integer;
-  s: string;
+  s, t: string;
 begin
   result := false;
   s := OKRightDlg.OpenDialog1.FileName;
+  t := ExtractFilePath(Application.ExeName) + 'tmp';
   if LowerCase(ExtractFileExt(s)) = '.zip' then
   begin
     title := OKRightDlg.Edit1.Text;
@@ -1041,13 +1041,13 @@ begin
       Open('select COUNT(*) as cnt from pdfdatabase;');
       if FieldByName('cnt').AsInteger = 0 then
       begin
-        id := 1;
+        id_num := 1;
         title_id := 1;
       end
       else
       begin
         Open('select MAX(id) as id from pdfdatabase;');
-        id := FieldByName('id').AsInteger + 1;
+        id_num := FieldByName('id').AsInteger + 1;
         Open('select MAX(title_id) as title_id from pdfdatabase;');
         title_id := FieldByName('title_id').AsInteger + 1;
       end;
@@ -1055,33 +1055,45 @@ begin
       SQL.Text :=
         'insert into pdfdatabase (id, page_id, image, title_id, title, subimage) values (:id, :page_id, :image, :title_id, :title, :subimage);';
     end;
-    size := Length(arr);
     if not DirectoryExists('tmp') then
       MkDir('tmp');
-    ProgressBar1.Max := size;
+    ProgressBar1.Max := 100;
+    ProgressBar2.Max := Length(arr);
     ProgressBar1.Position := 0;
+    ProgressBar2.Position := 0;
     ProgressBar1.Show;
-    DataModule4.FDConnection1.ResourceOptions.CmdExecMode := amBlocking;
-    TZipFile.ExtractZipFile(s, 'tmp');
+    ProgressBar2.Show;
+    fileList := TList<string>.Create;
     try
-      DataModule4.FDQuery1.Params.ArraySize := size;
-      cnt := 0;
-      while cnt + 100 - 1 <= size do
-        inc(cnt, ZipLoop(cnt, 100));
-      inc(cnt, ZipLoop(cnt, size mod 100));
-      DataModule4.FDQuery1.Params.ArraySize := cnt;
-      DataModule4.FDQuery1.Execute(cnt, 0);
-    finally
+      fileList.Add('.bmp');
+      fileList.Add('.jpg');
+      fileList.Add('.jpeg');
+      fileList.Add('.png');
+      fileList.Add('.gif');
+      fileList.Add('.webp');
+      fileList.Add('.svg');
+      TZipFile.ExtractZipFile(s, t, progressEvent);
+      Application.ProcessMessages;
       for var name in arr do
-        DeleteFile('tmp\' + name);
+        if fileList.IndexOf(ExtractFileExt(t + '\' + name)) > -1 then
+          fileList.Add(s)
+        else
+          DeleteFile(t + '\' + name);
+      DataModule4.FDQuery1.Params.ArraySize := fileList.Count;
+      ZipLoop(0, fileList.Count);
+      DataModule4.FDQuery1.Execute(fileList.Count, 0);
+    finally
+      fileList.Free;
       Finalize(arr);
       Screen.Cursor := crDefault;
       OKRightDlg.Edit1.Text := '';
+      refreshLib;
       TTask.Run(
         procedure
         begin
-          TDirectory.Delete(ExtractFilePath(Application.ExeName) + 'tmp', true);
+          TDirectory.Delete(t, true);
           ProgressBar1.Hide;
+          ProgressBar2.Hide;
         end);
     end;
     result := true;

@@ -123,7 +123,7 @@ object Form1: TForm1
   object PageControl1: TPageControl
     Left = 0
     Top = 25
-    Width = 856
+    Width = 839
     Height = 474
     ActivePage = TabSheet1
     Align = alClient
@@ -140,12 +140,13 @@ object Form1: TForm1
       object PaintBox1: TPaintBox
         Left = 280
         Top = 0
-        Width = 545
+        Width = 528
         Height = 466
         Align = alClient
         OnPaint = PaintBox1Paint
         ExplicitLeft = 286
         ExplicitTop = -1
+        ExplicitWidth = 545
       end
       object ListBox1: TListBox
         Left = 0
@@ -177,7 +178,7 @@ object Form1: TForm1
       object Image1: TImage
         Left = 0
         Top = 0
-        Width = 825
+        Width = 808
         Height = 466
         Hint = #21491#12463#12522#12483#12463'::Help'
         Align = alClient
@@ -204,10 +205,10 @@ object Form1: TForm1
       OnMouseMove = TabSheet3MouseMove
       OnResize = TabSheet3Resize
       DesignSize = (
-        825
+        808
         466)
       object Image2: TImage
-        Left = 112
+        Left = 107
         Top = -252
         Width = 216
         Height = 372
@@ -11117,7 +11118,7 @@ object Form1: TForm1
         ExplicitTop = -209
       end
       object Image3: TImage
-        Left = 385
+        Left = 375
         Top = -252
         Width = 218
         Height = 372
@@ -22033,7 +22034,7 @@ object Form1: TForm1
       object Memo1: TMemo
         Left = 0
         Top = 0
-        Width = 825
+        Width = 808
         Height = 466
         Align = alClient
         Font.Charset = DEFAULT_CHARSET
@@ -22048,6 +22049,7 @@ object Form1: TForm1
         ReadOnly = True
         TabOrder = 0
         OnMouseUp = Memo1MouseUp
+        ExplicitWidth = 825
       end
     end
     object TabSheet5: TTabSheet
@@ -22141,7 +22143,7 @@ object Form1: TForm1
     end
   end
   object ProgressBar1: TProgressBar
-    Left = 856
+    Left = 839
     Top = 25
     Width = 17
     Height = 474
@@ -22151,6 +22153,16 @@ object Form1: TForm1
     Visible = False
     ExplicitLeft = 852
     ExplicitHeight = 473
+  end
+  object ProgressBar2: TProgressBar
+    Left = 856
+    Top = 25
+    Width = 17
+    Height = 474
+    Align = alRight
+    TabOrder = 6
+    ExplicitLeft = 863
+    ExplicitTop = 20
   end
   object PopupMenu1: TPopupMenu
     Left = 208

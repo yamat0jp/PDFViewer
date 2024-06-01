@@ -13,10 +13,11 @@ object DataModule4: TDataModule4
     Filtered = True
     IndexFieldNames = 'ID;TITLE_ID;PAGE_ID'
     Connection = FDConnection1
-    FetchOptions.AssignedValues = [evMode, evLiveWindowFastFirst]
+    FetchOptions.AssignedValues = [evMode, evRowsetSize, evLiveWindowFastFirst]
     FetchOptions.Mode = fmManual
+    FetchOptions.RowsetSize = 1000
     ResourceOptions.AssignedValues = [rvEscapeExpand, rvCmdExecMode]
-    ResourceOptions.CmdExecMode = amCancelDialog
+    ResourceOptions.CmdExecMode = amNonBlocking
     TableName = 'pdfdatabase'
     Left = 104
     Top = 120
@@ -63,24 +64,6 @@ object DataModule4: TDataModule4
       Origin = 'pass'
     end
   end
-  object FDQuery1: TFDQuery
-    Connection = FDConnection1
-    SQL.Strings = (
-      'CREATE TABLE pdfdatabase '
-      '('
-      '        ID'#9'INTEGER NOT NULL,'
-      '        PAGE_ID'#9'INTEGER NOT NULL,'
-      '        IMAGE'#9'BLOB ,'
-      '        TITLE_ID'#9'INTEGER NOT NULL,'
-      '        TITLE'#9'VARCHAR(50) NOT NULL,'
-      '        SUBIMAGE'#9'integer NOT NULL,'
-      ' PRIMARY KEY (ID)'
-      ');'
-      'create table settings(pass VARCHAR(20));'
-      '')
-    Left = 29
-    Top = 184
-  end
   object FDPhysSQLiteDriverLink1: TFDPhysSQLiteDriverLink
     Left = 101
     Top = 248
@@ -111,5 +94,10 @@ object DataModule4: TDataModule4
     Provider = 'Forms'
     Left = 56
     Top = 8
+  end
+  object FDQuery1: TFDQuery
+    Connection = FDConnection1
+    Left = 32
+    Top = 184
   end
 end

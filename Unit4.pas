@@ -18,7 +18,6 @@ type
     FDConnection1: TFDConnection;
     FDTable1: TFDTable;
     FDTable2: TFDTable;
-    FDQuery1: TFDQuery;
     FDPhysSQLiteDriverLink1: TFDPhysSQLiteDriverLink;
     FDMemTable1: TFDMemTable;
     FDTable2pass: TStringField;
@@ -29,6 +28,7 @@ type
     FDTable1TITLE: TStringField;
     FDTable1SUBIMAGE: TIntegerField;
     FDGUIxAsyncExecuteDialog1: TFDGUIxAsyncExecuteDialog;
+    FDQuery1: TFDQuery;
     procedure DataModuleCreate(Sender: TObject);
   private
     { Private êÈåæ }
@@ -56,7 +56,7 @@ begin
   if not(FDTable1.Exists and FDTable2.Exists) then
     FDQuery1.ExecSQL;
   FDTable1.Open;
-  FDTable1.FetchOptions.Mode:=fmAll;
+  FDTable1.FetchOptions.Mode := fmAll;
   FDTable2.Open;
 end;
 

@@ -12,8 +12,10 @@ object Form3: TForm3
   Font.Height = -12
   Font.Name = 'Segoe UI'
   Font.Style = []
-  FormStyle = fsStayOnTop
   Position = poDesigned
+  OnActivate = FormActivate
+  OnKeyDown = FormKeyDown
+  OnShow = FormShow
   TextHeight = 15
   object Image1: TImage
     Left = 0

@@ -50,26 +50,21 @@ begin
       OleContainer1.CreateObjectFromFile(OpenDialog1.FileName, false)
     else if s = '.zip' then
     begin
-      Form1.task.Wait;
       Zip := TZipFile.Create;
       pic := TPicture.Create;
       st := TMemoryStream.Create;
       try
-        TTask.Run(
-          procedure
-          begin
-            Zip.Open(OpenDialog1.FileName, zmRead);
-            Form1.arr:=zip.FileNames;
-            if (Zip.FileCount > 0) and
-              (LowerCase(ExtractFileExt(Zip.FileName[0])) = '.jpg') then
-            begin
-              Zip.Read(0, st, head);
-              pic.LoadFromStream(st);
-              Clipboard.Assign(pic);
-              OleContainer1.Paste;
-              Clipboard.Clear;
-            end;
-          end).Wait;
+        Zip.Open(OpenDialog1.FileName, zmRead);
+        Form1.arr := Zip.FileNames;
+        if (Zip.FileCount > 0) and (LowerCase(ExtractFileExt(Zip.FileName[0]))
+          = '.jpg') then
+        begin
+          Zip.Read(0, st, head);
+          pic.LoadFromStream(st);
+          Clipboard.Assign(pic);
+          OleContainer1.Paste;
+          Clipboard.Clear;
+        end;
       finally
         Zip.Free;
         pic.Free;
