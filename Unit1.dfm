@@ -169,7 +169,8 @@ object Form1: TForm1
         OnDragDrop = ListBox1DragDrop
         OnDragOver = ListBox1DragOver
         OnKeyDown = ListBox1KeyDown
-        ExplicitHeight = 465
+        ExplicitLeft = -6
+        ExplicitTop = -2
       end
     end
     object TabSheet2: TTabSheet
@@ -208,7 +209,7 @@ object Form1: TForm1
         808
         466)
       object Image2: TImage
-        Left = 106
+        Left = 105
         Top = -252
         Width = 216
         Height = 372
@@ -11118,7 +11119,7 @@ object Form1: TForm1
         ExplicitTop = -209
       end
       object Image3: TImage
-        Left = 372
+        Left = 370
         Top = -252
         Width = 218
         Height = 372
@@ -22161,6 +22162,8 @@ object Form1: TForm1
     Align = alRight
     Orientation = pbVertical
     TabOrder = 6
+    ExplicitLeft = 852
+    ExplicitHeight = 473
   end
   object PopupMenu1: TPopupMenu
     Left = 208

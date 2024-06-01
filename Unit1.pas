@@ -140,11 +140,11 @@ type
     procedure progressEvent(Sender: TObject; FileName: string;
       Header: TZipHeader; Position: Int64);
     procedure refreshLib;
+    procedure ZipLoop;
     procedure LoadFromSQL(out bmp: TBitmap);
     function returnPos(page: integer; var double: TPageState): integer;
     function checkSemi(num: integer): Boolean;
     function ZipReader: Boolean;
-    function ZipLoop(Index, Count: integer): integer;
   public
     arr: TArray<string>;
     { Public éŒ¾ }
@@ -973,33 +973,32 @@ begin
   AboutBox.ShowModal;
 end;
 
-function TForm1.ZipLoop(Index, Count: integer): integer;
+procedure TForm1.ZipLoop;
 var
   sub: integer;
   s: string;
   Rect: TRect;
   Thread: TMyThread;
 begin
-  result := Count;
-  for var k := Index to Index + Count - 1 do
+  for var k := 0 to fileList.Count - 1 do
   begin
     s := fileList[k];
     ProgressBar2.Position := ProgressBar2.Position + 1;
     ProgressBar2.Update;
     Thread := TMyThread.Create(s, Rect);
     try
-      if (Rect.Width > Rect.Height) or ((Index = 0) and (k = 0) and hyousi) then
+      if (Rect.Width > Rect.Height) or ((k = 0) and hyousi) then
         sub := 1
       else
         sub := 0;
       with DataModule4.FDQuery1 do
       begin
-        Params[0].AsIntegers[Index + k] := id_num + Index + k;
-        Params[1].AsIntegers[Index + k] := Index + k + 1;
+        Params[0].AsIntegers[k] := id_num + k;
+        Params[1].AsIntegers[k] := k + 1;
         Params[2].LoadFromStream(Thread.Stream, ftBlob, k);
-        Params[3].AsIntegers[Index + k] := title_id;
-        Params[4].AsStrings[Index + k] := title;
-        Params[5].AsIntegers[Index + k] := sub;
+        Params[3].AsIntegers[k] := title_id;
+        Params[4].AsStrings[k] := title;
+        Params[5].AsIntegers[k] := sub;
       end;
     finally
       Thread.Free;
@@ -1050,7 +1049,7 @@ begin
     ProgressBar1.Show;
     ProgressBar2.Show;
     fileList := TList<string>.Create;
-    ls:=TList<string>.Create;
+    ls := TList<string>.Create;
     try
       ls.Add('.bmp');
       ls.Add('.jpg');
@@ -1066,7 +1065,7 @@ begin
         else
           DeleteFile(t + '\' + name);
       DataModule4.FDQuery1.Params.ArraySize := fileList.Count;
-      ZipLoop(0, fileList.Count);
+      ZipLoop;
       DataModule4.FDQuery1.Execute(fileList.Count, 0);
     finally
       fileList.Free;

@@ -45,7 +45,6 @@ begin
         FDMemTable1.Close;
       FDMemTable1.Data := FDTable1.Data;
       FDMemTable1.Open;
-      ModalResult := mrOK;
     end;
   end;
 end;
@@ -62,6 +61,7 @@ begin
   Left := Form1.Left + (Form1.Width - Width) div 2;
   Top := Form1.Top + (Form1.Height - Height) div 2;
   Label2.Caption := 'Filtering';
+  ModalResult:=mrNone;
 end;
 
 end.
