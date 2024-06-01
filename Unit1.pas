@@ -974,57 +974,43 @@ begin
 end;
 
 function TForm1.ZipLoop(Index, Count: integer): integer;
+var
+  sub: integer;
+  s: string;
+  Rect: TRect;
+  Thread: TMyThread;
 begin
   result := Count;
-  TParallel.For(Index, Index + Count - 1,
-    procedure(k: integer)
-    var
-      sub: integer;
-      s: string;
-      img: TPicture;
-      bmp: TBitmap;
-      st, zs: TStream;
-    begin
-      TThread.Synchronize(nil,
-        procedure
-        begin
-          s := fileList[k];
-          ProgressBar2.Position := ProgressBar2.Position + 1;
-          ProgressBar2.Update;
-        end);
-      img := TPicture.Create;
-      bmp := TBitmap.Create;
-      st := TMemoryStream.Create;
-      zs := TZCompressionStream.Create(clMax, st);
-      try
-        img.LoadFromFile(s);
-        bmp.Canvas.Draw(0, 0, img.Graphic);
-        bmp.SaveToStream(zs);
-        if (img.Width > img.Height) or ((Index = 0) and (k = 0) and hyousi) then
-          sub := 1
-        else
-          sub := 0;
-        with DataModule4.FDQuery1 do
-        begin
-          Params[0].AsIntegers[Index + k] := id_num + Index + k;
-          Params[1].AsIntegers[Index + k] := Index + k + 1;
-          Params[2].LoadFromStream(st, ftBlob, k);
-          Params[3].AsIntegers[Index + k] := title_id;
-          Params[4].AsStrings[Index + k] := title;
-          Params[5].AsIntegers[Index + k] := sub;
-        end;
-      finally
-        img.Free;
-        bmp.Free;
-        st.Free;
-        zs.Free;
+  for var k := Index to Index + Count - 1 do
+  begin
+    s := fileList[k];
+    ProgressBar2.Position := ProgressBar2.Position + 1;
+    ProgressBar2.Update;
+    Thread := TMyThread.Create(s, Rect);
+    try
+      if (Rect.Width > Rect.Height) or ((Index = 0) and (k = 0) and hyousi) then
+        sub := 1
+      else
+        sub := 0;
+      with DataModule4.FDQuery1 do
+      begin
+        Params[0].AsIntegers[Index + k] := id_num + Index + k;
+        Params[1].AsIntegers[Index + k] := Index + k + 1;
+        Params[2].LoadFromStream(Thread.Stream, ftBlob, k);
+        Params[3].AsIntegers[Index + k] := title_id;
+        Params[4].AsStrings[Index + k] := title;
+        Params[5].AsIntegers[Index + k] := sub;
       end;
-    end);
+    finally
+      Thread.Free;
+    end;
+  end;
 end;
 
 function TForm1.ZipReader: Boolean;
 var
   s, t: string;
+  ls: TList<string>;
 begin
   result := false;
   s := OKRightDlg.OpenDialog1.FileName;
@@ -1064,19 +1050,19 @@ begin
     ProgressBar1.Show;
     ProgressBar2.Show;
     fileList := TList<string>.Create;
+    ls:=TList<string>.Create;
     try
-      fileList.Add('.bmp');
-      fileList.Add('.jpg');
-      fileList.Add('.jpeg');
-      fileList.Add('.png');
-      fileList.Add('.gif');
-      fileList.Add('.webp');
-      fileList.Add('.svg');
+      ls.Add('.bmp');
+      ls.Add('.jpg');
+      ls.Add('.jpeg');
+      ls.Add('.png');
+      ls.Add('.gif');
+      ls.Add('.webp');
+      ls.Add('.svg');
       TZipFile.ExtractZipFile(s, t, progressEvent);
-      Application.ProcessMessages;
       for var name in arr do
-        if fileList.IndexOf(ExtractFileExt(t + '\' + name)) > -1 then
-          fileList.Add(s)
+        if ls.IndexOf(ExtractFileExt(t + '\' + name)) > -1 then
+          fileList.Add(t + '\' + name)
         else
           DeleteFile(t + '\' + name);
       DataModule4.FDQuery1.Params.ArraySize := fileList.Count;

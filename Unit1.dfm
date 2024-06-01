@@ -133,7 +133,7 @@ object Form1: TForm1
     OnChanging = PageControl1Changing
     OnMouseEnter = PageControl1MouseEnter
     OnMouseMove = TabSheet3MouseMove
-    ExplicitWidth = 852
+    ExplicitWidth = 835
     ExplicitHeight = 473
     object TabSheet1: TTabSheet
       Caption = 'TabSheet1'
@@ -208,7 +208,7 @@ object Form1: TForm1
         808
         466)
       object Image2: TImage
-        Left = 107
+        Left = 106
         Top = -252
         Width = 216
         Height = 372
@@ -11118,7 +11118,7 @@ object Form1: TForm1
         ExplicitTop = -209
       end
       object Image3: TImage
-        Left = 375
+        Left = 372
         Top = -252
         Width = 218
         Height = 372
@@ -22049,7 +22049,6 @@ object Form1: TForm1
         ReadOnly = True
         TabOrder = 0
         OnMouseUp = Memo1MouseUp
-        ExplicitWidth = 825
       end
     end
     object TabSheet5: TTabSheet
@@ -22151,7 +22150,7 @@ object Form1: TForm1
     Orientation = pbVertical
     TabOrder = 5
     Visible = False
-    ExplicitLeft = 852
+    ExplicitLeft = 835
     ExplicitHeight = 473
   end
   object ProgressBar2: TProgressBar
@@ -22160,9 +22159,8 @@ object Form1: TForm1
     Width = 17
     Height = 474
     Align = alRight
+    Orientation = pbVertical
     TabOrder = 6
-    ExplicitLeft = 863
-    ExplicitTop = 20
   end
   object PopupMenu1: TPopupMenu
     Left = 208
