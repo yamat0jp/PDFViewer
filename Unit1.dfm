@@ -169,8 +169,7 @@ object Form1: TForm1
         OnDragDrop = ListBox1DragDrop
         OnDragOver = ListBox1DragOver
         OnKeyDown = ListBox1KeyDown
-        ExplicitLeft = -6
-        ExplicitTop = -2
+        ExplicitHeight = 465
       end
     end
     object TabSheet2: TTabSheet

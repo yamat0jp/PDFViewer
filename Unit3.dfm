@@ -14,7 +14,6 @@ object Form3: TForm3
   Font.Style = []
   Position = poDesigned
   OnActivate = FormActivate
-  OnKeyDown = FormKeyDown
   OnShow = FormShow
   TextHeight = 15
   object Image1: TImage

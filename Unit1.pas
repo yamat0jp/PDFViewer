@@ -146,8 +146,9 @@ type
     function checkSemi(num: integer): Boolean;
     function ZipReader: Boolean;
   public
-    arr: TArray<string>;
     { Public êÈåæ }
+    arr: TArray<string>;
+    function checkExt(ext: string): Boolean;
   end;
 
 var
@@ -386,20 +387,19 @@ end;
 
 procedure TForm1.DeleteExecute(Sender: TObject);
 var
-  ind: integer;
+  id: integer;
 begin
-  ind := ListBox1.ItemIndex;
-  if ind = -1 then
+  id := ListBox1.ItemIndex;
+  if id = -1 then
     Exit;
-  with DataModule4.FDTable1 do
+  with DataModule4.FDQuery1 do
   begin
-    Filter := 'title = ' + QuotedStr(ListBox1.Items[ind]);
-    First;
-    while not Eof do
-      Delete;
+    SQL.Text:='delete from pdfdatabase where title = :title;';
+    Params[0].AsString:=ListBox1.Items[id];
+    ExecSQL;
   end;
-  Dispose(Pointer(ListBox1.Items.Objects[ind]));
-  ListBox1.Items.Delete(ind);
+  Dispose(Pointer(ListBox1.Items.Objects[id]));
+  ListBox1.Items.Delete(id);
   PaintBox1Paint(Sender);
 end;
 
@@ -746,6 +746,25 @@ begin
   PaintBox1Paint(Sender);
 end;
 
+function TForm1.checkExt(ext: string): Boolean;
+var
+  ls: TList<string>;
+begin
+  ls := TList<string>.Create;
+  try
+    ls.Add('.bmp');
+    ls.Add('.jpg');
+    ls.Add('.jpeg');
+    ls.Add('.png');
+    ls.Add('.gif');
+    ls.Add('.webp');
+    ls.Add('.svg');
+    result := ls.IndexOf(ExtractFileExt(ext)) > -1;
+  finally
+    ls.Free;
+  end;
+end;
+
 function TForm1.checkSemi(num: integer): Boolean;
 begin
   result := pageList[num].Right = 0;
@@ -1009,7 +1028,6 @@ end;
 function TForm1.ZipReader: Boolean;
 var
   s, t: string;
-  ls: TList<string>;
 begin
   result := false;
   s := OKRightDlg.OpenDialog1.FileName;
@@ -1049,18 +1067,10 @@ begin
     ProgressBar1.Show;
     ProgressBar2.Show;
     fileList := TList<string>.Create;
-    ls := TList<string>.Create;
     try
-      ls.Add('.bmp');
-      ls.Add('.jpg');
-      ls.Add('.jpeg');
-      ls.Add('.png');
-      ls.Add('.gif');
-      ls.Add('.webp');
-      ls.Add('.svg');
       TZipFile.ExtractZipFile(s, t, progressEvent);
       for var name in arr do
-        if ls.IndexOf(ExtractFileExt(t + '\' + name)) > -1 then
+        if checkExt(name) then
           fileList.Add(t + '\' + name)
         else
           DeleteFile(t + '\' + name);

@@ -56,14 +56,16 @@ begin
       try
         Zip.Open(OpenDialog1.FileName, zmRead);
         Form1.arr := Zip.FileNames;
-        if (Zip.FileCount > 0) and (LowerCase(ExtractFileExt(Zip.FileName[0]))
-          = '.jpg') then
+        if (Zip.FileCount > 0) and Form1.checkExt(Zip.FileName[0]) then
         begin
           Zip.Read(0, st, head);
           pic.LoadFromStream(st);
-          Clipboard.Assign(pic);
-          OleContainer1.Paste;
-          Clipboard.Clear;
+          if not pic.Graphic.Empty then
+          begin
+            Clipboard.Assign(pic);
+            OleContainer1.Paste;
+            Clipboard.Clear;
+          end;
         end;
       finally
         Zip.Free;
