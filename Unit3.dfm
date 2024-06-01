@@ -11438,4 +11438,9 @@ object Form3: TForm3
     Font.Style = [fsBold]
     ParentFont = False
   end
+  object ApplicationEvents1: TApplicationEvents
+    OnIdle = ApplicationEvents1Idle
+    Left = 112
+    Top = 72
+  end
 end
