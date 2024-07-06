@@ -18,6 +18,7 @@ type
     OpenDialog1: TOpenDialog;
     Label2: TLabel;
     OleContainer1: TOleContainer;
+    Image1: TImage;
     procedure SpeedButton1Click(Sender: TObject);
   private
     { Private 宣言 }
@@ -38,10 +39,10 @@ procedure TOKRightDlg.SpeedButton1Click(Sender: TObject);
 var
   s: string;
   Zip: TZipFile;
-  pic: TPicture;
   st: TStream;
   head: TZipHeader;
 begin
+  OleContainer1.Show;
   if OpenDialog1.Execute then
   begin
     Edit1.Text := ChangeFileExt(ExtractFileName(OpenDialog1.FileName), '');
@@ -51,7 +52,6 @@ begin
     else if s = '.zip' then
     begin
       Zip := TZipFile.Create;
-      pic := TPicture.Create;
       st := TMemoryStream.Create;
       try
         Zip.Open(OpenDialog1.FileName, zmRead);
@@ -59,17 +59,11 @@ begin
         if (Zip.FileCount > 0) and Form1.checkExt(Zip.FileName[0]) then
         begin
           Zip.Read(0, st, head);
-          pic.LoadFromStream(st);
-          if not pic.Graphic.Empty then
-          begin
-            Clipboard.Assign(pic);
-            OleContainer1.Paste;
-            Clipboard.Clear;
-          end;
+          Image1.Picture.LoadFromStream(st);
+          OleContainer1.Hide;
         end;
       finally
         Zip.Free;
-        pic.Free;
         st.Free;
       end;
     end;

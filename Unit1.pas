@@ -78,6 +78,7 @@ type
     Edit3: TEdit;
     UpDown1: TUpDown;
     ProgressBar2: TProgressBar;
+    Panel1: TPanel;
     procedure OpenExecute(Sender: TObject);
     procedure Action3Execute(Sender: TObject);
     procedure ListBox1DblClick(Sender: TObject);
@@ -142,6 +143,7 @@ type
     procedure refreshLib;
     procedure ZipLoop;
     procedure LoadFromSQL(out bmp: TBitmap);
+    procedure readCursor;
     function returnPos(page: integer; var double: TPageState): integer;
     function checkSemi(num: integer): Boolean;
     function ZipReader: Boolean;
@@ -394,8 +396,8 @@ begin
     Exit;
   with DataModule4.FDQuery1 do
   begin
-    SQL.Text:='delete from pdfdatabase where title = :title;';
-    Params[0].AsString:=ListBox1.Items[id];
+    SQL.Text := 'delete from pdfdatabase where title = :title;';
+    Params[0].AsString := ListBox1.Items[id];
     ExecSQL;
   end;
   Dispose(Pointer(ListBox1.Items.Objects[id]));
@@ -409,8 +411,7 @@ var
   p: ^TRect;
   s: string;
 begin
-  Screen.Cursors[crLeft] := LoadCursorFromFile('..\..\left.cur');
-  Screen.Cursors[crRight] := LoadCursorFromFile('..\..\right.cur');
+  readCursor;
   with DataModule4.FDQuery1 do
   begin
     Open(query);
@@ -711,8 +712,14 @@ end;
 procedure TForm1.progressEvent(Sender: TObject; FileName: string;
   Header: TZipHeader; Position: Int64);
 begin
-  ProgressBar1.Position := 100 * Position div Header.CompressedSize;
+  ProgressBar1.Position := 100 - (100 * Position) div Header.CompressedSize;
   ProgressBar1.Update;
+end;
+
+procedure TForm1.readCursor;
+begin
+  Screen.Cursors[crLeft] := LoadCursorFromFile('left.cur');
+  Screen.Cursors[crRight] := LoadCursorFromFile('right.cur');
 end;
 
 procedure TForm1.refreshLib;
@@ -1064,8 +1071,7 @@ begin
     ProgressBar2.Max := Length(arr);
     ProgressBar1.Position := 0;
     ProgressBar2.Position := 0;
-    ProgressBar1.Show;
-    ProgressBar2.Show;
+    Panel1.Show;
     fileList := TList<string>.Create;
     try
       TZipFile.ExtractZipFile(s, t, progressEvent);
@@ -1083,13 +1089,8 @@ begin
       Screen.Cursor := crDefault;
       OKRightDlg.Edit1.Text := '';
       refreshLib;
-      TTask.Run(
-        procedure
-        begin
-          TDirectory.Delete(t, true);
-          ProgressBar1.Hide;
-          ProgressBar2.Hide;
-        end);
+      TDirectory.Delete(t, true);
+      Panel1.Hide;
     end;
     result := true;
   end;

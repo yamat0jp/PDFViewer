@@ -38,6 +38,23 @@ object OKRightDlg: TOKRightDlg
     Height = 22
     OnClick = SpeedButton1Click
   end
+  object Image1: TImage
+    Left = 32
+    Top = 41
+    Width = 161
+    Height = 217
+    Proportional = True
+    Stretch = True
+  end
+  object OleContainer1: TOleContainer
+    Left = 32
+    Top = 41
+    Width = 161
+    Height = 217
+    Caption = 'OleContainer1'
+    SizeMode = smScale
+    TabOrder = 4
+  end
   object OKBtn: TButton
     Left = 444
     Top = 24
@@ -74,15 +91,6 @@ object OKRightDlg: TOKRightDlg
     Checked = True
     State = cbChecked
     TabOrder = 3
-  end
-  object OleContainer1: TOleContainer
-    Left = 32
-    Top = 41
-    Width = 161
-    Height = 217
-    Caption = 'OleContainer1'
-    SizeMode = smScale
-    TabOrder = 4
   end
   object OpenDialog1: TOpenDialog
     Filter = 'PDF, ZIP|*.PDF;*.ZIP'

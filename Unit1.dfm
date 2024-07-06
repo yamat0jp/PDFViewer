@@ -146,7 +146,6 @@ object Form1: TForm1
         OnPaint = PaintBox1Paint
         ExplicitLeft = 286
         ExplicitTop = -1
-        ExplicitWidth = 545
       end
       object ListBox1: TListBox
         Left = 0
@@ -22141,28 +22140,42 @@ object Form1: TForm1
       end
     end
   end
-  object ProgressBar1: TProgressBar
+  object Panel1: TPanel
     Left = 839
     Top = 25
-    Width = 17
+    Width = 34
     Height = 474
     Align = alRight
-    Orientation = pbVertical
+    Caption = 'Panel1'
     TabOrder = 5
     Visible = False
-    ExplicitLeft = 835
-    ExplicitHeight = 473
-  end
-  object ProgressBar2: TProgressBar
-    Left = 856
-    Top = 25
-    Width = 17
-    Height = 474
-    Align = alRight
-    Orientation = pbVertical
-    TabOrder = 6
-    ExplicitLeft = 852
-    ExplicitHeight = 473
+    ExplicitLeft = 352
+    ExplicitTop = 296
+    ExplicitHeight = 41
+    object ProgressBar1: TProgressBar
+      Left = 1
+      Top = 1
+      Width = 17
+      Height = 472
+      Align = alLeft
+      Orientation = pbVertical
+      TabOrder = 0
+      ExplicitLeft = 839
+      ExplicitTop = 25
+      ExplicitHeight = 474
+    end
+    object ProgressBar2: TProgressBar
+      Left = 16
+      Top = 1
+      Width = 17
+      Height = 472
+      Align = alRight
+      Orientation = pbVertical
+      TabOrder = 1
+      ExplicitLeft = 856
+      ExplicitTop = 25
+      ExplicitHeight = 474
+    end
   end
   object PopupMenu1: TPopupMenu
     Left = 208
